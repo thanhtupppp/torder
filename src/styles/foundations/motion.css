@@ -1,11 +1,3 @@
-:root {
-  /* --motion-fast and --motion-base intentionally removed — both now live in
-     tokens.css as --transition-fast / --transition-base (+ backward-compat
-     aliases). Defining them here would override tokens.css values. */
-  --hover-lift: translateY(-1px);
-  --press-inset: translateY(0);
-}
-
 button,
 input,
 textarea,

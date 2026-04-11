@@ -5,9 +5,9 @@
 }
 
 .product-card {
-  border: 1px solid #e2e8f0;
-  background: #f9fbfe;
-  border-radius: 12px;
+  border: 1px solid var(--border-soft); /* #e2e8f0 → token */
+  background: var(--bg-surface-soft); /* #f9fbfe → token */
+  border-radius: var(--radius-xl); /* 12px → token */
   padding: var(--space-2);
   cursor: pointer;
   display: flex;
@@ -15,22 +15,24 @@
   gap: 7px;
   text-align: left;
   transition:
-    transform var(--motion-fast),
-    border-color var(--motion-fast),
-    background var(--motion-fast),
-    box-shadow var(--motion-fast);
+    transform var(--transition-fast),
+    /* --motion-fast → token */ border-color var(--transition-fast),
+    background var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .product-card:hover {
-  border-color: #93c5fd;
-  background: #fff;
+  border-color: var(--accent-soft); /* #93c5fd → token */
+  background: var(--bg-surface); /* #fff → token */
   transform: var(--hover-lift);
+  box-shadow: var(--shadow-sm); /* ← thêm mới */
 }
 
 .product-card:active {
   transform: var(--press-inset);
 }
 
+/* ── Card content ────────────────────────────────── */
 .product-top-row {
   display: flex;
   align-items: center;
@@ -38,24 +40,28 @@
 }
 
 .product-code {
-  font-size: 11px;
+  font-size: var(--text-xs); /* 11px → token */
   color: var(--text-secondary);
   font-weight: 600;
 }
 
 .product-thumb {
   height: 88px;
-  border-radius: 10px;
-  background: linear-gradient(130deg, #e2e8f0, #cbd5e1);
+  border-radius: var(--radius-lg); /* 10px → token */
+  background: linear-gradient(
+    130deg,
+    var(--border-soft),
+    var(--border-base)
+  ); /* hardcode grays → tokens */
 }
 
 .product-name {
-  font-size: 13px;
+  font-size: var(--text-base); /* 13px → token */
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .product-category {
-  font-size: 11px;
+  font-size: var(--text-xs); /* 11px → token */
   color: var(--text-secondary);
 }

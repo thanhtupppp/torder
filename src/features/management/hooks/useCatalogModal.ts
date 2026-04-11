@@ -8,34 +8,38 @@ export type CatalogModal = "create-product" | "edit-category" | null;
  * Manages modal open/close state AND the isolated form fields for
  * "Create Product" and "Edit/Create Category" modals.
  *
- * - `openEditCategory()` — opens modal in **create** mode (no pre-fill)
+ * - `openEditCategory()`     — opens modal in **create** mode (no pre-fill)
  * - `openEditCategory(name)` — opens modal in **edit** mode (pre-fills name)
  */
 export function useCatalogModal() {
   const [activeModal, setActiveModal] = useState<CatalogModal>(null);
 
-  // ── Product form state (does NOT affect table filters) ────────────────────
+  // ── Product form ──────────────────────────────────────────────────────────
   const [formProductType, setFormProductType] = useState<ProductType>("goods");
   const [formCategory, setFormCategory] = useState<string>("");
   const [formUnit, setFormUnit] = useState<UnitOption | "">("");
 
-  // ── Category form state ───────────────────────────────────────────────────
-  /** The name of the category being edited, or undefined when creating new. */
+  // ── Category form ─────────────────────────────────────────────────────────
+  /** Undefined = create mode, defined = edit mode. */
   const [editingCategoryName, setEditingCategoryName] = useState<
     string | undefined
   >(undefined);
 
-  // ── Actions ───────────────────────────────────────────────────────────────
-  function openCreateProduct() {
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  // ✅ Single reset function — thêm field mới chỉ sửa 1 chỗ
+  function resetProductForm() {
     setFormProductType("goods");
     setFormCategory("");
     setFormUnit("");
+  }
+
+  // ── Actions ───────────────────────────────────────────────────────────────
+  function openCreateProduct() {
+    resetProductForm();
     setActiveModal("create-product");
   }
 
-  /**
-   * @param categoryName — pass to enter edit mode, omit for create mode.
-   */
+  /** @param categoryName — pass to enter edit mode, omit for create mode. */
   function openEditCategory(categoryName?: string) {
     setEditingCategoryName(categoryName);
     setActiveModal("edit-category");
@@ -43,10 +47,7 @@ export function useCatalogModal() {
 
   function closeModal() {
     setActiveModal(null);
-    // Reset all form state on close
-    setFormProductType("goods");
-    setFormCategory("");
-    setFormUnit("");
+    resetProductForm();
     setEditingCategoryName(undefined);
   }
 

@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useSearchParams } from "react-router-dom";
 import { AuditView } from "./components/AuditView";
 import { InventoryGenericView } from "./components/InventoryShared";
-import { StockView } from "./components/StockView";
 import { SupplierView } from "./components/SupplierView";
 import type { InventoryTab } from "./dtos/inventory";
 import { useInventoryMocks } from "./hooks/useInventoryMocks";
+import { useEffect } from "react";
+
+// ── Constants ─────────────────────────────────────────────────────────────────
 
 const INVENTORY_TABS: Array<{ key: InventoryTab; label: string }> = [
   { key: "stock", label: "Kho hàng" },
@@ -16,6 +18,9 @@ const INVENTORY_TABS: Array<{ key: InventoryTab; label: string }> = [
   { key: "suppliers", label: "Nhà CC" },
   { key: "transfer", label: "Chuyển kho" },
 ];
+
+// ✅ Derive từ INVENTORY_TABS — không duplicate
+const TAB_SET = new Set(INVENTORY_TABS.map((t) => t.key));
 
 const EMPTY_COLUMNS_BY_TAB: Record<InventoryTab, string[]> = {
   stock: [
@@ -86,23 +91,18 @@ const EMPTY_COLUMNS_BY_TAB: Record<InventoryTab, string[]> = {
   ],
 };
 
-const TAB_SET = new Set<InventoryTab>([
-  "stock",
-  "logs",
-  "audit",
-  "imports",
-  "exports",
-  "suppliers",
-  "transfer",
-]);
+// ── Screen ────────────────────────────────────────────────────────────────────
 
 export function InventoryScreen() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTabParam = searchParams.get("tab");
-  const initialTab: InventoryTab =
-    initialTabParam && TAB_SET.has(initialTabParam as InventoryTab)
-      ? (initialTabParam as InventoryTab)
+
+  const initialTab: InventoryTab = useMemo(() => {
+    const param = searchParams.get("tab");
+    return param && TAB_SET.has(param as InventoryTab)
+      ? (param as InventoryTab)
       : "stock";
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // chỉ tính 1 lần khi mount
 
   const [activeTab, setActiveTab] = useState<InventoryTab>(initialTab);
   const { stockItems, auditItems, suppliers } = useInventoryMocks();
@@ -110,6 +110,24 @@ export function InventoryScreen() {
   const currentColumns = useMemo(
     () => EMPTY_COLUMNS_BY_TAB[activeTab],
     [activeTab],
+  );
+
+  // ✅ Lookup thay cho 7 ternary
+  const TAB_CONTENT = useMemo<Record<InventoryTab, ReactNode>>(
+    () => ({
+      stock: <InventoryGenericView title="Kho hàng" columns={currentColumns} />,
+      audit: <AuditView title="Kiểm kho" columns={currentColumns} />,
+      imports: <AuditView title="Số nhập" columns={currentColumns} showAction />,
+      exports: <AuditView title="Số xuất" columns={currentColumns} showAction />,
+      suppliers: <SupplierView columns={currentColumns} />,
+      logs: (
+        <InventoryGenericView title="Nhật ký kho" columns={currentColumns} />
+      ),
+      transfer: (
+        <InventoryGenericView title="Chuyển kho" columns={currentColumns} />
+      ),
+    }),
+    [currentColumns],
   );
 
   useEffect(() => {
@@ -134,6 +152,7 @@ export function InventoryScreen() {
             key={tab.key}
             type="button"
             className={`inventory-tab ${activeTab === tab.key ? "active" : ""}`}
+            aria-current={activeTab === tab.key ? "page" : undefined}
             onClick={() => setActiveTab(tab.key)}
           >
             {tab.label}
@@ -141,31 +160,7 @@ export function InventoryScreen() {
         ))}
       </header>
 
-      {activeTab === "stock" ? <StockView columns={currentColumns} /> : null}
-
-      {activeTab === "audit" ? (
-        <AuditView title="Kiểm kho" columns={currentColumns} />
-      ) : null}
-
-      {activeTab === "imports" ? (
-        <AuditView title="Số nhập" columns={currentColumns} />
-      ) : null}
-
-      {activeTab === "exports" ? (
-        <AuditView title="Số xuất" columns={currentColumns} />
-      ) : null}
-
-      {activeTab === "suppliers" ? (
-        <SupplierView columns={currentColumns} />
-      ) : null}
-
-      {activeTab === "logs" ? (
-        <InventoryGenericView title="Nhật ký kho" columns={currentColumns} />
-      ) : null}
-
-      {activeTab === "transfer" ? (
-        <InventoryGenericView title="Chuyển kho" columns={currentColumns} />
-      ) : null}
+      {TAB_CONTENT[activeTab]}
 
       <div className="inventory-data-trace" aria-hidden>
         {stockItems.length + auditItems.length + suppliers.length}

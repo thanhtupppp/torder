@@ -1,7 +1,11 @@
 import { RefreshCcw } from "lucide-react";
+import { useState } from "react";
 import { SettingToggle } from "./SettingControls";
 
 export function SyncTab() {
+  const [syncInvoice, setSyncInvoice] = useState(true);
+  const [syncInventory, setSyncInventory] = useState(true);
+
   return (
     <div className="settings-screen__tab settings-screen__tab--fade-in">
       <div className="settings-screen__content-header">
@@ -16,14 +20,14 @@ export function SyncTab() {
         <SettingToggle
           label="Đồng bộ hóa đơn lên Cloud"
           description="Ngay sau khi đơn hàng thanh toán, hệ thống đẩy data lên máy chủ."
-          checked
-          onChange={() => {}}
+          checked={syncInvoice}
+          onChange={setSyncInvoice}
         />
         <SettingToggle
           label="Tự động cập nhật Tồn kho"
           description="Làm mới số lượng hàng hóa từ các lệnh xuất/nhập của chi nhánh khác."
-          checked
-          onChange={() => {}}
+          checked={syncInventory}
+          onChange={setSyncInventory}
         />
         <div className="settings-screen__sync-action-row">
           <button

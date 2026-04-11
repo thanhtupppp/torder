@@ -1,7 +1,12 @@
 import { Printer } from "lucide-react";
+import { useState } from "react";
 import { SettingToggle } from "./SettingControls";
 
 export function PrintersTab() {
+  const [printBill, setPrintBill] = useState(true);
+  const [printLabel, setPrintLabel] = useState(false);
+  const [printKitchen, setPrintKitchen] = useState(true);
+
   return (
     <div className="settings-screen__tab settings-screen__tab--fade-in">
       <div className="settings-screen__content-header settings-screen__header-row">
@@ -47,20 +52,20 @@ export function PrintersTab() {
         <SettingToggle
           label="Bật in hóa đơn thanh toán"
           description="Tự động đẩy lệnh in bill khi thanh toán xong"
-          checked
-          onChange={() => {}}
+          checked={printBill}
+          onChange={setPrintBill}
         />
         <SettingToggle
           label="Bật in tem món"
           description="Cắt tách bill in theo số lượng món vào máy in tem nhãn."
-          checked={false}
-          onChange={() => {}}
+          checked={printLabel}
+          onChange={setPrintLabel}
         />
         <SettingToggle
           label="Bật in bếp"
           description="Đẩy lệnh in xuống máy in khu vực bếp."
-          checked
-          onChange={() => {}}
+          checked={printKitchen}
+          onChange={setPrintKitchen}
         />
       </div>
     </div>

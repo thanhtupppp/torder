@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { CustomerDisplayModal } from "./components/settings/CustomerDisplayModal";
 import { DevicesTab } from "./components/settings/DevicesTab";
 import { LoyaltyTab } from "./components/settings/LoyaltyTab";
@@ -12,41 +12,59 @@ import { TemplatesTab } from "./components/settings/TemplatesTab";
 import { SETTINGS_MENU } from "./settings/constants";
 import {
   INITIAL_ACTIVE_TAB,
-  INITIAL_CUSTOMER_DISPLAY_TEXT,
-  INITIAL_CUSTOMER_DISPLAY_WEBSITE,
+  INITIAL_CUSTOMER_DISPLAY,
   INITIAL_PAYMENT_SETTINGS,
   INITIAL_SALES_SETTINGS,
-  INITIAL_SHOW_ORDER_INFO,
   INITIAL_STORE_INFO,
 } from "./settings/initialState";
 import type {
+  CustomerDisplayConfig,
   PaymentSettings,
   SalesSettings,
   SettingTab,
   StoreInfo,
 } from "./settings/types";
 
-export default function SettingsScreen() {
-  const [activeTab, setActiveTab] = useState<SettingTab>(INITIAL_ACTIVE_TAB);
-  const [isCustomerDisplayConfigOpen, setIsCustomerDisplayConfigOpen] =
-    useState(false);
+// ── CustomerDisplay state hook ───────────────────────────────────────────────
 
-  const [customerDisplayText, setCustomerDisplayText] = useState(
-    INITIAL_CUSTOMER_DISPLAY_TEXT,
+function useCustomerDisplay() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [config, setConfig] = useState<CustomerDisplayConfig>(
+    INITIAL_CUSTOMER_DISPLAY,
   );
-  const [customerDisplayWebsite, setCustomerDisplayWebsite] = useState(
-    INITIAL_CUSTOMER_DISPLAY_WEBSITE,
+
+  const updateConfig = useCallback(
+    <K extends keyof CustomerDisplayConfig>(
+      key: K,
+      value: CustomerDisplayConfig[K],
+    ) => {
+      setConfig((prev) => ({ ...prev, [key]: value }));
+    },
+    [],
   );
-  const [showOrderInfo, setShowOrderInfo] = useState(INITIAL_SHOW_ORDER_INFO);
+
+  return {
+    isOpen,
+    open: useCallback(() => setIsOpen(true), []),
+    close: useCallback(() => setIsOpen(false), []),
+    config,
+    updateConfig,
+  };
+}
+
+// ── Screen ───────────────────────────────────────────────────────────────────
+
+export function SettingsScreen() {
+  const [activeTab, setActiveTab] = useState<SettingTab>(INITIAL_ACTIVE_TAB);
+
+  const customerDisplay = useCustomerDisplay();
 
   const [salesSettings, setSalesSettings] = useState<SalesSettings>(
     INITIAL_SALES_SETTINGS,
   );
-
   const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>(
     INITIAL_PAYMENT_SETTINGS,
   );
-
   const [storeInfo, setStoreInfo] = useState<StoreInfo>(INITIAL_STORE_INFO);
 
   const updateSalesSetting = useCallback(
@@ -70,9 +88,49 @@ export default function SettingsScreen() {
     [],
   );
 
+  const TAB_CONTENT = useMemo<Partial<Record<SettingTab, ReactNode>>>(
+    () => ({
+      storeInfo: (
+        <StoreInfoTab
+          storeInfo={storeInfo}
+          onStoreInfoChange={updateStoreInfo}
+        />
+      ),
+      sales: (
+        <SalesTab
+          salesSettings={salesSettings}
+          onSalesToggle={updateSalesSetting}
+        />
+      ),
+      payments: (
+        <PaymentsTab
+          paymentSettings={paymentSettings}
+          onPaymentToggle={updatePaymentSetting}
+        />
+      ),
+      printers: <PrintersTab />,
+      templates: <TemplatesTab />,
+      devices: (
+        <DevicesTab onOpenCustomerDisplayConfig={customerDisplay.open} />
+      ),
+      loyalty: <LoyaltyTab />,
+      sync: <SyncTab />,
+      notifications: <NotificationsTab />,
+    }),
+    [
+      storeInfo,
+      updateStoreInfo,
+      salesSettings,
+      updateSalesSetting,
+      paymentSettings,
+      updatePaymentSetting,
+      customerDisplay.open,
+    ],
+  );
+
   return (
     <div className="settings-screen">
-      <nav className="settings-screen__sidebar">
+      <nav className="settings-screen__sidebar" aria-label="Điều hướng cài đặt">
         <h2 className="settings-screen__sidebar-title">Cài đặt</h2>
         <div className="settings-screen__menu">
           {SETTINGS_MENU.map((menu) => {
@@ -86,9 +144,10 @@ export default function SettingsScreen() {
                 className={`settings-screen__menu-item ${
                   isActive ? "settings-screen__menu-item--active" : ""
                 }`}
+                aria-current={isActive ? "page" : undefined}
                 onClick={() => setActiveTab(menu.key)}
               >
-                <Icon size={18} />
+                <Icon size={18} aria-hidden="true" />
                 {menu.label}
               </button>
             );
@@ -97,55 +156,14 @@ export default function SettingsScreen() {
       </nav>
 
       <main className="settings-screen__content">
-        {activeTab === "storeInfo" ? (
-          <StoreInfoTab
-            storeInfo={storeInfo}
-            onStoreInfoChange={updateStoreInfo}
-          />
-        ) : null}
-
-        {activeTab === "sales" ? (
-          <SalesTab
-            salesSettings={salesSettings}
-            onSalesToggle={updateSalesSetting}
-          />
-        ) : null}
-
-        {activeTab === "payments" ? (
-          <PaymentsTab
-            paymentSettings={paymentSettings}
-            onPaymentToggle={updatePaymentSetting}
-          />
-        ) : null}
-
-        {activeTab === "printers" ? <PrintersTab /> : null}
-
-        {activeTab === "templates" ? <TemplatesTab /> : null}
-
-        {activeTab === "devices" ? (
-          <DevicesTab
-            onOpenCustomerDisplayConfig={() =>
-              setIsCustomerDisplayConfigOpen(true)
-            }
-          />
-        ) : null}
-
-        {activeTab === "loyalty" ? <LoyaltyTab /> : null}
-
-        {activeTab === "sync" ? <SyncTab /> : null}
-
-        {activeTab === "notifications" ? <NotificationsTab /> : null}
+        {TAB_CONTENT[activeTab] ?? null}
       </main>
 
       <CustomerDisplayModal
-        isOpen={isCustomerDisplayConfigOpen}
-        customerDisplayText={customerDisplayText}
-        setCustomerDisplayText={setCustomerDisplayText}
-        customerDisplayWebsite={customerDisplayWebsite}
-        setCustomerDisplayWebsite={setCustomerDisplayWebsite}
-        showOrderInfo={showOrderInfo}
-        setShowOrderInfo={setShowOrderInfo}
-        onClose={() => setIsCustomerDisplayConfigOpen(false)}
+        isOpen={customerDisplay.isOpen}
+        config={customerDisplay.config}
+        onConfigChange={customerDisplay.updateConfig}
+        onClose={customerDisplay.close}
       />
     </div>
   );

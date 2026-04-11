@@ -18,12 +18,14 @@ export function CategoriesTab({
 }: CategoriesTabProps) {
   return (
     <section className="catalog-categories card">
-      {/* ── 3-state render ────────────────────────────────────────────────── */}
       {isLoading ? (
         <div className="catalog-categories-list">
           {Array.from({ length: 4 }).map((_, i) => (
             // eslint-disable-next-line react/no-array-index-key
-            <div key={i} className="catalog-category-item panel-primitive skeleton" />
+            <div
+              key={i}
+              className="catalog-category-item panel-primitive skeleton"
+            />
           ))}
         </div>
       ) : categories.length === 0 ? (
@@ -34,8 +36,9 @@ export function CategoriesTab({
       ) : (
         <div className="catalog-categories-list">
           {categories.map((row) => (
+            // ✅ id thay vì name — stable, unique
             <article
-              key={row.name}
+              key={row.id}
               className="catalog-category-item panel-primitive"
             >
               <div className="catalog-category-left">

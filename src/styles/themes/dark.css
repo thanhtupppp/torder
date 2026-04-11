@@ -3,11 +3,15 @@
 :root[data-theme="dark"] {
   /* ── Backgrounds / Surfaces ─────────────────────────────────────────── */
   --bg-app: #0b1220;
+  --bg-body: #0b1220; /* ← thêm: alias của bg-app */
   --bg-surface: #111827;
   --bg-surface-soft: #0f172a;
   --bg-surface-2: #1e293b;
+  --bg-surface-offset: #162032; /* ← thêm: dùng trong catalog */
+  --bg-surface-dynamic: #1a2744; /* ← thêm: dùng trong catalog */
   --bg-overlay: rgba(2, 6, 23, 0.65);
   --bg-tooltip: #334155;
+  --bg-card: #111827; /* ← thêm: alias */
 
   /* ── Sidebar ────────────────────────────────────────────────────────── */
   --bg-sidebar-from: #0a1020;
@@ -26,48 +30,64 @@
   --text-tooltip: #f1f5f9;
 
   /* ── Borders ────────────────────────────────────────────────────────── */
+  --border: #1e293b; /* ← thêm: alias của border-soft */
   --border-soft: #1e293b;
   --border-base: #334155;
   --border-strong: #475569;
   --border-focus: #3b82f6;
+  --border-input: #334155;
+  --border-input-focus: #3b82f6;
 
   /* ── Accent (Blue) ──────────────────────────────────────────────────── */
   --accent: #3b82f6;
   --accent-hover: #60a5fa;
   --accent-active: #93c5fd;
   --accent-soft: #1e3654;
+  --accent-muted: #1e3a5f; /* ← thêm: dùng trong sales/catalog */
+  --accent-soft-border: #2d4f7c; /* ← thêm: dùng trong sales */
   --accent-text: #ffffff;
 
-  /* ── Semantic colors ────────────────────────────────────────────────── */
+  /* ── Focus ring ─────────────────────────────────────────────────────── */
+  --focus-ring: 0 0 0 2px rgba(59, 130, 246, 0.28);
+
+  /* ── Success ────────────────────────────────────────────────────────── */
   --success: #22c55e;
+  --success-hover: #16a34a; /* ← thêm */
   --success-soft: #14301f;
+  --success-muted: #166534; /* ← thêm */
+  --success-dark: #4ade80; /* ← thêm: text on dark */
   --success-text: #ffffff;
 
-  --warning: #f59e0b;
-  --warning-soft: #2d1f06;
-  --warning-text: #ffffff;
-
+  /* ── Danger ─────────────────────────────────────────────────────────── */
   --danger: #f87171;
   --danger-hover: #fca5a5;
   --danger-soft: #2d0f0f;
+  --danger-muted: #7f1d1d; /* ← thêm */
   --danger-text: #ffffff;
 
+  /* ── Warning ────────────────────────────────────────────────────────── */
+  --warning: #f59e0b;
+  --warning-hover: #fbbf24; /* ← thêm */
+  --warning-soft: #2d1f06;
+  --warning-muted: #78350f; /* ← thêm */
+  --warning-dark: #fcd34d; /* ← thêm: text on dark */
+  --warning-text: #ffffff;
+
+  /* ── Info ───────────────────────────────────────────────────────────── */
   --info: #38bdf8;
   --info-soft: #0c2333;
+  --info-muted: #0369a1; /* ← thêm */
+  --info-bg: #1e3a52; /* ← thêm: table header tint */
+  --info-dark: #bae6fd; /* ← thêm: text on dark */
   --info-text: #ffffff;
 
-  /* ── Shadows — dùng màu tối hơn cho dark mode ───────────────────────── */
+  /* ── Shadows ────────────────────────────────────────────────────────── */
   --shadow-xs: 0 1px 2px rgba(2, 6, 23, 0.3);
   --shadow-sm: 0 1px 4px rgba(2, 6, 23, 0.4), 0 1px 2px rgba(2, 6, 23, 0.25);
   --shadow-md: 0 4px 12px rgba(2, 6, 23, 0.5), 0 2px 4px rgba(2, 6, 23, 0.3);
   --shadow-lg: 0 8px 24px rgba(2, 6, 23, 0.55), 0 2px 8px rgba(2, 6, 23, 0.35);
   --shadow-xl: 0 16px 40px rgba(2, 6, 23, 0.6), 0 4px 12px rgba(2, 6, 23, 0.4);
-
-  /* backward-compat */
-  --shadow-soft: var(--shadow-md);
-
-  /* ── Focus ring ─────────────────────────────────────────────────────── */
-  --focus-ring: 0 0 0 2px rgba(59, 130, 246, 0.28);
+  --shadow-soft: var(--shadow-md); /* backward-compat */
 
   /* ── Table ──────────────────────────────────────────────────────────── */
   --bg-table-header: #1e293b;
@@ -77,6 +97,8 @@
   /* ── Input ──────────────────────────────────────────────────────────── */
   --bg-input: #1e293b;
   --bg-input-disabled: #0f172a;
-  --border-input: #334155;
-  --border-input-focus: #3b82f6;
+
+  /* ── Interaction ────────────────────────────────────────────────────── */
+  --hover-lift: translateY(-1px); /* ← thêm: override nếu cần */
+  --press-inset: translateY(1px) scale(0.98);
 }

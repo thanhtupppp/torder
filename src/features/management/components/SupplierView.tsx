@@ -1,4 +1,4 @@
-import { Plus, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useState } from "react";
 import { InventoryGenericView } from "./InventoryShared";
 
@@ -11,22 +11,17 @@ export function SupplierView({ columns }: SupplierViewProps) {
 
   return (
     <>
+      {/* ✅ onAction unified — không cần floating button riêng */}
       <InventoryGenericView
         title="Nhà cung cấp"
         columns={columns}
-        actionLabel="Tạo mới"
+        actionLabel="Tạo NCC"
+        onAction={() => setShowSupplierModal(true)}
         searchPlaceholder="Tên nhà cung cấp"
       />
 
-      <button
-        type="button"
-        className="btn primary inventory-floating-create"
-        onClick={() => setShowSupplierModal(true)}
-      >
-        <Plus size={14} /> Tạo NCC
-      </button>
-
-      {showSupplierModal ? (
+      {/* ✅ && thay vì ? : null */}
+      {showSupplierModal && (
         <div className="inventory-overlay">
           <section className="inventory-modal card">
             <header className="inventory-modal-header">
@@ -34,6 +29,7 @@ export function SupplierView({ columns }: SupplierViewProps) {
               <button
                 type="button"
                 className="modal-close-btn"
+                aria-label="Đóng"
                 onClick={() => setShowSupplierModal(false)}
               >
                 <X size={14} />
@@ -96,7 +92,7 @@ export function SupplierView({ columns }: SupplierViewProps) {
             </footer>
           </section>
         </div>
-      ) : null}
+      )}
     </>
   );
 }

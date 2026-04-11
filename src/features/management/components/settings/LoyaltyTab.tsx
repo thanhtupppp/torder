@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { SettingToggle } from "./SettingControls";
 
 export function LoyaltyTab() {
+  const [allowPointPayment, setAllowPointPayment] = useState(true);
+
   return (
     <div className="settings-screen__tab settings-screen__tab--fade-in">
       <div className="settings-screen__content-header">
-        <h2>Tích điểm & Khuyến mãi</h2>
+        <h2>Tích điểm &amp; Khuyến mãi</h2>
         <p>Cấu hình chương trình khách hàng thân thiết.</p>
       </div>
 
@@ -38,13 +41,13 @@ export function LoyaltyTab() {
             <span>VNĐ</span>
           </div>
 
-          <div className="settings-screen__divider"></div>
+          <div className="settings-screen__divider" />
 
           <SettingToggle
             label="Cho phép thanh toán bằng điểm"
             description="Hiển thị phương thức Tích Điểm ở cửa sổ thanh toán."
-            checked
-            onChange={() => {}}
+            checked={allowPointPayment}
+            onChange={setAllowPointPayment}
           />
 
           <div className="settings-screen__actions settings-screen__actions--end">

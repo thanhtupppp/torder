@@ -1,5 +1,7 @@
 import { CalendarDays, Check, Copy, Download, Filter } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 type ReportTabKey =
   | "overview"
@@ -14,16 +16,14 @@ type ReportTabKey =
   | "vat"
   | "finance";
 
-type ReportTab = {
-  key: ReportTabKey;
-  label: string;
-};
-
+type ReportTab = { key: ReportTabKey; label: string };
 type EndOfDaySection = {
   title: string;
   headers: string[];
   rows: Array<Array<string | number>>;
 };
+
+// ── Constants ─────────────────────────────────────────────────────────────────
 
 const REPORT_TABS: ReportTab[] = [
   { key: "overview", label: "Tổng quan" },
@@ -139,71 +139,100 @@ const TABLE_HEADERS_BY_TAB: Record<ReportTabKey, string[]> = {
   finance: ["Khoản mục", "Kế hoạch", "Thực tế", "Chênh lệch"],
 };
 
-const ORDER_PROFIT_HEADERS = [
-  "Thời gian",
-  "Tổng tiền",
-  "Giảm giá",
-  "Doanh thu",
-  "Giá trị trả",
-  "Doanh thu thuần",
-  "Tổng giá vốn",
-  "Lãi thuần gộp",
-];
+// Report panel config — mỗi tab có title + headers riêng
+type ReportPanelConfig = {
+  title: string;
+  headers: string[];
+  emptyText?: string;
+};
 
-const TABLE_REPORT_HEADERS = [
-  "Phòng/bàn",
-  "SL khách",
-  "SL đơn bán",
-  "Tổng tiền hàng",
-  "Giảm giá HĐ",
-  "VAT",
-  "Doanh thu",
-];
-
-const PRODUCT_REPORT_HEADERS = [
-  "Mã SP",
-  "Tên sản phẩm",
-  "SL bán",
-  "Doanh thu",
-  "SL trả",
-  "Giá trị trả",
-  "Doanh thu thuần",
-  "Giá vốn",
-  "Lợi nhuận",
-  "Tỷ suất",
-];
-
-const INVENTORY_REPORT_HEADERS = [
-  "Mã SP",
-  "Tên sản phẩm",
-  "SL Tồn đầu kỳ",
-  "Giá trị đầu kỳ",
-  "SL Nhập",
-  "Giá trị Nhập",
-  "SL Xuất",
-  "Giá trị Xuất",
-  "SL Tồn cuối kỳ",
-  "Giá trị Tồn cuối kỳ",
-];
-
-const CUSTOMER_REPORT_HEADERS = [
-  "Mã KH",
-  "Khách hàng",
-  "Tổng tiền",
-  "Giảm giá",
-  "Doanh thu",
-  "Giá trị trả",
-  "Doanh thu thuần",
-  "Tổng giá vốn",
-  "Lợi nhuận gộp",
-];
-
-const VAT_REPORT_HEADERS = [
-  "Thời gian",
-  "Tổng hóa đơn",
-  "Doanh thu chưa có VAT",
-  "Thuế VAT",
-];
+const REPORT_PANEL_CONFIG: Partial<Record<ReportTabKey, ReportPanelConfig>> = {
+  orders: {
+    title: "BÁO CÁO LỢI NHUẬN",
+    headers: [
+      "Thời gian",
+      "Tổng tiền",
+      "Giảm giá",
+      "Doanh thu",
+      "Giá trị trả",
+      "Doanh thu thuần",
+      "Tổng giá vốn",
+      "Lãi thuần gộp",
+    ],
+  },
+  tables: {
+    title: "BÁO CÁO PHÒNG/BÀN",
+    headers: [
+      "Phòng/bàn",
+      "SL khách",
+      "SL đơn bán",
+      "Tổng tiền hàng",
+      "Giảm giá HĐ",
+      "VAT",
+      "Doanh thu",
+    ],
+  },
+  products: {
+    title: "BÁO CÁO LỢI NHUẬN THEO HÀNG HÓA",
+    headers: [
+      "Mã SP",
+      "Tên sản phẩm",
+      "SL bán",
+      "Doanh thu",
+      "SL trả",
+      "Giá trị trả",
+      "Doanh thu thuần",
+      "Giá vốn",
+      "Lợi nhuận",
+      "Tỷ suất",
+    ],
+  },
+  inventory: {
+    title: "BÁO CÁO TỒN KHO THEO HÀNG HÓA",
+    headers: [
+      "Mã SP",
+      "Tên sản phẩm",
+      "SL Tồn đầu kỳ",
+      "Giá trị đầu kỳ",
+      "SL Nhập",
+      "Giá trị Nhập",
+      "SL Xuất",
+      "Giá trị Xuất",
+      "SL Tồn cuối kỳ",
+      "Giá trị Tồn cuối kỳ",
+    ],
+  },
+  customers: {
+    title: "BÁO CÁO LỢI NHUẬN THEO KHÁCH HÀNG",
+    headers: [
+      "Mã KH",
+      "Khách hàng",
+      "Tổng tiền",
+      "Giảm giá",
+      "Doanh thu",
+      "Giá trị trả",
+      "Doanh thu thuần",
+      "Tổng giá vốn",
+      "Lợi nhuận gộp",
+    ],
+  },
+  suppliers: {
+    title: "BÁO CÁO CÔNG NỢ THEO NHÀ CUNG CẤP",
+    headers: [
+      "Mã NCC",
+      "Tên NCC",
+      "SĐT",
+      "Nợ đầu",
+      "Tổng nhập",
+      "Tổng thanh toán",
+      "Nợ cuối",
+    ],
+  },
+  vat: {
+    title: "BÁO CÁO VAT BÁN HÀNG",
+    headers: ["Thời gian", "Tổng hóa đơn", "Doanh thu chưa có VAT", "Thuế VAT"],
+  },
+};
 
 const FINANCE_REPORT_ROWS = [
   "Doanh thu bán hàng: Doanh thu chưa có bao gồm giảm giá (1)",
@@ -217,16 +246,6 @@ const FINANCE_REPORT_ROWS = [
   "Lợi nhuận từ hoạt động kinh doanh (7 = 5 - 6)",
   "Thu nhập khác đầu vào do các thu và thu khác liên quan hàng (8)",
   "Lợi nhuận thuần (9 = 7 + 8)",
-];
-
-const SUPPLIER_REPORT_HEADERS = [
-  "Mã NCC",
-  "Tên NCC",
-  "SĐT",
-  "Nợ đầu",
-  "Tổng nhập",
-  "Tổng thanh toán",
-  "Nợ cuối",
 ];
 
 const END_OF_DAY_SECTIONS: EndOfDaySection[] = [
@@ -276,23 +295,23 @@ const END_OF_DAY_SECTIONS: EndOfDaySection[] = [
   },
 ];
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
 function isNumericValue(value: string | number) {
   return typeof value === "number";
 }
 
 function renderValue(value: string | number) {
-  if (isNumericValue(value)) {
-    return value.toLocaleString("vi-VN");
-  }
-
-  return value;
+  return isNumericValue(value)
+    ? (value as number).toLocaleString("vi-VN")
+    : value;
 }
 
 function formatDateInput(date: Date) {
-  const year = date.getFullYear();
-  const month = `${date.getMonth() + 1}`.padStart(2, "0");
-  const day = `${date.getDate()}`.padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  const y = date.getFullYear();
+  const m = `${date.getMonth() + 1}`.padStart(2, "0");
+  const d = `${date.getDate()}`.padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 function formatDisplayDate(input: string) {
@@ -305,8 +324,7 @@ function formatDisplayDate(input: string) {
 function startOfWeek(date: Date) {
   const next = new Date(date);
   const day = next.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  next.setDate(next.getDate() + diff);
+  next.setDate(next.getDate() + (day === 0 ? -6 : 1 - day));
   next.setHours(0, 0, 0, 0);
   return next;
 }
@@ -330,7 +348,6 @@ function resolveQuickRange(option: (typeof FILTER_QUICK_OPTIONS)[number]) {
   const now = new Date();
   const startToday = new Date(now);
   startToday.setHours(0, 0, 0, 0);
-
   const endToday = new Date(now);
   endToday.setHours(23, 59, 59, 999);
 
@@ -369,30 +386,22 @@ function resolveQuickRange(option: (typeof FILTER_QUICK_OPTIONS)[number]) {
     case "Tháng trước": {
       const month = now.getMonth() - 1;
       const year = month < 0 ? now.getFullYear() - 1 : now.getFullYear();
-      const normalizedMonth = month < 0 ? 11 : month;
-      return {
-        from: startOfMonth(year, normalizedMonth),
-        to: endOfMonth(year, normalizedMonth),
-      };
+      const m = month < 0 ? 11 : month;
+      return { from: startOfMonth(year, m), to: endOfMonth(year, m) };
     }
     case "Quý này": {
-      const quarterStart = Math.floor(now.getMonth() / 3) * 3;
+      const qs = Math.floor(now.getMonth() / 3) * 3;
       return {
-        from: startOfMonth(now.getFullYear(), quarterStart),
-        to: endOfMonth(now.getFullYear(), quarterStart + 2),
+        from: startOfMonth(now.getFullYear(), qs),
+        to: endOfMonth(now.getFullYear(), qs + 2),
       };
     }
     case "Quý trước": {
-      const currentQuarterStart = Math.floor(now.getMonth() / 3) * 3;
-      const prevQuarterStart = currentQuarterStart - 3;
-      const year =
-        prevQuarterStart < 0 ? now.getFullYear() - 1 : now.getFullYear();
-      const month =
-        prevQuarterStart < 0 ? prevQuarterStart + 12 : prevQuarterStart;
-      return {
-        from: startOfMonth(year, month),
-        to: endOfMonth(year, month + 2),
-      };
+      const cqs = Math.floor(now.getMonth() / 3) * 3;
+      const pqs = cqs - 3;
+      const year = pqs < 0 ? now.getFullYear() - 1 : now.getFullYear();
+      const m = pqs < 0 ? pqs + 12 : pqs;
+      return { from: startOfMonth(year, m), to: endOfMonth(year, m + 2) };
     }
     case "Năm nay":
       return {
@@ -409,24 +418,96 @@ function resolveQuickRange(option: (typeof FILTER_QUICK_OPTIONS)[number]) {
   }
 }
 
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function ReportPanelHead({
+  reportDate,
+  title,
+  rangeText,
+}: {
+  reportDate: string;
+  title: string;
+  rangeText?: string;
+}) {
+  return (
+    <div className="reports-screen__endday-head">
+      <span>Ngày lập: {reportDate}</span>
+      <h3>{title}</h3>
+      {rangeText && (
+        <small className="reports-screen__report-range">
+          Từ ngày: {rangeText}
+        </small>
+      )}
+    </div>
+  );
+}
+
+function ReportTable({
+  headers,
+  emptyText = "Không có dữ liệu.",
+}: {
+  headers: string[];
+  emptyText?: string;
+}) {
+  return (
+    <div className="reports-screen__table-wrap">
+      <table className="reports-screen__table reports-screen__orders-table">
+        <thead>
+          <tr>
+            {headers.map((h) => (
+              <th key={h}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colSpan={headers.length} className="reports-screen__empty">
+              {emptyText}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ── Screen ────────────────────────────────────────────────────────────────────
+
 export function ReportsScreen() {
   const [activeTab, setActiveTab] = useState<ReportTabKey>("overview");
   const [timeFilter, setTimeFilter] = useState<string>("Hôm nay");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedQuickFilter, setSelectedQuickFilter] =
     useState<(typeof FILTER_QUICK_OPTIONS)[number]>("Hôm nay");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
   const [isRangeCopied, setIsRangeCopied] = useState(false);
+
+  // ✅ Init trực tiếp, không cần useEffect
+  const todayRange = resolveQuickRange("Hôm nay");
+  const [fromDate, setFromDate] = useState(() =>
+    formatDateInput(todayRange.from),
+  );
+  const [toDate, setToDate] = useState(() => formatDateInput(todayRange.to));
 
   const kpis = useMemo(() => KPI_BY_TAB[activeTab], [activeTab]);
   const headers = useMemo(() => TABLE_HEADERS_BY_TAB[activeTab], [activeTab]);
+
+  // ✅ Dynamic report date — không hardcode
+  const reportDate = useMemo(
+    () =>
+      new Date().toLocaleString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    [],
+  );
 
   const displayTimeChips = useMemo(() => {
     if (TIME_FILTERS.includes(timeFilter as (typeof TIME_FILTERS)[number])) {
       return [...TIME_FILTERS];
     }
-
     return [...TIME_FILTERS, timeFilter] as string[];
   }, [timeFilter]);
 
@@ -434,10 +515,6 @@ export function ReportsScreen() {
     if (!fromDate || !toDate) return "";
     return `${formatDisplayDate(fromDate)} - ${formatDisplayDate(toDate)}`;
   }, [fromDate, toDate]);
-
-  useEffect(() => {
-    applyQuickFilter("Hôm nay");
-  }, []);
 
   function applyQuickFilter(option: (typeof FILTER_QUICK_OPTIONS)[number]) {
     const range = resolveQuickRange(option);
@@ -452,16 +529,12 @@ export function ReportsScreen() {
   }
 
   function applyFilters() {
-    if (fromDate && toDate) {
-      setTimeFilter(selectedQuickFilter);
-    }
-
+    if (fromDate && toDate) setTimeFilter(selectedQuickFilter);
     setIsFilterOpen(false);
   }
 
   async function copyAppliedRange() {
     if (!appliedRangeText) return;
-
     try {
       await navigator.clipboard.writeText(appliedRangeText);
       setIsRangeCopied(true);
@@ -469,6 +542,122 @@ export function ReportsScreen() {
     } catch {
       setIsRangeCopied(false);
     }
+  }
+
+  // ✅ Lookup thay cho 9 ternary lồng nhau
+  function renderTabPanel() {
+    if (activeTab === "endOfDay") {
+      return (
+        <section className="reports-screen__panel card">
+          <ReportPanelHead reportDate={reportDate} title="BÁO CÁO CUỐI NGÀY" />
+          <div className="reports-screen__endday-wrap">
+            {END_OF_DAY_SECTIONS.map((section) => (
+              <table
+                key={section.title}
+                className="reports-screen__endday-table"
+              >
+                <thead>
+                  <tr>
+                    <th
+                      colSpan={section.headers.length}
+                      className="reports-screen__endday-title"
+                    >
+                      {section.title}
+                    </th>
+                  </tr>
+                  <tr>
+                    {section.headers.map((h) => (
+                      <th key={h}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {section.rows.map((row, ri) => (
+                    <tr key={`${section.title}-${ri}`}>
+                      {row.map((cell, ci) => (
+                        <td
+                          key={`${section.title}-${ri}-${ci}`}
+                          className={
+                            isNumericValue(cell)
+                              ? "reports-screen__endday-value-cell"
+                              : undefined
+                          }
+                        >
+                          {renderValue(cell)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+    if (activeTab === "finance") {
+      return (
+        <section className="reports-screen__panel card">
+          <ReportPanelHead reportDate={reportDate} title="BÁO CÁO TÀI CHÍNH" />
+          <div className="reports-screen__table-wrap">
+            <table className="reports-screen__table reports-screen__orders-table">
+              <thead>
+                <tr>
+                  <th colSpan={2}>Báo cáo hoạt động kinh doanh</th>
+                </tr>
+              </thead>
+              <tbody>
+                {FINANCE_REPORT_ROWS.map((row) => (
+                  <tr key={row}>
+                    <td>{row}</td>
+                    <td className="reports-screen__endday-value-cell">0</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      );
+    }
+
+    const panelConfig = REPORT_PANEL_CONFIG[activeTab];
+    if (panelConfig) {
+      return (
+        <section className="reports-screen__panel card">
+          <ReportPanelHead
+            reportDate={reportDate}
+            title={panelConfig.title}
+            rangeText={appliedRangeText}
+          />
+          <ReportTable headers={panelConfig.headers} />
+        </section>
+      );
+    }
+
+    // Fallback: overview, shifts
+    return (
+      <section className="reports-screen__panel card">
+        <div className="reports-screen__table-wrap">
+          <table className="reports-screen__table">
+            <thead>
+              <tr>
+                {headers.map((h) => (
+                  <th key={h}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colSpan={headers.length} className="reports-screen__empty">
+                  Chưa có dữ liệu trong khoảng thời gian đã chọn.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    );
   }
 
   return (
@@ -559,330 +748,7 @@ export function ReportsScreen() {
         ))}
       </div>
 
-      {activeTab === "endOfDay" ? (
-        <section className="reports-screen__panel card">
-          <div className="reports-screen__endday-head">
-            <span>Ngày lập: 09/04/2026 22:42</span>
-            <h3>BÁO CÁO CUỐI NGÀY</h3>
-          </div>
-
-          <div className="reports-screen__endday-wrap">
-            {END_OF_DAY_SECTIONS.map((section) => (
-              <table
-                key={section.title}
-                className="reports-screen__endday-table"
-              >
-                <thead>
-                  <tr>
-                    <th
-                      colSpan={section.headers.length}
-                      className="reports-screen__endday-title"
-                    >
-                      {section.title}
-                    </th>
-                  </tr>
-                  <tr>
-                    {section.headers.map((header) => (
-                      <th key={header}>{header}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {section.rows.map((row, rowIndex) => (
-                    <tr key={`${section.title}-${rowIndex}`}>
-                      {row.map((cell, cellIndex) => (
-                        <td
-                          key={`${section.title}-${rowIndex}-${cellIndex}`}
-                          className={
-                            isNumericValue(cell)
-                              ? "reports-screen__endday-value-cell"
-                              : undefined
-                          }
-                        >
-                          {renderValue(cell)}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ))}
-          </div>
-        </section>
-      ) : activeTab === "orders" ? (
-        <section className="reports-screen__panel card">
-          <div className="reports-screen__endday-head">
-            <span>Ngày lập: 09/04/2026 22:42</span>
-            <h3>BÁO CÁO LỢI NHUẬN</h3>
-            <small className="reports-screen__report-range">
-              Từ ngày: 09/04/2026 - 09/04/2026
-            </small>
-          </div>
-
-          <div className="reports-screen__table-wrap">
-            <table className="reports-screen__table reports-screen__orders-table">
-              <thead>
-                <tr>
-                  {ORDER_PROFIT_HEADERS.map((header) => (
-                    <th key={header}>{header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td
-                    colSpan={ORDER_PROFIT_HEADERS.length}
-                    className="reports-screen__empty"
-                  >
-                    Không có dữ liệu.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : activeTab === "tables" ? (
-        <section className="reports-screen__panel card">
-          <div className="reports-screen__endday-head">
-            <span>Ngày lập: 09/04/2026 22:42</span>
-            <h3>BÁO CÁO PHÒNG/BÀN</h3>
-            <small className="reports-screen__report-range">
-              Từ ngày: 09/04/2026 - 09/04/2026
-            </small>
-          </div>
-
-          <div className="reports-screen__table-wrap">
-            <table className="reports-screen__table reports-screen__orders-table">
-              <thead>
-                <tr>
-                  {TABLE_REPORT_HEADERS.map((header) => (
-                    <th key={header}>{header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td
-                    colSpan={TABLE_REPORT_HEADERS.length}
-                    className="reports-screen__empty"
-                  >
-                    Không có dữ liệu.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : activeTab === "products" ? (
-        <section className="reports-screen__panel card">
-          <div className="reports-screen__endday-head">
-            <span>Ngày lập: 09/04/2026 22:42</span>
-            <h3>BÁO CÁO LỢI NHUẬN THEO HÀNG HÓA</h3>
-            <small className="reports-screen__report-range">
-              Từ ngày: 09/04/2026 - 09/04/2026
-            </small>
-          </div>
-
-          <div className="reports-screen__table-wrap">
-            <table className="reports-screen__table reports-screen__orders-table">
-              <thead>
-                <tr>
-                  {PRODUCT_REPORT_HEADERS.map((header) => (
-                    <th key={header}>{header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td
-                    colSpan={PRODUCT_REPORT_HEADERS.length}
-                    className="reports-screen__empty"
-                  >
-                    Không có dữ liệu.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : activeTab === "inventory" ? (
-        <section className="reports-screen__panel card">
-          <div className="reports-screen__endday-head">
-            <span>Ngày lập: 09/04/2026 22:42</span>
-            <h3>BÁO CÁO TỒN KHO THEO HÀNG HÓA</h3>
-            <small className="reports-screen__report-range">
-              Từ ngày: 01/04/2026 - 09/04/2026
-            </small>
-          </div>
-
-          <div className="reports-screen__table-wrap">
-            <table className="reports-screen__table reports-screen__orders-table">
-              <thead>
-                <tr>
-                  {INVENTORY_REPORT_HEADERS.map((header) => (
-                    <th key={header}>{header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td
-                    colSpan={INVENTORY_REPORT_HEADERS.length}
-                    className="reports-screen__empty"
-                  >
-                    Không có dữ liệu.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : activeTab === "customers" ? (
-        <section className="reports-screen__panel card">
-          <div className="reports-screen__endday-head">
-            <span>Ngày lập: 09/04/2026 22:42</span>
-            <h3>BÁO CÁO LỢI NHUẬN THEO KHÁCH HÀNG</h3>
-            <small className="reports-screen__report-range">
-              Từ ngày: 09/04/2026 - 09/04/2026
-            </small>
-          </div>
-
-          <div className="reports-screen__table-wrap">
-            <table className="reports-screen__table reports-screen__orders-table">
-              <thead>
-                <tr>
-                  {CUSTOMER_REPORT_HEADERS.map((header) => (
-                    <th key={header}>{header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td
-                    colSpan={CUSTOMER_REPORT_HEADERS.length}
-                    className="reports-screen__empty"
-                  >
-                    Không có dữ liệu.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : activeTab === "suppliers" ? (
-        <section className="reports-screen__panel card">
-          <div className="reports-screen__endday-head">
-            <span>Ngày lập: 09/04/2026 22:42</span>
-            <h3>BÁO CÁO CÔNG NỢ THEO NHÀ CUNG CẤP</h3>
-            <small className="reports-screen__report-range">
-              Từ ngày: 01/04/2026 - 09/04/2026
-            </small>
-          </div>
-
-          <div className="reports-screen__table-wrap">
-            <table className="reports-screen__table reports-screen__orders-table">
-              <thead>
-                <tr>
-                  {SUPPLIER_REPORT_HEADERS.map((header) => (
-                    <th key={header}>{header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td
-                    colSpan={SUPPLIER_REPORT_HEADERS.length}
-                    className="reports-screen__empty"
-                  >
-                    Không có dữ liệu.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : activeTab === "vat" ? (
-        <section className="reports-screen__panel card">
-          <div className="reports-screen__endday-head">
-            <span>Ngày lập: 09/04/2026 22:42</span>
-            <h3>BÁO CÁO VAT BÁN HÀNG</h3>
-            <small className="reports-screen__report-range">
-              Từ ngày: 09/04/2026 - 09/04/2026
-            </small>
-          </div>
-
-          <div className="reports-screen__table-wrap">
-            <table className="reports-screen__table reports-screen__orders-table">
-              <thead>
-                <tr>
-                  {VAT_REPORT_HEADERS.map((header) => (
-                    <th key={header}>{header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td
-                    colSpan={VAT_REPORT_HEADERS.length}
-                    className="reports-screen__empty"
-                  >
-                    Không có dữ liệu.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : activeTab === "finance" ? (
-        <section className="reports-screen__panel card">
-          <div className="reports-screen__endday-head">
-            <span>Ngày lập: 09/04/2026 22:42</span>
-            <h3>BÁO CÁO TÀI CHÍNH</h3>
-          </div>
-
-          <div className="reports-screen__table-wrap">
-            <table className="reports-screen__table reports-screen__orders-table">
-              <thead>
-                <tr>
-                  <th colSpan={2}>Báo cáo hoạt động kinh doanh</th>
-                </tr>
-              </thead>
-              <tbody>
-                {FINANCE_REPORT_ROWS.map((row) => (
-                  <tr key={row}>
-                    <td>{row}</td>
-                    <td className="reports-screen__endday-value-cell">0</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : (
-        <section className="reports-screen__panel card">
-          <div className="reports-screen__table-wrap">
-            <table className="reports-screen__table">
-              <thead>
-                <tr>
-                  {headers.map((header) => (
-                    <th key={header}>{header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td
-                    colSpan={headers.length}
-                    className="reports-screen__empty"
-                  >
-                    Chưa có dữ liệu trong khoảng thời gian đã chọn.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
+      {renderTabPanel()}
 
       {isFilterOpen ? (
         <div className="reports-filter-overlay" role="presentation">
@@ -924,7 +790,7 @@ export function ReportsScreen() {
                     type="date"
                     className="input"
                     value={fromDate}
-                    onChange={(event) => setFromDate(event.target.value)}
+                    onChange={(e) => setFromDate(e.target.value)}
                   />
                 </label>
                 <label className="reports-filter-drawer__date-field">
@@ -933,7 +799,7 @@ export function ReportsScreen() {
                     type="date"
                     className="input"
                     value={toDate}
-                    onChange={(event) => setToDate(event.target.value)}
+                    onChange={(e) => setToDate(e.target.value)}
                   />
                 </label>
               </div>

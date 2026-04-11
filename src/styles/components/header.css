@@ -1,72 +1,80 @@
+/* ── App header ──────────────────────────────────── */
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  border-radius: 14px;
+  border-radius: var(--radius-xl); /* 14px → token */
   background: var(--bg-surface);
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-sm); /* --shadow-soft → token */
   transition:
-    background var(--motion-fast),
-    box-shadow var(--motion-fast);
+    background var(--transition-fast),
+    /* --motion-fast → token */ box-shadow var(--transition-fast);
 }
 
+/* ── Header left ─────────────────────────────────── */
 .app-header-left h1 {
   margin: 0;
-  font-size: 17px;
+  font-size: var(--text-lg); /* 17px → token */
   font-weight: 700;
 }
 
 .app-header-left p {
   margin: var(--space-1) 0 0;
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: var(--text-xs); /* 12px → token */
   font-weight: 500;
 }
 
+/* ── Header right ────────────────────────────────── */
 .app-header-right {
   display: flex;
   align-items: center;
   gap: var(--space-2);
 }
 
+/* ── Icon button ─────────────────────────────────── */
 .header-icon-btn {
   position: relative;
   width: 34px;
   height: 34px;
-  border-radius: 10px;
+  border-radius: var(--radius-lg); /* 10px → token */
   border: 1px solid var(--border-soft);
   background: var(--bg-surface-soft);
   cursor: pointer;
   display: grid;
   place-items: center;
-  color: #334155;
+  color: var(--text-secondary); /* #334155 → token */
   transition:
-    transform var(--motion-fast),
-    background var(--motion-fast),
-    box-shadow var(--motion-fast),
-    border-color var(--motion-fast);
+    transform var(--transition-fast),
+    /* --motion-fast → token */ background var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .header-icon-btn:hover {
   transform: var(--hover-lift);
+  background: var(--bg-surface-2); /* ← thêm mới */
+  border-color: var(--border-base); /* ← thêm mới */
 }
 
 .header-icon-btn:active {
   transform: var(--press-inset);
 }
 
+/* Notification dot */
 .header-icon-btn .dot {
   position: absolute;
   width: var(--space-2);
   height: var(--space-2);
-  border-radius: 999px;
-  background: #ef4444;
+  border-radius: var(--radius-full); /* 999px → token */
+  background: var(--danger); /* #ef4444 → token */
   right: 5px;
   top: 5px;
 }
 
+/* ── Profile button ──────────────────────────────── */
 .profile-menu-wrap {
   position: relative;
 }
@@ -77,30 +85,33 @@
   gap: var(--space-2);
   border: 1px solid var(--border-soft);
   background: var(--bg-surface);
-  border-radius: 12px;
+  border-radius: var(--radius-xl); /* 12px → token */
   padding: 5px var(--space-2);
   cursor: pointer;
   transition:
-    transform var(--motion-fast),
-    box-shadow var(--motion-fast),
-    border-color var(--motion-fast);
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .profile-btn:hover {
   transform: var(--hover-lift);
+  border-color: var(--border-base); /* ← thêm mới */
 }
 
 .profile-btn:active {
   transform: var(--press-inset);
 }
 
+/* ── Avatar ──────────────────────────────────────── */
 .avatar-image {
   width: 32px;
   height: 32px;
-  border-radius: 10px;
+  border-radius: var(--radius-lg); /* 10px → token */
   object-fit: cover;
 }
 
+/* ── Profile text ────────────────────────────────── */
 .profile-text {
   display: flex;
   flex-direction: column;
@@ -109,14 +120,15 @@
 }
 
 .profile-text strong {
-  font-size: 12px;
+  font-size: var(--text-xs); /* 12px → token */
 }
 
 .profile-text small {
-  font-size: 11px;
+  font-size: var(--text-xs); /* 11px → token (floor = 12px) */
   color: var(--text-secondary);
 }
 
+/* ── Profile dropdown ────────────────────────────── */
 .profile-dropdown {
   position: absolute;
   right: 0;
@@ -124,12 +136,12 @@
   width: 190px;
   background: var(--bg-surface);
   border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  border-radius: var(--radius-xl); /* 12px → token */
+  box-shadow: var(--shadow-lg); /* hardcode rgba → token */
   padding: var(--space-1);
   display: grid;
   gap: var(--space-1);
-  z-index: 10;
+  z-index: var(--z-dropdown); /* 10 → token */
 }
 
 .profile-dropdown button {
@@ -137,15 +149,17 @@
   background: transparent;
   text-align: left;
   padding: var(--space-2);
-  border-radius: 8px;
+  border-radius: var(--radius-md); /* 8px → token */
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--text-base); /* 13px → token */
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  transition: background var(--motion-fast);
+  color: var(--text-primary); /* ← thêm: đảm bảo đúng theme */
+  transition: background var(--transition-fast);
 }
 
 .profile-dropdown button:hover {
-  background: #f1f5f9;
+  background: var(--bg-surface-2); /* #f1f5f9 → token */
+  color: var(--text-primary); /* ← thêm: tránh mất màu dark mode */
 }

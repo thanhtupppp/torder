@@ -1,6 +1,23 @@
 import { FileText } from "lucide-react";
+import { useState } from "react";
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+const TEMPLATE_TYPES = [
+  "Mẫu hóa đơn K80",
+  "Mẫu hóa đơn K58",
+  "Mẫu tem dán trà sữa (50x30)",
+] as const;
+
+type TemplateType = (typeof TEMPLATE_TYPES)[number];
+
+// ── Component ─────────────────────────────────────────────────────────────────
 
 export function TemplatesTab() {
+  const [activeTemplate, setActiveTemplate] = useState<TemplateType>(
+    TEMPLATE_TYPES[0],
+  );
+
   return (
     <div className="settings-screen__tab settings-screen__tab--fade-in">
       <div className="settings-screen__content-header">
@@ -14,26 +31,23 @@ export function TemplatesTab() {
         <div className="settings-screen__template-sidebar">
           <h3 className="settings-screen__template-title">Loại mẫu in</h3>
           <div className="settings-screen__template-buttons">
-            <button
-              className="btn ghost settings-screen__template-btn settings-screen__template-btn--active"
-              type="button"
-            >
-              Mẫu hóa đơn K80
-            </button>
-            <button
-              className="btn ghost settings-screen__template-btn"
-              type="button"
-            >
-              Mẫu hóa đơn K58
-            </button>
-            <button
-              className="btn ghost settings-screen__template-btn"
-              type="button"
-            >
-              Mẫu tem dán trà sữa (50x30)
-            </button>
+            {TEMPLATE_TYPES.map((template) => (
+              <button
+                key={template}
+                type="button"
+                className={`btn ghost settings-screen__template-btn ${
+                  activeTemplate === template
+                    ? "settings-screen__template-btn--active"
+                    : ""
+                }`}
+                onClick={() => setActiveTemplate(template)}
+              >
+                {template}
+              </button>
+            ))}
           </div>
         </div>
+
         <div className="settings-screen__template-preview">
           <FileText size={48} className="settings-screen__icon--faint" />
           <p className="settings-screen__help-text">

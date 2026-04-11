@@ -1,6 +1,18 @@
 import type { PaymentSettings } from "../../settings/types";
 import { SettingToggle } from "./SettingControls";
 
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+const PAYMENT_METHODS: Array<{ key: keyof PaymentSettings; label: string }> = [
+  { key: "cash", label: "Tiền mặt" },
+  { key: "transfer", label: "Chuyển khoản (VietQR)" },
+  { key: "card", label: "Quẹt thẻ" },
+  { key: "wallet", label: "Ví điện tử" },
+  { key: "point", label: "Thanh toán bằng Điểm" },
+];
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
 type PaymentsTabProps = {
   paymentSettings: PaymentSettings;
   onPaymentToggle: (key: keyof PaymentSettings, value: boolean) => void;
@@ -24,31 +36,15 @@ export function PaymentsTab({
         <div className="settings-screen__panel-header">
           <h3>Danh sách cho phép</h3>
         </div>
-        <SettingToggle
-          label="Tiền mặt"
-          checked={paymentSettings.cash}
-          onChange={(e) => onPaymentToggle("cash", e.target.checked)}
-        />
-        <SettingToggle
-          label="Chuyển khoản (VietQR)"
-          checked={paymentSettings.transfer}
-          onChange={(e) => onPaymentToggle("transfer", e.target.checked)}
-        />
-        <SettingToggle
-          label="Quẹt thẻ"
-          checked={paymentSettings.card}
-          onChange={(e) => onPaymentToggle("card", e.target.checked)}
-        />
-        <SettingToggle
-          label="Ví điện tử"
-          checked={paymentSettings.wallet}
-          onChange={(e) => onPaymentToggle("wallet", e.target.checked)}
-        />
-        <SettingToggle
-          label="Thanh toán bằng Điểm"
-          checked={paymentSettings.point}
-          onChange={(e) => onPaymentToggle("point", e.target.checked)}
-        />
+        {/* ✅ Data-driven — thêm method chỉ cần 1 object trong PAYMENT_METHODS */}
+        {PAYMENT_METHODS.map(({ key, label }) => (
+          <SettingToggle
+            key={key}
+            label={label}
+            checked={paymentSettings[key]}
+            onChange={(v) => onPaymentToggle(key, v)}
+          />
+        ))}
       </div>
     </div>
   );

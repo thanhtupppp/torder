@@ -47,6 +47,18 @@
   background: var(--border-base); /* ← thêm mới */
 }
 
+.btn.outline {
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-input);
+}
+
+.btn.outline:hover {
+  background: var(--bg-surface-soft);
+  border-color: var(--border-base);
+  color: var(--text-primary);
+}
+
 .btn.ghost {
   background: var(--bg-surface-2); /* #e2e8f0 → token */
   color: var(--text-primary); /* #0f172a → token */

@@ -50,6 +50,7 @@ type InventoryGenericViewProps = {
   columns: string[];
   searchPlaceholder?: string;
   actionLabel?: string;
+  onAction?: () => void;
   filterSections?: Array<{ title: string; options: string[] }>;
 };
 
@@ -59,6 +60,7 @@ export function InventoryGenericView({
   columns,
   searchPlaceholder = "Tìm theo mã hoặc tên",
   actionLabel,
+  onAction,
   filterSections = [],
 }: InventoryGenericViewProps) {
   return (
@@ -108,7 +110,7 @@ export function InventoryGenericView({
                 <SlidersHorizontal size={14} /> Bộ lọc
               </button>
               {actionLabel ? (
-                <button type="button" className="btn primary">
+                <button type="button" className="btn primary" onClick={onAction}>
                   <Plus size={14} /> {actionLabel}
                 </button>
               ) : null}

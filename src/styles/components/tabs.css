@@ -3,16 +3,16 @@
   background: var(--bg-surface-soft);
   color: var(--text-primary);
   padding: 6px 11px;
-  border-radius: 9px;
-  font-size: 12px;
+  border-radius: var(--radius-lg); /* 9px → token */
+  font-size: var(--text-sm); /* 12px → token */
   font-weight: 600;
   cursor: pointer;
   transition:
-    transform var(--motion-fast),
-    background var(--motion-fast),
-    border-color var(--motion-fast),
-    color var(--motion-fast),
-    box-shadow var(--motion-fast);
+    transform var(--transition-fast),
+    /* --motion-fast → token */ background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .tab-button:hover {
@@ -25,6 +25,6 @@
 
 .tab-button.active {
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-text); /* #fff → token */
   border-color: var(--accent);
 }

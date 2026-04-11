@@ -284,7 +284,7 @@ export function EmployeesScreen() {
               <div className="emp-search-wrap">
                 <Search size={14} className="emp-search-icon" />
                 <input
-                  className="emp-search-input"
+                  className="input emp-search-input"
                   placeholder="Tìm kiếm"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -292,13 +292,13 @@ export function EmployeesScreen() {
               </div>
               <button
                 type="button"
-                className="emp-btn emp-btn-primary"
+                className="btn primary"
                 onClick={() => setShowAddModal(true)}
               >
                 <Plus size={14} />
                 <span>Thêm</span>
               </button>
-              <button type="button" className="emp-btn emp-btn-icon">
+              <button type="button" className="btn ghost icon-only">
                 <MoreHorizontal size={16} />
               </button>
             </div>
@@ -376,7 +376,7 @@ export function EmployeesScreen() {
             <div className="emp-header-actions">
               <button
                 type="button"
-                className="emp-btn emp-btn-primary"
+                className="btn primary"
                 onClick={() => handleOpenRoleModal()}
               >
                 <Plus size={14} />
@@ -445,7 +445,7 @@ export function EmployeesScreen() {
                   <label className="emp-form-label">Tên nhân viên *</label>
                   <input
                     type="text"
-                    className="emp-form-input"
+                    className="input"
                     placeholder="Nhập tên nhân viên"
                     value={addForm.name}
                     onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
@@ -455,7 +455,7 @@ export function EmployeesScreen() {
                   <label className="emp-form-label">Số điện thoại *</label>
                   <input
                     type="tel"
-                    className="emp-form-input"
+                    className="input"
                     placeholder="Nhập số điện thoại"
                     value={addForm.phone}
                     onChange={(e) => setAddForm((f) => ({ ...f, phone: e.target.value }))}
@@ -465,7 +465,7 @@ export function EmployeesScreen() {
                   <label className="emp-form-label">Vai trò</label>
                   <div className="emp-form-select-wrap">
                     <select
-                      className="emp-form-select"
+                      className="input emp-form-select"
                       value={addForm.role}
                       onChange={(e) => setAddForm((f) => ({ ...f, role: e.target.value }))}
                     >
@@ -482,7 +482,7 @@ export function EmployeesScreen() {
                   <label className="emp-form-label">Chi nhánh</label>
                   <input
                     type="text"
-                    className="emp-form-input"
+                    className="input"
                     value={addForm.branch}
                     disabled
                   />
@@ -492,14 +492,14 @@ export function EmployeesScreen() {
             <div className="emp-modal-footer">
               <button
                 type="button"
-                className="emp-btn emp-btn-secondary"
+                className="btn outline"
                 onClick={() => setShowAddModal(false)}
               >
                 Huỷ
               </button>
               <button
                 type="button"
-                className="emp-btn emp-btn-primary"
+                className="btn primary"
                 onClick={() => {
                   if (!addForm.name.trim() || !addForm.phone.trim()) {
                     alert("Vui lòng nhập tên và số điện thoại");
@@ -548,7 +548,7 @@ export function EmployeesScreen() {
                   <label className="emp-form-label">Tên vai trò *</label>
                   <input
                     type="text"
-                    className="emp-form-input"
+                    className="input"
                     value={roleName}
                     onChange={(e) => setRoleName(e.target.value)}
                     style={{ maxWidth: 600 }}
@@ -557,7 +557,7 @@ export function EmployeesScreen() {
                 <div className="emp-form-field">
                   <label className="emp-form-label">Mô tả</label>
                   <textarea
-                    className="emp-form-input"
+                    className="input"
                     rows={2}
                     value={roleDesc}
                     onChange={(e) => setRoleDesc(e.target.value)}
@@ -611,14 +611,14 @@ export function EmployeesScreen() {
             <div className="emp-modal-footer">
               <button
                 type="button"
-                className="emp-btn emp-btn-secondary"
+                className="btn outline"
                 onClick={() => setShowRoleModal(false)}
               >
                 Huỷ
               </button>
               <button
                 type="button"
-                className="emp-btn emp-btn-primary"
+                className="btn primary"
                 onClick={handleSubmitRole}
               >
                 {editRole ? "Lưu thay đổi" : "Thêm vai trò"}

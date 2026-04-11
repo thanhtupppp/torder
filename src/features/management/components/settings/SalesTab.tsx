@@ -18,21 +18,19 @@ export function SalesTab({ salesSettings, onSalesToggle }: SalesTabProps) {
 
       <div className="settings-screen__panel">
         <div className="settings-screen__panel-header">
-          <h3>Quy trình bán hàng & Tạo đơn</h3>
+          <h3>Quy trình bán hàng &amp; Tạo đơn</h3>
         </div>
         <SettingToggle
           label="Bắt buộc Mở ca / Kết ca"
           description="Yêu cầu nhân viên thu ngân thực hiện mở ca để bắt đầu làm việc và kết ca khi kết thúc."
           checked={salesSettings.staffRequired}
-          onChange={(e) => onSalesToggle("staffRequired", e.target.checked)}
+          onChange={(v) => onSalesToggle("staffRequired", v)}
         />
         <SettingToggle
           label="Bán lúc hết tồn kho"
           description="Cho phép giao dịch khi hệ thống báo số lượng tồn kho = 0."
           checked={salesSettings.allowNegativeStock}
-          onChange={(e) =>
-            onSalesToggle("allowNegativeStock", e.target.checked)
-          }
+          onChange={(v) => onSalesToggle("allowNegativeStock", v)}
         />
         <SettingAction
           label="Cách tính Thuế (VAT)"
@@ -44,25 +42,25 @@ export function SalesTab({ salesSettings, onSalesToggle }: SalesTabProps) {
 
       <div className="settings-screen__panel settings-screen__stack-gap-lg">
         <div className="settings-screen__panel-header">
-          <h3>Thanh toán & Xử lý</h3>
+          <h3>Thanh toán &amp; Xử lý</h3>
         </div>
         <SettingToggle
           label="Thanh toán nhanh"
           description="Bỏ qua cửa sổ xác nhận chi tiết tiền khách đưa, hoàn tất ngay đơn hàng."
           checked={salesSettings.fastCheckout}
-          onChange={(e) => onSalesToggle("fastCheckout", e.target.checked)}
+          onChange={(v) => onSalesToggle("fastCheckout", v)}
         />
         <SettingToggle
           label="Tự động in hóa đơn"
           description="Tự động đẩy lệnh in hóa đơn khi thanh toán thành công."
           checked={salesSettings.autoPrint}
-          onChange={(e) => onSalesToggle("autoPrint", e.target.checked)}
+          onChange={(v) => onSalesToggle("autoPrint", v)}
         />
         <SettingToggle
           label="Tự động đánh dấu Hoàn Thành"
           description="Đơn sẽ tự động Hoàn Thành ngay khi thanh toán."
           checked={salesSettings.autoFinish}
-          onChange={(e) => onSalesToggle("autoFinish", e.target.checked)}
+          onChange={(v) => onSalesToggle("autoFinish", v)}
         />
       </div>
 
@@ -74,13 +72,13 @@ export function SalesTab({ salesSettings, onSalesToggle }: SalesTabProps) {
           label="Hiển thị ảnh sản phẩm"
           description="Tuỳ chỉnh giao diện hiển thị dạng ảnh hoặc dạng danh sách."
           checked={salesSettings.showImages}
-          onChange={(e) => onSalesToggle("showImages", e.target.checked)}
+          onChange={(v) => onSalesToggle("showImages", v)}
         />
         <SettingToggle
           label="Cảnh báo chênh lệch giá"
           description="Báo động màn hình nếu thay đổi giá thủ công thấp hơn giá vốn."
           checked={salesSettings.showConfirmDialog}
-          onChange={(e) => onSalesToggle("showConfirmDialog", e.target.checked)}
+          onChange={(v) => onSalesToggle("showConfirmDialog", v)}
         />
       </div>
     </div>

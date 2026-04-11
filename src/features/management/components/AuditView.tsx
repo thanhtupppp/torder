@@ -3,17 +3,17 @@ import { InventoryGenericView } from "./InventoryShared";
 type AuditViewProps = {
   title: string;
   columns: string[];
+  /** Show "Tạo mới" action button — pass for imports/exports tabs. */
+  showAction?: boolean;
 };
 
-export function AuditView({ title, columns }: AuditViewProps) {
+export function AuditView({ title, columns, showAction }: AuditViewProps) {
   return (
     <InventoryGenericView
       title={title}
       showLeftFilter
       columns={columns}
-      actionLabel={
-        title === "Số nhập" || title === "Số xuất" ? "Tạo mới" : undefined
-      }
+      actionLabel={showAction ? "Tạo mới" : undefined}
       filterSections={[
         { title: "Thời gian", options: ["Tuần này", "Tháng này"] },
         {

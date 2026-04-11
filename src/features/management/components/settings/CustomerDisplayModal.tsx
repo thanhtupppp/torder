@@ -1,35 +1,26 @@
 import { Store } from "lucide-react";
-import type { ChangeEvent } from "react";
+import type { CustomerDisplayConfig } from "../../settings/types";
 import { SettingToggle } from "./SettingControls";
 
 type CustomerDisplayModalProps = {
   isOpen: boolean;
-  customerDisplayText: string;
-  setCustomerDisplayText: (value: string) => void;
-  customerDisplayWebsite: string;
-  setCustomerDisplayWebsite: (value: string) => void;
-  showOrderInfo: boolean;
-  setShowOrderInfo: (value: boolean) => void;
+  config: CustomerDisplayConfig;
+  onConfigChange: <K extends keyof CustomerDisplayConfig>(
+    key: K,
+    value: CustomerDisplayConfig[K],
+  ) => void;
   onClose: () => void;
 };
 
+// ── Component ─────────────────────────────────────────────────────────────────
+
 export function CustomerDisplayModal({
   isOpen,
-  customerDisplayText,
-  setCustomerDisplayText,
-  customerDisplayWebsite,
-  setCustomerDisplayWebsite,
-  showOrderInfo,
-  setShowOrderInfo,
+  config,
+  onConfigChange,
   onClose,
 }: CustomerDisplayModalProps) {
-  if (!isOpen) {
-    return null;
-  }
-
-  const handleOrderInfoChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setShowOrderInfo(e.target.checked);
-  };
+  if (!isOpen) return null;
 
   return (
     <div className="settings-screen__overlay">
@@ -42,6 +33,7 @@ export function CustomerDisplayModal({
           <button
             type="button"
             className="settings-screen__close-btn"
+            aria-label="Đóng"
             onClick={onClose}
           >
             ✕
@@ -49,6 +41,7 @@ export function CustomerDisplayModal({
         </header>
 
         <div className="settings-screen__customer-modal-grid">
+          {/* ── Form ──────────────────────────────────────────────────────── */}
           <div className="settings-screen__customer-modal-form">
             <div className="settings-screen__form-section">
               <h4 className="settings-screen__heading-4">Màn hình chờ</h4>
@@ -56,16 +49,16 @@ export function CustomerDisplayModal({
                 <span className="settings-screen__label">Câu chào</span>
                 <input
                   className="input"
-                  value={customerDisplayText}
-                  onChange={(e) => setCustomerDisplayText(e.target.value)}
+                  value={config.text}
+                  onChange={(e) => onConfigChange("text", e.target.value)}
                 />
               </label>
               <label className="settings-screen__field settings-screen__stack-gap-md">
                 <span className="settings-screen__label">Website / Footer</span>
                 <input
                   className="input"
-                  value={customerDisplayWebsite}
-                  onChange={(e) => setCustomerDisplayWebsite(e.target.value)}
+                  value={config.website}
+                  onChange={(e) => onConfigChange("website", e.target.value)}
                 />
               </label>
               <div className="settings-screen__upload-box settings-screen__stack-gap-lg">
@@ -82,20 +75,25 @@ export function CustomerDisplayModal({
               <h4 className="settings-screen__heading-4">
                 Màn hình thông tin hóa đơn
               </h4>
+              {/* ✅ point-free — SettingToggle emit boolean trực tiếp */}
               <SettingToggle
                 label="Hiển thị khung Đơn hàng"
                 description="Hiện các món trong giỏ hàng để khách kiểm tra"
-                checked={showOrderInfo}
-                onChange={handleOrderInfoChange}
+                checked={config.showOrderInfo}
+                onChange={(v) => onConfigChange("showOrderInfo", v)}
               />
             </div>
           </div>
 
+          {/* ── Preview ───────────────────────────────────────────────────── */}
           <div className="settings-screen__customer-modal-preview">
-            <h4 className="settings-screen__preview-title">Xem trước thiết bị thật</h4>
+            <h4 className="settings-screen__preview-title">
+              Xem trước thiết bị thật
+            </h4>
             <div className="settings-screen__tablet-mock">
               <div className="settings-screen__tablet-screen">
-                {showOrderInfo ? (
+                {/* ✅ && thay vì ? : null */}
+                {config.showOrderInfo && (
                   <div className="settings-screen__tablet-order-panel">
                     <h5>Hóa đơn bán hàng</h5>
                     <div className="settings-screen__tablet-order-list">
@@ -114,10 +112,12 @@ export function CustomerDisplayModal({
                     </div>
                     <div className="settings-screen__tablet-order-total">
                       <span>Tổng tiền:</span>
-                      <span className="settings-screen__text-primary">150.000đ</span>
+                      <span className="settings-screen__text-primary">
+                        150.000đ
+                      </span>
                     </div>
                   </div>
-                ) : null}
+                )}
 
                 <div className="settings-screen__tablet-right">
                   <div className="settings-screen__tablet-right-content">
@@ -125,9 +125,9 @@ export function CustomerDisplayModal({
                       <Store size={40} color="white" />
                     </div>
                     <h2>POSIORDER</h2>
-                    <p>{customerDisplayText}</p>
+                    <p>{config.text}</p>
                     <div className="settings-screen__tablet-footer">
-                      {customerDisplayWebsite}
+                      {config.website}
                     </div>
                   </div>
                 </div>

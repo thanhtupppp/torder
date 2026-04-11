@@ -1,3 +1,5 @@
+// ── Shared ────────────────────────────────────────────────────────────────────
+
 export type InventoryTab =
   | "stock"
   | "logs"
@@ -7,6 +9,8 @@ export type InventoryTab =
   | "suppliers"
   | "transfer";
 
+// ── DTOs ──────────────────────────────────────────────────────────────────────
+
 export type InventoryStockDto = {
   id: string;
   code: string;
@@ -14,14 +18,23 @@ export type InventoryStockDto = {
   quantity: number;
   cost: number;
   price: number;
-  status: string;
+  // TODO: narrow to union when all statuses are confirmed
+  status: "active" | "inactive" | "out_of_stock" | string;
 };
 
 export type InventoryAuditDto = {
   id: string;
   code: string;
-  status: string;
   createdAt: string;
+  balancedAt?: string;
+  status: "draft" | "balanced" | "cancelled" | string;
+  relativeQty: number;
+  totalActual: number;
+  totalAudit: number;
+  valueDiff: number;
+  qtyIncrease: number;
+  qtyDecrease: number;
+  note?: string;
 };
 
 export type SupplierDto = {

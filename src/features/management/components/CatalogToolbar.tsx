@@ -8,7 +8,7 @@ import {
   Upload,
 } from "lucide-react";
 import { useRef, useState } from "react";
-import { useClickOutside } from "../../../hooks/useClickOutside";
+import { useDismissible } from "../../../hooks/useDismissible"; // ✅ unified hook
 import { ACTION_MENU_ITEMS } from "../constants/catalog";
 import type { useCatalogFilter } from "../hooks/useCatalogFilter";
 
@@ -24,8 +24,13 @@ export function CatalogToolbar({ filter, onOpenCreate }: CatalogToolbarProps) {
   const actionMenuRef = useRef<HTMLDivElement>(null);
   const columnMenuRef = useRef<HTMLDivElement>(null);
 
-  useClickOutside(actionMenuRef, () => setIsActionMenuOpen(false), isActionMenuOpen);
-  useClickOutside(columnMenuRef, () => setIsColumnMenuOpen(false), isColumnMenuOpen);
+  // ✅ useDismissible — nhất quán với FinanceScreen, hỗ trợ Escape key
+  useDismissible(isActionMenuOpen, () => setIsActionMenuOpen(false), [
+    actionMenuRef,
+  ]);
+  useDismissible(isColumnMenuOpen, () => setIsColumnMenuOpen(false), [
+    columnMenuRef,
+  ]);
 
   return (
     <header className="catalog-products-header">
@@ -70,7 +75,8 @@ export function CatalogToolbar({ filter, onOpenCreate }: CatalogToolbarProps) {
           >
             <EllipsisVertical size={14} /> Thao tác
           </button>
-          {isActionMenuOpen ? (
+          {/* ✅ && thay vì ? : null */}
+          {isActionMenuOpen && (
             <div className="catalog-action-menu__popup" role="menu">
               {ACTION_MENU_ITEMS.map((item) => {
                 const Icon = item.icon;
@@ -79,7 +85,9 @@ export function CatalogToolbar({ filter, onOpenCreate }: CatalogToolbarProps) {
                     key={item.key}
                     type="button"
                     role="menuitem"
-                    className={`catalog-action-menu__item ${item.danger ? "catalog-action-menu__item--danger" : ""}`}
+                    className={`catalog-action-menu__item ${
+                      item.danger ? "catalog-action-menu__item--danger" : ""
+                    }`}
                     onClick={() => setIsActionMenuOpen(false)}
                   >
                     <Icon size={14} />
@@ -88,7 +96,7 @@ export function CatalogToolbar({ filter, onOpenCreate }: CatalogToolbarProps) {
                 );
               })}
             </div>
-          ) : null}
+          )}
         </div>
 
         {/* Icon buttons */}

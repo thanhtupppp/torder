@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { SettingToggle } from "./SettingControls";
 
 export function NotificationsTab() {
+  const [orderSound, setOrderSound] = useState(true);
+  const [lowStockAlert, setLowStockAlert] = useState(true);
+
   return (
     <div className="settings-screen__tab settings-screen__tab--fade-in">
       <div className="settings-screen__content-header">
@@ -15,14 +19,14 @@ export function NotificationsTab() {
         <SettingToggle
           label="Âm thanh khi có đơn hàng mới"
           description="Phát âm thanh báo hiệu khi nền tảng đổ đơn về."
-          checked
-          onChange={() => {}}
+          checked={orderSound}
+          onChange={setOrderSound}
         />
         <SettingToggle
           label="Cảnh báo tồn kho thấp"
           description="Hiện popup màu đỏ khi nguyên liệu dưới mức an toàn."
-          checked
-          onChange={() => {}}
+          checked={lowStockAlert}
+          onChange={setLowStockAlert}
         />
       </div>
     </div>

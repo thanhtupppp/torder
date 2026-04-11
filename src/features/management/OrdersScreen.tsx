@@ -8,6 +8,9 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useDismissible } from "../../hooks/useDismissible";
+
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 type StatusKey =
   | "pending"
@@ -92,18 +95,17 @@ const TABLE_COLUMNS = [
 ] as const;
 
 type TableColumn = (typeof TABLE_COLUMNS)[number];
+type SortDirection = "asc" | "desc";
+type SortState = { column: TableColumn; direction: SortDirection } | null;
 
 function createColumnsVisibility(value: boolean): Record<TableColumn, boolean> {
-  return Object.fromEntries(
-    TABLE_COLUMNS.map((column) => [column, value]),
-  ) as Record<TableColumn, boolean>;
+  return Object.fromEntries(TABLE_COLUMNS.map((col) => [col, value])) as Record<
+    TableColumn,
+    boolean
+  >;
 }
 
-type SortDirection = "asc" | "desc";
-type SortState = {
-  column: TableColumn;
-  direction: SortDirection;
-} | null;
+// ── Screen ────────────────────────────────────────────────────────────────────
 
 export function OrdersScreen() {
   const [statuses, setStatuses] = useState(INITIAL_STATUS_FILTERS);
@@ -126,94 +128,48 @@ export function OrdersScreen() {
   >(() => createColumnsVisibility(true));
 
   const selectedColumnCount = useMemo(
-    () => TABLE_COLUMNS.filter((column) => visibleColumns[column]).length,
+    () => TABLE_COLUMNS.filter((col) => visibleColumns[col]).length,
     [visibleColumns],
   );
 
   const displayedColumns = useMemo(
-    () => TABLE_COLUMNS.filter((column) => visibleColumns[column]),
+    () => TABLE_COLUMNS.filter((col) => visibleColumns[col]),
     [visibleColumns],
   );
 
+  // ✅ Dùng hook thay vì 2 useEffect lặp lại
+  useDismissible(showDatePicker, () => setShowDatePicker(false), [
+    dateOverlayRef,
+    dateTriggerRef,
+  ]);
+  useDismissible(showColumnSelector, () => setShowColumnSelector(false), [
+    columnPopoverRef,
+    columnTriggerRef,
+  ]);
+
+  // Date overlay alignment — chỉ cần khi showDatePicker mở
   useEffect(() => {
     if (!showDatePicker) return;
 
-    function updateDateOverlayAlign() {
+    function updateAlign() {
       if (!filterPanelRef.current || !dateOverlayRef.current) return;
-
       const panelRect = filterPanelRef.current.getBoundingClientRect();
       const overlayWidth = dateOverlayRef.current.offsetWidth || 725;
       const gap = 12;
       const rightSpace = window.innerWidth - panelRect.right;
       const leftSpace = panelRect.left;
-
       const canOpenRight = rightSpace >= overlayWidth + gap;
       const canOpenLeft = leftSpace >= overlayWidth + gap;
 
-      if (canOpenRight) {
-        setDateOverlayAlign("right");
-      } else if (canOpenLeft) {
-        setDateOverlayAlign("left");
-      } else {
-        setDateOverlayAlign(rightSpace >= leftSpace ? "right" : "left");
-      }
+      if (canOpenRight) setDateOverlayAlign("right");
+      else if (canOpenLeft) setDateOverlayAlign("left");
+      else setDateOverlayAlign(rightSpace >= leftSpace ? "right" : "left");
     }
 
-    function handleClickOutside(event: MouseEvent) {
-      const target = event.target as Node;
-      const clickedInsideOverlay = dateOverlayRef.current?.contains(target);
-      const clickedTrigger = dateTriggerRef.current?.contains(target);
-
-      if (!clickedInsideOverlay && !clickedTrigger) {
-        setShowDatePicker(false);
-      }
-    }
-
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setShowDatePicker(false);
-      }
-    }
-
-    updateDateOverlayAlign();
-    window.addEventListener("resize", updateDateOverlayAlign);
-    window.addEventListener("mousedown", handleClickOutside);
-    window.addEventListener("keydown", handleEscape);
-
-    return () => {
-      window.removeEventListener("resize", updateDateOverlayAlign);
-      window.removeEventListener("mousedown", handleClickOutside);
-      window.removeEventListener("keydown", handleEscape);
-    };
+    updateAlign();
+    window.addEventListener("resize", updateAlign);
+    return () => window.removeEventListener("resize", updateAlign);
   }, [showDatePicker]);
-
-  useEffect(() => {
-    if (!showColumnSelector) return;
-
-    function handleClickOutside(event: MouseEvent) {
-      const target = event.target as Node;
-      const clickedInsidePopover = columnPopoverRef.current?.contains(target);
-      const clickedTrigger = columnTriggerRef.current?.contains(target);
-
-      if (!clickedInsidePopover && !clickedTrigger) {
-        setShowColumnSelector(false);
-      }
-    }
-
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setShowColumnSelector(false);
-      }
-    }
-
-    window.addEventListener("mousedown", handleClickOutside);
-    window.addEventListener("keydown", handleEscape);
-
-    return () => {
-      window.removeEventListener("mousedown", handleClickOutside);
-      window.removeEventListener("keydown", handleEscape);
-    };
-  }, [showColumnSelector]);
 
   function toggleStatus(key: StatusKey) {
     setStatuses((prev) =>
@@ -225,31 +181,17 @@ export function OrdersScreen() {
 
   function toggleSort(column: TableColumn) {
     setSortState((prev) => {
-      if (!prev || prev.column !== column) {
-        return { column, direction: "asc" };
-      }
-
-      if (prev.direction === "asc") {
-        return { column, direction: "desc" };
-      }
-
+      if (!prev || prev.column !== column) return { column, direction: "asc" };
+      if (prev.direction === "asc") return { column, direction: "desc" };
       return null;
     });
   }
 
   function toggleColumnVisibility(column: TableColumn) {
     setVisibleColumns((prev) => {
-      const currentlyVisible = Object.values(prev).filter(Boolean).length;
-      const isCurrentColumnVisible = prev[column];
-
-      if (isCurrentColumnVisible && currentlyVisible <= 1) {
-        return prev;
-      }
-
-      return {
-        ...prev,
-        [column]: !prev[column],
-      };
+      const visibleCount = Object.values(prev).filter(Boolean).length;
+      if (prev[column] && visibleCount <= 1) return prev;
+      return { ...prev, [column]: !prev[column] };
     });
   }
 
@@ -257,17 +199,12 @@ export function OrdersScreen() {
     setVisibleColumns(createColumnsVisibility(true));
   }
 
+  // ✅ Nhất quán với createColumnsVisibility
   function hideAllColumns() {
-    const firstColumn = TABLE_COLUMNS[0];
-    setVisibleColumns(
-      TABLE_COLUMNS.reduce(
-        (acc, column) => {
-          acc[column] = column === firstColumn;
-          return acc;
-        },
-        {} as Record<TableColumn, boolean>,
-      ),
-    );
+    setVisibleColumns({
+      ...createColumnsVisibility(false),
+      [TABLE_COLUMNS[0]]: true,
+    });
   }
 
   function resetColumnsDefault() {
@@ -395,41 +332,32 @@ export function OrdersScreen() {
                   </button>
                 ))}
               </div>
+              {/* TODO: replace với real date-picker component */}
               <div className="invoice-calendar-columns">
-                <div className="invoice-calendar-month">
-                  <h4>2026 Năm Tháng 4</h4>
-                  <div className="invoice-weekday-row">
-                    {["CN", "T2", "T3", "T4", "T5", "T6", "T7"].map((day) => (
-                      <span key={day}>{day}</span>
-                    ))}
+                {[
+                  { label: "2026 Năm Tháng 4" },
+                  { label: "2026 Năm Tháng 5" },
+                ].map(({ label }, calIdx) => (
+                  <div key={label} className="invoice-calendar-month">
+                    <h4>{label}</h4>
+                    <div className="invoice-weekday-row">
+                      {["CN", "T2", "T3", "T4", "T5", "T6", "T7"].map((d) => (
+                        <span key={d}>{d}</span>
+                      ))}
+                    </div>
+                    <div className="invoice-day-grid">
+                      {Array.from({ length: 35 }).map((_, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          className={calIdx === 0 && idx === 11 ? "active" : ""}
+                        >
+                          {idx + 1}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="invoice-day-grid">
-                    {Array.from({ length: 35 }).map((_, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        className={idx === 11 ? "active" : ""}
-                      >
-                        {idx + 1}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="invoice-calendar-month">
-                  <h4>2026 Năm Tháng 5</h4>
-                  <div className="invoice-weekday-row">
-                    {["CN", "T2", "T3", "T4", "T5", "T6", "T7"].map((day) => (
-                      <span key={day}>{day}</span>
-                    ))}
-                  </div>
-                  <div className="invoice-day-grid">
-                    {Array.from({ length: 35 }).map((_, idx) => (
-                      <button key={idx} type="button">
-                        {idx + 1}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           ) : null}
@@ -442,7 +370,7 @@ export function OrdersScreen() {
               <input
                 className="input"
                 value={invoiceCode}
-                onChange={(event) => setInvoiceCode(event.target.value)}
+                onChange={(e) => setInvoiceCode(e.target.value)}
                 placeholder="Theo mã hoá đơn"
               />
             </div>
@@ -457,6 +385,7 @@ export function OrdersScreen() {
                 type="button"
                 ref={columnTriggerRef}
                 className="btn ghost"
+                aria-label="Chọn cột hiển thị"
                 onClick={() => setShowColumnSelector((prev) => !prev)}
               >
                 <Columns3 size={14} />

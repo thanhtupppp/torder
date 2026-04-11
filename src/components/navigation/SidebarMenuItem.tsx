@@ -1,5 +1,4 @@
 import { NavLink } from "react-router-dom";
-import { iconMap } from "./iconMap";
 import type { SidebarMenuItem as MenuItem } from "../../constants/navigation";
 
 type SidebarMenuItemProps = {
@@ -15,7 +14,7 @@ type SidebarMenuItemProps = {
 export function SidebarMenuItem({
   to,
   label,
-  icon,
+  icon: Icon,
   collapsed,
   onClick,
 }: SidebarMenuItemProps) {
@@ -29,7 +28,9 @@ export function SidebarMenuItem({
       aria-label={label}
       title={collapsed ? label : undefined}
     >
-      <span className="menu-item-icon">{iconMap[icon] ?? null}</span>
+      <span className="menu-item-icon">
+        <Icon size={20} strokeWidth={1.8} />
+      </span>
       <span
         className={`menu-item-label${collapsed ? " menu-item-label--hidden" : ""}`}
       >

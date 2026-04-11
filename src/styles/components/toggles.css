@@ -7,5 +7,5 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  font-size: 13px;
+  font-size: var(--text-base); /* 13px → token */
 }

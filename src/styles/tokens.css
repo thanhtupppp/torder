@@ -56,7 +56,7 @@
   --transition-base: var(--duration-base) var(--ease-default);
   --transition-slow: var(--duration-slow) var(--ease-default);
 
-  /* backward-compat — giữ để không break code cũ dùng --motion-fast / --motion-base */
+  /* backward-compat aliases */
   --motion-fast: var(--transition-fast);
   --motion-base: var(--transition-base);
 
@@ -73,4 +73,83 @@
   --sidebar-width: 220px;
   --header-height: 56px;
   --content-max-width: 1400px;
+
+  /* ── Backgrounds ────────────────────────────────────────────────────── */
+  --bg-app: #f0f4f8;
+  --bg-body: #f0f4f8;
+  --bg-surface: #ffffff;
+  --bg-surface-soft: #f8fafc;
+  --bg-surface-2: #f3f4f6;
+  --bg-surface-offset: #e8eef5;
+  --bg-surface-dynamic: #e2e8f0;
+  --bg-input: #ffffff;
+  --bg-overlay: rgba(15, 23, 42, 0.4);
+  --bg-card: var(--bg-surface); /* alias cho component cũ */
+
+  /* ── Borders ────────────────────────────────────────────────────────── */
+  --border: var(--border-soft); /* alias cho component cũ */
+  --border-soft: #e5e7eb;
+  --border-base: #cfd8e3;
+  --border-input: #d1d5db;
+  --border-input-focus: #60a5fa;
+
+  /* ── Text ───────────────────────────────────────────────────────────── */
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-inverse: #ffffff;
+
+  /* ── Accent (Blue) ──────────────────────────────────────────────────── */
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-active: #1e40af;
+  --accent-soft: #eff6ff;
+  --accent-muted: #bfdbfe;
+  --accent-soft-border: #93c5fd;
+  --accent-text: #ffffff;
+
+  /* ── Focus ring ─────────────────────────────────────────────────────── */
+  --focus-ring: 0 0 0 3px rgba(96, 165, 250, 0.3);
+
+  /* ── Success ────────────────────────────────────────────────────────── */
+  --success: #16a34a;
+  --success-hover: #15803d;
+  --success-soft: #f0fdf4;
+  --success-muted: #86efac;
+  --success-dark: #166534;
+
+  /* ── Danger ─────────────────────────────────────────────────────────── */
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+  --danger-soft: #fee2e2;
+  --danger-muted: #fca5a5;
+
+  /* ── Warning ────────────────────────────────────────────────────────── */
+  --warning: #ea580c;
+  --warning-hover: #c2410c;
+  --warning-soft: #fff7ed;
+  --warning-muted: #fde68a;
+  --warning-dark: #854d0e;
+
+  /* ── Info ───────────────────────────────────────────────────────────── */
+  --info: #0284c7;
+  --info-soft: #f0f9ff;
+  --info-muted: #7dd3fc;
+  --info-bg: #c7def3; /* table header blue tint */
+  --info-dark: #0f172a;
+
+  /* ── Table ──────────────────────────────────────────────────────────── */
+  --bg-table-row-hover: #f8fbff;
+
+  /* ── Sidebar ────────────────────────────────────────────────────────── */
+  --bg-sidebar-from: #1e293b;
+  --bg-sidebar-to: #0f172a;
+  --text-sidebar: #e2e8f0;
+  --text-sidebar-muted: #94a3b8;
+  --bg-sidebar-item-hover: rgba(255, 255, 255, 0.08);
+  --bg-sidebar-item-active: rgba(255, 255, 255, 0.18);
+
+  /* ── Interaction ────────────────────────────────────────────────────── */
+  --hover-lift: translateY(-1px);
+  --press-inset: translateY(1px) scale(0.98);
 }

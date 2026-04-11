@@ -2,6 +2,24 @@ import { ChevronDown } from "lucide-react";
 import { PRODUCT_TYPES } from "../constants/catalog";
 import type { useCatalogFilter } from "../hooks/useCatalogFilter";
 
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+const STOCK_STATE_OPTIONS = [
+  "Tất cả",
+  "Luôn âm kho",
+  "Vượt định mức tồn",
+  "Còn hàng trong kho",
+  "Hết hàng trong kho",
+] as const;
+
+const DIRECT_SALE_OPTIONS = [
+  "Tất cả",
+  "Được bán trực tiếp",
+  "Không được bán trực tiếp",
+] as const;
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
 type CatalogFiltersProps = {
   filter: ReturnType<typeof useCatalogFilter>;
 };
@@ -33,18 +51,13 @@ export function CatalogFilters({ filter }: CatalogFiltersProps) {
 
       <div className="catalog-filter-group">
         <h3>Tồn kho</h3>
-        {[
-          "Tất cả",
-          "Luôn âm kho",
-          "Vượt định mức tồn",
-          "Còn hàng trong kho",
-          "Hết hàng trong kho",
-        ].map((label, index) => (
+        {STOCK_STATE_OPTIONS.map((label) => (
           <label key={label} className="catalog-check-row">
             <input
               type="radio"
               name="stock-state"
-              defaultChecked={index === 0}
+              // ✅ "Tất cả" rõ ràng hơn index === 0
+              defaultChecked={label === "Tất cả"}
             />
             <span>{label}</span>
           </label>
@@ -53,16 +66,12 @@ export function CatalogFilters({ filter }: CatalogFiltersProps) {
 
       <div className="catalog-filter-group">
         <h3>Bán trực tiếp</h3>
-        {[
-          "Tất cả",
-          "Được bán trực tiếp",
-          "Không được bán trực tiếp",
-        ].map((label, index) => (
+        {DIRECT_SALE_OPTIONS.map((label) => (
           <label key={label} className="catalog-check-row">
             <input
               type="radio"
               name="direct-sale"
-              defaultChecked={index === 0}
+              defaultChecked={label === "Tất cả"}
             />
             <span>{label}</span>
           </label>

@@ -72,7 +72,14 @@
 .sidebar--collapsed .logo {
   opacity: 0;
   max-width: 0;
+  padding: 0;
+  margin: 0;
   pointer-events: none;
+}
+
+.sidebar--collapsed .sidebar__top {
+  justify-content: center;
+  gap: 0;
 }
 
 .sidebar--hover .logo {
@@ -81,8 +88,9 @@
   pointer-events: auto;
 }
 
+/* ── Sidebar toggle ──────────────────────────────── */
 .sidebar__toggle {
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid color-mix(in srgb, var(--text-inverse) 16%, transparent);
   background: var(--bg-sidebar-item-hover);
   color: var(--text-sidebar-muted);
   width: 30px;

@@ -10,12 +10,36 @@ import {
   Trash2,
 } from "lucide-react";
 
-// ── Local types ───────────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export type CatalogTab = "products" | "categories" | "addons" | "notes";
 export type ProductType = "goods" | "service" | "combo" | "ingredient";
 
-// ── Tab definitions ───────────────────────────────────────────────────────────
+// ✅ Explicit key union — typo bị catch lúc compile
+export type ProductColumnKey =
+  | "code"
+  | "name"
+  | "barcode"
+  | "unit"
+  | "group"
+  | "type"
+  | "cost"
+  | "vat"
+  | "price"
+  | "stock"
+  | "minStock"
+  | "maxStock";
+
+export type ProductColumn = { key: ProductColumnKey; label: string };
+
+export type ActionMenuItem = {
+  key: string;
+  label: string;
+  icon: LucideIcon;
+  danger?: boolean;
+};
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
 
 export const TOP_TABS: Array<{ key: CatalogTab; label: string }> = [
   { key: "products", label: "Sản phẩm" },
@@ -24,7 +48,7 @@ export const TOP_TABS: Array<{ key: CatalogTab; label: string }> = [
   { key: "notes", label: "Ghi chú món" },
 ];
 
-// ── Product type definitions ──────────────────────────────────────────────────
+// ── Product types ─────────────────────────────────────────────────────────────
 
 export const PRODUCT_TYPES: Array<{ key: ProductType; label: string }> = [
   { key: "goods", label: "Hàng hoá" },
@@ -33,9 +57,7 @@ export const PRODUCT_TYPES: Array<{ key: ProductType; label: string }> = [
   { key: "ingredient", label: "Hàng chưa nguyên liệu" },
 ];
 
-// ── Table column definitions ──────────────────────────────────────────────────
-
-export type ProductColumn = { key: string; label: string };
+// ── Table columns ─────────────────────────────────────────────────────────────
 
 export const PRODUCT_COLUMNS: ProductColumn[] = [
   { key: "code", label: "Mã hàng" },
@@ -52,7 +74,8 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   { key: "maxStock", label: "Định mức tồn cao nhất" },
 ];
 
-export const DEFAULT_VISIBLE_COLUMNS = new Set([
+// ✅ Type-safe Set — compiler báo ngay nếu key không hợp lệ
+export const DEFAULT_VISIBLE_COLUMNS = new Set<ProductColumnKey>([
   "code",
   "name",
   "barcode",
@@ -65,13 +88,6 @@ export const DEFAULT_VISIBLE_COLUMNS = new Set([
 ]);
 
 // ── Action menu ───────────────────────────────────────────────────────────────
-
-export type ActionMenuItem = {
-  key: string;
-  label: string;
-  icon: LucideIcon;
-  danger?: boolean;
-};
 
 export const ACTION_MENU_ITEMS: ActionMenuItem[] = [
   { key: "delete", label: "Xóa sản phẩm", icon: Trash2, danger: true },

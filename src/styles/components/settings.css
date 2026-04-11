@@ -1,10 +1,15 @@
+/* ── Local tokens ────────────────────────────────── */
 .settings-screen {
   --settings-sidebar-width: 17.5rem;
-  --settings-panel-bg: color-mix(in srgb, var(--bg-surface) 86%, #ffffff 14%);
+  --settings-panel-bg: color-mix(
+    in srgb,
+    var(--bg-surface) 86%,
+    var(--bg-surface-soft) 14%
+  );
   --settings-panel-border: color-mix(
     in srgb,
     var(--border-soft) 85%,
-    #ffffff 15%
+    var(--bg-surface) 15%
   );
   --settings-shadow-soft:
     0 1px 1px rgb(15 23 42 / 0.04), 0 10px 30px rgb(15 23 42 / 0.06);
@@ -18,6 +23,7 @@
   align-items: start;
 }
 
+/* ── Sidebar ─────────────────────────────────────── */
 .settings-screen__sidebar {
   position: sticky;
   top: var(--space-4);
@@ -31,7 +37,7 @@
 
 .settings-screen__sidebar-title {
   margin: 0 0 var(--space-3);
-  font-size: 1rem;
+  font-size: var(--text-base); /* 1rem → token */
   font-weight: 700;
 }
 
@@ -53,20 +59,25 @@
   padding: var(--space-2) var(--space-3);
   cursor: pointer;
   text-align: left;
-  transition: all 180ms ease;
+  transition: all var(--transition-fast); /* 180ms ease → token */
 }
 
 .settings-screen__menu-item:hover {
-  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--accent) 8%,
+    transparent
+  ); /* --primary → --accent */
   color: var(--text-primary);
 }
 
 .settings-screen__menu-item--active {
-  background: color-mix(in srgb, var(--primary) 14%, transparent);
-  border-color: color-mix(in srgb, var(--primary) 34%, var(--border-soft));
-  color: var(--primary);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--border-soft));
+  color: var(--accent); /* --primary → --accent */
 }
 
+/* ── Content area ────────────────────────────────── */
 .settings-screen__content {
   min-width: 0;
 }
@@ -97,6 +108,7 @@
   gap: var(--space-4);
 }
 
+/* ── Panel ───────────────────────────────────────── */
 .settings-screen__panel {
   border: 1px solid var(--settings-panel-border);
   border-radius: var(--radius-lg);
@@ -112,7 +124,7 @@
 
 .settings-screen__panel-header h3 {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: var(--text-base); /* 0.95rem → token */
 }
 
 .settings-screen__panel-body {
@@ -122,6 +134,7 @@
   gap: var(--space-5);
 }
 
+/* ── Form grid ───────────────────────────────────── */
 .settings-screen__grid {
   display: grid;
   gap: var(--space-4);
@@ -138,7 +151,7 @@
 }
 
 .settings-screen__label {
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 0.875rem → token */
   font-weight: 600;
 }
 
@@ -147,6 +160,7 @@
   color: var(--text-secondary);
 }
 
+/* ── Dividers ────────────────────────────────────── */
 .settings-screen__divider-top {
   border-top: 1px solid var(--settings-panel-border);
   padding-top: var(--space-5);
@@ -157,6 +171,7 @@
   margin: var(--space-4) 0;
 }
 
+/* ── Actions ─────────────────────────────────────── */
 .settings-screen__actions {
   display: flex;
   gap: var(--space-3);
@@ -166,6 +181,7 @@
   justify-content: flex-end;
 }
 
+/* ── Logo row ────────────────────────────────────── */
 .settings-screen__logo-row {
   display: flex;
   align-items: center;
@@ -173,6 +189,7 @@
   padding: var(--space-5);
 }
 
+/* ── Printer item ────────────────────────────────── */
 .settings-screen__printer-item {
   display: flex;
   align-items: center;
@@ -181,7 +198,11 @@
   border: 1px solid var(--settings-panel-border);
   border-radius: var(--radius-md);
   padding: var(--space-4);
-  background: color-mix(in srgb, var(--bg-app) 92%, #ffffff 8%);
+  background: color-mix(
+    in srgb,
+    var(--bg-app, var(--bg-surface)) 92%,
+    var(--bg-surface) 8%
+  );
 }
 
 .settings-screen__printer-left {
@@ -205,21 +226,26 @@
 
 .settings-screen__printer-title {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: var(--text-base); /* 0.95rem → token */
 }
 
 .settings-screen__printer-sub {
   margin: var(--space-1) 0 0;
   color: var(--text-secondary);
-  font-size: 0.8125rem;
+  font-size: var(--text-xs); /* 0.8125rem → token */
 }
 
+/* ── Logo box ────────────────────────────────────── */
 .settings-screen__logo-box {
   width: 6rem;
   height: 6rem;
   border-radius: var(--radius-md);
   border: 1px dashed var(--settings-panel-border);
-  background: color-mix(in srgb, var(--bg-surface-soft) 90%, #ffffff 10%);
+  background: color-mix(
+    in srgb,
+    var(--bg-surface-soft) 90%,
+    var(--bg-surface) 10%
+  );
   display: grid;
   place-items: center;
 }
@@ -228,6 +254,7 @@
   color: var(--text-secondary);
 }
 
+/* ── Setting row ─────────────────────────────────── */
 .settings-screen__row {
   display: flex;
   align-items: center;
@@ -243,15 +270,16 @@
 
 .settings-screen__row-info h4 {
   margin: 0;
-  font-size: 0.92rem;
+  font-size: var(--text-base); /* 0.92rem → token */
 }
 
 .settings-screen__row-info p {
   margin: var(--space-1) 0 0;
-  font-size: 0.84rem;
+  font-size: var(--text-xs); /* 0.84rem → token */
   color: var(--text-secondary);
 }
 
+/* ── Toggle switch ───────────────────────────────── */
 .settings-screen__switch {
   --switch-w: 2.875rem;
   --switch-h: 1.75rem;
@@ -271,9 +299,14 @@
 .settings-screen__switch-track {
   position: absolute;
   inset: 0;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--border-soft) 75%, #94a3b8 25%);
-  border: 1px solid color-mix(in srgb, var(--border-soft) 60%, #ffffff 40%);
+  border-radius: var(--radius-full); /* 999px → token */
+  background: color-mix(
+    in srgb,
+    var(--border-soft) 75%,
+    var(--text-tertiary) 25%
+  );
+  border: 1px solid
+    color-mix(in srgb, var(--border-soft) 60%, var(--bg-surface) 40%);
   transition:
     background 220ms cubic-bezier(0.4, 0, 0.2, 1),
     border-color 220ms ease;
@@ -287,7 +320,7 @@
   width: calc(var(--switch-h) - (var(--switch-pad) * 2));
   height: calc(var(--switch-h) - (var(--switch-pad) * 2));
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--bg-surface); /* #ffffff → token */
   box-shadow:
     0 1px 3px rgb(0 0 0 / 0.22),
     0 2px 8px rgb(0 0 0 / 0.14);
@@ -295,8 +328,12 @@
 }
 
 .settings-screen__switch input:checked + .settings-screen__switch-track {
-  background: color-mix(in srgb, var(--primary) 82%, #ffffff 18%);
-  border-color: color-mix(in srgb, var(--primary) 58%, #ffffff 42%);
+  background: color-mix(
+    in srgb,
+    var(--accent) 82%,
+    var(--bg-surface) 18%
+  ); /* --primary → --accent */
+  border-color: color-mix(in srgb, var(--accent) 58%, var(--bg-surface) 42%);
 }
 
 .settings-screen__switch
@@ -306,18 +343,20 @@
 }
 
 .settings-screen__switch input:focus-visible + .settings-screen__switch-track {
-  outline: 2px solid color-mix(in srgb, var(--primary) 45%, #ffffff 55%);
+  outline: 2px solid
+    color-mix(in srgb, var(--accent) 45%, var(--bg-surface) 55%);
   outline-offset: 2px;
 }
 
+/* ── Stack gaps ──────────────────────────────────── */
 .settings-screen__stack-gap-md {
   margin-top: var(--space-4);
 }
-
 .settings-screen__stack-gap-lg {
   margin-top: var(--space-6);
 }
 
+/* ── Inline input row ────────────────────────────── */
 .settings-screen__inline-input-row {
   display: flex;
   align-items: center;
@@ -327,17 +366,17 @@
 
 .settings-screen__inline-label {
   min-width: 7.5rem;
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 0.875rem → token */
 }
 
 .settings-screen__w-60 {
   width: 3.75rem;
 }
-
 .settings-screen__w-100 {
   width: 6.25rem;
 }
 
+/* ── Sync action row ─────────────────────────────── */
 .settings-screen__sync-action-row {
   padding: var(--space-5);
   border-top: 1px solid var(--settings-panel-border);
@@ -351,6 +390,7 @@
   gap: var(--space-2);
 }
 
+/* ── Template layout ─────────────────────────────── */
 .settings-screen__template-layout {
   display: grid;
   grid-template-columns: minmax(14rem, 16rem) minmax(0, 1fr);
@@ -364,7 +404,7 @@
 
 .settings-screen__template-title {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: var(--text-base); /* 0.95rem → token */
 }
 
 .settings-screen__template-buttons {
@@ -379,28 +419,33 @@
 }
 
 .settings-screen__template-btn--active {
-  background: color-mix(in srgb, var(--primary) 14%, transparent);
-  border-color: color-mix(in srgb, var(--primary) 34%, var(--border-soft));
-  color: var(--primary);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--border-soft));
+  color: var(--accent); /* --primary → --accent */
 }
 
 .settings-screen__template-preview {
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--bg-app) 90%, #ffffff 10%);
+  background: color-mix(
+    in srgb,
+    var(--bg-app, var(--bg-surface)) 90%,
+    var(--bg-surface) 10%
+  );
   padding: var(--space-5);
 }
 
 .settings-screen__icon--faint {
-  color: color-mix(in srgb, var(--border-soft) 92%, #ffffff 8%);
+  color: color-mix(in srgb, var(--border-soft) 92%, var(--bg-surface) 8%);
   margin-bottom: var(--space-3);
 }
 
+/* ── Overlay + Modal ─────────────────────────────── */
 .settings-screen__overlay {
   position: fixed;
   inset: 0;
-  z-index: 80;
-  background: rgb(15 23 42 / 0.45);
+  z-index: var(--z-modal); /* 80 → token */
+  background: var(--bg-overlay); /* rgb(15 23 42/0.45) → token */
   backdrop-filter: blur(6px);
   display: grid;
   place-items: center;
@@ -436,7 +481,7 @@
 .settings-screen__modal-head-text p {
   margin: var(--space-1) 0 0;
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: var(--text-sm); /* 0.875rem → token */
 }
 
 .settings-screen__close-btn {
@@ -444,9 +489,12 @@
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: var(--text-lg); /* 1.2rem → token */
   padding: var(--space-1);
   border-radius: var(--radius-sm);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .settings-screen__close-btn:hover {
@@ -454,6 +502,7 @@
   color: var(--text-primary);
 }
 
+/* ── Customer modal ──────────────────────────────── */
 .settings-screen__customer-modal-grid {
   display: grid;
   grid-template-columns: minmax(20rem, 26rem) minmax(0, 1fr);
@@ -484,7 +533,7 @@
 }
 
 .settings-screen__customer-modal-preview {
-  background: var(--bg-body);
+  background: var(--bg-body, var(--bg-app, var(--bg-surface)));
   padding: var(--space-5);
   display: flex;
   flex-direction: column;
@@ -497,12 +546,13 @@
   margin: 0 0 var(--space-4);
 }
 
+/* ── Tablet mock – intentional hardcode (brand UI) ── */
 .settings-screen__tablet-mock {
   width: min(50rem, 100%);
   height: 31.25rem;
   border-radius: var(--radius-lg);
-  border: 2px solid #303446;
-  background: #151923;
+  border: 2px solid #303446; /* device frame — intentional */
+  background: #151923; /* device bezel — intentional */
   padding: var(--space-3);
   box-shadow: 0 18px 45px rgb(0 0 0 / 0.35);
 }
@@ -511,7 +561,7 @@
   width: 100%;
   height: 100%;
   border-radius: var(--radius-sm);
-  background: #f4f6fb;
+  background: var(--bg-surface-soft); /* #f4f6fb → token */
   overflow: hidden;
   display: flex;
 }
@@ -519,8 +569,8 @@
 .settings-screen__tablet-order-panel {
   width: 20rem;
   padding: var(--space-4);
-  border-right: 1px solid #e4e7ee;
-  background: #ffffff;
+  border-right: 1px solid var(--border-soft); /* #e4e7ee → token */
+  background: var(--bg-surface); /* #ffffff → token */
   display: flex;
   flex-direction: column;
 }
@@ -528,7 +578,7 @@
 .settings-screen__tablet-order-panel h5 {
   margin: 0;
   padding-bottom: var(--space-3);
-  border-bottom: 1px solid #eceff6;
+  border-bottom: 1px solid var(--border-soft); /* #eceff6 → token */
 }
 
 .settings-screen__tablet-order-list {
@@ -547,18 +597,24 @@
 
 .settings-screen__tablet-order-total {
   padding-top: var(--space-4);
-  border-top: 2px dashed #e4e7ee;
+  border-top: 2px dashed var(--border-soft); /* #e4e7ee → token */
   font-weight: 700;
 }
 
 .settings-screen__text-primary {
-  color: var(--primary);
+  color: var(--accent); /* --primary → --accent */
 }
 
 .settings-screen__tablet-right {
   flex: 1;
-  background: linear-gradient(140deg, #1d4ed8 0%, #2563eb 40%, #4338ca 100%);
-  color: #ffffff;
+  background: linear-gradient(
+    140deg,
+    var(--accent-hover) 0%,
+    /* #1d4ed8 → token */ var(--accent) 40%,
+    /* #2563eb → token */ #4338ca 100%
+      /* indigo — brand gradient, intentional */
+  );
+  color: var(--bg-surface); /* #ffffff → token */
   display: grid;
   place-items: center;
   position: relative;
@@ -581,13 +637,13 @@
 
 .settings-screen__tablet-right-content h2 {
   margin: 0;
-  font-size: 2rem;
+  font-size: var(--text-2xl); /* 2rem → token */
   letter-spacing: 0.12em;
 }
 
 .settings-screen__tablet-right-content p {
   margin: var(--space-2) 0 0;
-  font-size: 1.2rem;
+  font-size: var(--text-lg); /* 1.2rem → token */
 }
 
 .settings-screen__tablet-footer {
@@ -599,6 +655,7 @@
   opacity: 0.82;
 }
 
+/* ── Modal actions ───────────────────────────────── */
 .settings-screen__modal-actions {
   padding: var(--space-4) var(--space-5);
   border-top: 1px solid var(--settings-panel-border);
@@ -607,6 +664,7 @@
   gap: var(--space-3);
 }
 
+/* ── Animation ───────────────────────────────────── */
 @keyframes settings-fade-in {
   from {
     opacity: 0;
@@ -618,6 +676,7 @@
   }
 }
 
+/* ── Responsive ──────────────────────────────────── */
 @media (max-width: 70rem) {
   .settings-screen {
     grid-template-columns: 1fr;

@@ -1,5 +1,11 @@
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { useEffect, useRef, useState, type PropsWithChildren } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type PropsWithChildren,
+} from "react";
 import { SIDEBAR_MENU_ITEMS, type MenuKey } from "../../constants/navigation";
 import { SidebarMenu } from "../navigation/SidebarMenu";
 import { AppContent } from "./AppContent";
@@ -8,10 +14,7 @@ import { AppHeader } from "./AppHeader";
 type MainLayoutProps = PropsWithChildren<{
   headerTitle: string;
   headerSubtitle?: string;
-  breadcrumbs?: Array<{
-    label: string;
-    to?: string;
-  }>;
+  breadcrumbs?: Array<{ label: string; to?: string }>;
   onSelectMenu?: (id: MenuKey) => void;
 }>;
 
@@ -22,9 +25,7 @@ export function MainLayout({
   breadcrumbs,
   onSelectMenu,
 }: MainLayoutProps) {
-  // Whether sidebar is "pinned closed" (collapsed icon-strip mode)
   const [pinnedCollapsed, setPinnedCollapsed] = useState(false);
-  // Whether it's temporarily opened by hovering
   const [hoverExpanded, setHoverExpanded] = useState(false);
 
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -46,7 +47,10 @@ export function MainLayout({
   useEffect(() => {
     if (!hoverExpanded) return;
     function handleOutsideClick(e: MouseEvent) {
-      if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(e.target as Node)
+      ) {
         setHoverExpanded(false);
       }
     }
@@ -54,37 +58,40 @@ export function MainLayout({
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [hoverExpanded]);
 
-  // ── Hover handlers ─────────────────────────────
-  function handleMouseEnter() {
-    if (!pinnedCollapsed) return; // already pinned open, no hover needed
-    hoverTimerRef.current = setTimeout(() => setHoverExpanded(true), 100);
-  }
+  // ── Hover handlers ────────────────────────────────────────────────────────
 
-  function handleMouseLeave() {
+  const handleMouseEnter = useCallback(() => {
+    if (!pinnedCollapsed) return;
+    hoverTimerRef.current = setTimeout(() => setHoverExpanded(true), 100);
+  }, [pinnedCollapsed]);
+
+  const handleMouseLeave = useCallback(() => {
+    // ✅ Reuse ref — cancel cả enter timer lẫn leave timer khi cần
     if (hoverTimerRef.current) {
       clearTimeout(hoverTimerRef.current);
-      hoverTimerRef.current = null;
     }
-    setTimeout(() => setHoverExpanded(false), 150);
-  }
+    hoverTimerRef.current = setTimeout(() => setHoverExpanded(false), 150);
+  }, []);
 
-  // ── Menu select ────────────────────────────────
-  function handleSelect(id: MenuKey) {
-    if (pinnedCollapsed) setHoverExpanded(false);
-    onSelectMenu?.(id);
-  }
+  // ── Menu select ───────────────────────────────────────────────────────────
 
-  // ── Toggle button ──────────────────────────────
+  const handleSelect = useCallback(
+    (id: MenuKey) => {
+      if (pinnedCollapsed) setHoverExpanded(false);
+      onSelectMenu?.(id);
+    },
+    [pinnedCollapsed, onSelectMenu],
+  );
+
+  // ── Toggle ────────────────────────────────────────────────────────────────
+
   function toggleSidebar() {
     setPinnedCollapsed((prev) => !prev);
     setHoverExpanded(false);
   }
 
-  // ── Derived sidebar class ──────────────────────
-  // Sidebar is fixed-position always. Width is controlled by CSS class:
-  //  - no class       → 220px (pinned open)
-  //  - --collapsed    → 60px (pinned closed)
-  //  - --hover        → 220px over collapsed (overlay, no layout shift)
+  // ── Derived sidebar class ─────────────────────────────────────────────────
+
   const isCollapsed = pinnedCollapsed && !hoverExpanded;
 
   const sidebarClass = [

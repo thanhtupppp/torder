@@ -37,6 +37,12 @@ export type StoreInfo = {
   wifi: string;
 };
 
+export type CustomerDisplayConfig = {
+  text: string;
+  website: string;
+  showOrderInfo: boolean;
+};
+
 export type SettingMenuItem = {
   key: SettingTab;
   label: string;

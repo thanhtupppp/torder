@@ -8,7 +8,10 @@ type EditCategoryModalProps = {
   filteredRows: ProductDto[];
 };
 
-export function EditCategoryModal({ modal, filteredRows }: EditCategoryModalProps) {
+export function EditCategoryModal({
+  modal,
+  filteredRows,
+}: EditCategoryModalProps) {
   const isEditMode = modal.editingCategoryName !== undefined;
 
   return (
@@ -19,6 +22,7 @@ export function EditCategoryModal({ modal, filteredRows }: EditCategoryModalProp
           <button
             type="button"
             className="modal-close-btn"
+            aria-label="Đóng"
             onClick={modal.closeModal}
           >
             <X size={14} />
@@ -56,12 +60,18 @@ export function EditCategoryModal({ modal, filteredRows }: EditCategoryModalProp
           </thead>
           <tbody>
             {filteredRows.slice(0, 4).map((row) => (
-              <tr key={`mini-${row.code}`}>
+              // ✅ prefix thừa — row.code đã unique trong list này
+              <tr key={row.code}>
                 <td>{row.code}</td>
                 <td>{row.name}</td>
                 <td>{row.unit || "-"}</td>
                 <td>
-                  <button type="button" className="btn ghost icon-only">
+                  {/* ✅ aria-label cho icon-only button */}
+                  <button
+                    type="button"
+                    className="btn ghost icon-only"
+                    aria-label={`Xoá ${row.name} khỏi danh mục`}
+                  >
                     <Trash2 size={12} />
                   </button>
                 </td>

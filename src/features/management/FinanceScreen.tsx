@@ -12,29 +12,15 @@ import {
   Wallet,
   X,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import "../../styles/components/finance.css";
+import { useDismissible } from "../../hooks/useDismissible"; // hook từ OrdersScreen
 
-// ---------- Types ----------
-type FilterSection = {
-  id: string;
-  label: string;
-  open: boolean;
-};
+// ── Types ─────────────────────────────────────────────────────────────────────
 
+type FilterSection = { id: string; label: string; open: boolean };
 type DropdownType = "income" | "expense" | "actions" | null;
-
 type ColKey = "id" | "date" | "type" | "amount" | "fund" | "person" | "creator";
-
-const ALL_COLUMNS: { key: ColKey; label: string }[] = [
-  { key: "id",      label: "Mã phiếu" },
-  { key: "date",    label: "Thời gian" },
-  { key: "type",    label: "Loại thu chi" },
-  { key: "amount",  label: "Giá trị" },
-  { key: "fund",    label: "Quỹ tiền" },
-  { key: "person",  label: "Người nộp/nhận" },
-  { key: "creator", label: "Người tạo phiếu" },
-];
 
 type TransferForm = {
   voucherId: string;
@@ -47,7 +33,30 @@ type TransferForm = {
   accounting: boolean;
 };
 
-// ---------- Mock Data ----------
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+const ALL_COLUMNS: { key: ColKey; label: string }[] = [
+  { key: "id", label: "Mã phiếu" },
+  { key: "date", label: "Thời gian" },
+  { key: "type", label: "Loại thu chi" },
+  { key: "amount", label: "Giá trị" },
+  { key: "fund", label: "Quỹ tiền" },
+  { key: "person", label: "Người nộp/nhận" },
+  { key: "creator", label: "Người tạo phiếu" },
+];
+
+const PAYMENT_METHODS = ["Tiền mặt", "Chuyển khoản", "Quẹt thẻ", "Ví điện tử"];
+
+const FILTER_SECTIONS_INITIAL: FilterSection[] = [
+  { id: "fund", label: "Quỹ tiền", open: true },
+  { id: "time", label: "Thời gian", open: true },
+  { id: "doctype", label: "Loại chứng từ", open: true },
+  { id: "category", label: "Loại thu chi", open: true },
+  { id: "creator", label: "Người tạo", open: true },
+  { id: "accounting", label: "Hạch toán kết quả kinh doanh", open: true },
+  { id: "target", label: "Đối tượng nộp/nhận", open: true },
+];
+
 const MOCK_RECORDS = [
   {
     id: "PT001",
@@ -73,41 +82,65 @@ const MOCK_RECORDS = [
   },
 ];
 
-const PAYMENT_METHODS = ["Tiền mặt", "Chuyển khoản", "Quẹt thẻ", "Ví điện tử"];
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-const FILTER_SECTIONS_INITIAL: FilterSection[] = [
-  { id: "fund", label: "Quỹ tiền", open: true },
-  { id: "time", label: "Thời gian", open: true },
-  { id: "doctype", label: "Loại chứng từ", open: true },
-  { id: "category", label: "Loại thu chi", open: true },
-  { id: "creator", label: "Người tạo", open: true },
-  { id: "accounting", label: "Hạch toán kết quả kinh doanh", open: true },
-  { id: "target", label: "Đối tượng nộp/nhận", open: true },
-];
+function createDefaultVisibility(): Record<ColKey, boolean> {
+  return Object.fromEntries(
+    ALL_COLUMNS.map((col) => [col.key, true]),
+  ) as Record<ColKey, boolean>;
+}
 
-// ---------- Component ----------
-export function FinanceScreen() {
+const formatMoney = (amount: number) =>
+  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
+    amount,
+  );
+
+// ── Hooks ─────────────────────────────────────────────────────────────────────
+
+function useFinanceFilter() {
   const [filterSections, setFilterSections] = useState(FILTER_SECTIONS_INITIAL);
-  const [search, setSearch] = useState("");
-  const [dropdown, setDropdown] = useState<DropdownType>(null);
   const [selectedFunds, setSelectedFunds] = useState<string[]>([]);
   const [selectedDocTypes, setSelectedDocTypes] = useState<string[]>([]);
   const [dateFrom] = useState("01/04/2026");
   const [dateTo] = useState("30/04/2026");
-  const dropdownRef = useRef<HTMLDivElement>(null); // kept for potential future use
-  const [showTransferModal, setShowTransferModal] = useState(false);
-  const [actionsModal, setActionsModal] = useState<"payment-accounts" | "expense-categories" | null>(null);
-  const [showColPanel, setShowColPanel] = useState(false);
-  const [visibleCols, setVisibleCols] = useState<Record<ColKey, boolean>>({
-    id: true, date: true, type: true, amount: true,
-    fund: true, person: true, creator: true,
-  });
-  const toggleCol = (key: ColKey) =>
-    setVisibleCols((prev) => ({ ...prev, [key]: !prev[key] }));
-  const visibleCount = Object.values(visibleCols).filter(Boolean).length;
-  const [transferForm, setTransferForm] = useState<TransferForm>({
+
+  function toggleSection(id: string) {
+    setFilterSections((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, open: !s.open } : s)),
+    );
+  }
+
+  function toggleFund(fund: string) {
+    setSelectedFunds((prev) =>
+      prev.includes(fund) ? prev.filter((f) => f !== fund) : [...prev, fund],
+    );
+  }
+
+  function toggleDocType(dt: string) {
+    setSelectedDocTypes((prev) =>
+      prev.includes(dt) ? prev.filter((f) => f !== dt) : [...prev, dt],
+    );
+  }
+
+  return {
+    filterSections,
+    toggleSection,
+    selectedFunds,
+    toggleFund,
+    selectedDocTypes,
+    toggleDocType,
+    dateFrom,
+    dateTo,
+  };
+}
+
+function useTransferForm() {
+  const [form, setForm] = useState<TransferForm>({
     voucherId: "",
-    time: new Date().toLocaleString("vi-VN", { hour12: false }).slice(0, 16).replace(",", ""),
+    time: new Date()
+      .toLocaleString("vi-VN", { hour12: false })
+      .slice(0, 16)
+      .replace(",", ""),
     sender: "Chủ cửa hàng",
     fromAccount: "",
     toAccount: "",
@@ -116,73 +149,121 @@ export function FinanceScreen() {
     accounting: true,
   });
 
-  const toggleSection = (id: string) => {
-    setFilterSections((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, open: !s.open } : s))
-    );
-  };
+  function update<K extends keyof TransferForm>(
+    key: K,
+    value: TransferForm[K],
+  ) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }
 
-  const toggleFund = (fund: string) => {
-    setSelectedFunds((prev) =>
-      prev.includes(fund) ? prev.filter((f) => f !== fund) : [...prev, fund]
-    );
-  };
+  return { form, update };
+}
 
-  const toggleDocType = (dt: string) => {
-    setSelectedDocTypes((prev) =>
-      prev.includes(dt) ? prev.filter((f) => f !== dt) : [...prev, dt]
-    );
-  };
+// ── Screen ────────────────────────────────────────────────────────────────────
 
-  const formatMoney = (amount: number) =>
-    new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(amount);
+export function FinanceScreen() {
+  const filter = useFinanceFilter();
+  const transfer = useTransferForm();
 
-  const totalIncome = MOCK_RECORDS.filter((r) => r.type === "income").reduce(
-    (s, r) => s + r.amount,
-    0
+  const [search, setSearch] = useState("");
+  const [dropdown, setDropdown] = useState<DropdownType>(null);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [actionsModal, setActionsModal] = useState<
+    "payment-accounts" | "expense-categories" | null
+  >(null);
+  const [showColPanel, setShowColPanel] = useState(false);
+  const [visibleCols, setVisibleCols] = useState<Record<ColKey, boolean>>(
+    createDefaultVisibility,
   );
-  const totalExpense = MOCK_RECORDS.filter((r) => r.type === "expense").reduce(
-    (s, r) => s + r.amount,
-    0
+
+  const colPanelRef = useRef<HTMLDivElement>(null);
+  const colTriggerRef = useRef<HTMLButtonElement>(null);
+  const dropdownIncomeRef = useRef<HTMLDivElement>(null);
+  const dropdownExpenseRef = useRef<HTMLDivElement>(null);
+  const dropdownActionsRef = useRef<HTMLDivElement>(null);
+
+  // ✅ useDismissible thay cho onClick bubble trên root
+  useDismissible(showColPanel, () => setShowColPanel(false), [
+    colPanelRef,
+    colTriggerRef,
+  ]);
+  useDismissible(dropdown !== null, () => setDropdown(null), [
+    dropdownIncomeRef,
+    dropdownExpenseRef,
+    dropdownActionsRef,
+  ]);
+
+  const visibleCount = useMemo(
+    () => Object.values(visibleCols).filter(Boolean).length,
+    [visibleCols],
+  );
+
+  const displayedRecords = useMemo(
+    () =>
+      MOCK_RECORDS.filter((r) => {
+        if (search && !r.id.toLowerCase().includes(search.toLowerCase()))
+          return false;
+        if (
+          filter.selectedFunds.length > 0 &&
+          !filter.selectedFunds.includes(r.fund)
+        )
+          return false;
+        if (filter.selectedDocTypes.length > 0) {
+          const label = r.type === "income" ? "Phiếu thu" : "Phiếu chi";
+          if (!filter.selectedDocTypes.includes(label)) return false;
+        }
+        return true;
+      }),
+    [search, filter.selectedFunds, filter.selectedDocTypes],
+  );
+
+  const totalIncome = useMemo(
+    () =>
+      MOCK_RECORDS.filter((r) => r.type === "income").reduce(
+        (s, r) => s + r.amount,
+        0,
+      ),
+    [],
+  );
+  const totalExpense = useMemo(
+    () =>
+      MOCK_RECORDS.filter((r) => r.type === "expense").reduce(
+        (s, r) => s + r.amount,
+        0,
+      ),
+    [],
   );
   const opening = 0;
   const closing = opening + totalIncome - totalExpense;
 
-  const displayedRecords = MOCK_RECORDS.filter((r) => {
-    // Search by voucher id
-    if (search && !r.id.toLowerCase().includes(search.toLowerCase())) return false;
-    // Filter by fund
-    if (selectedFunds.length > 0 && !selectedFunds.includes(r.fund)) return false;
-    // Filter by doc type (map type key to label)
-    if (selectedDocTypes.length > 0) {
-      const label = r.type === "income" ? "Phiếu thu" : "Phiếu chi";
-      if (!selectedDocTypes.includes(label)) return false;
-    }
-    return true;
-  });
+  function toggleCol(key: ColKey) {
+    setVisibleCols((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
 
-  const handleDropdownSelect = (method: string, type: DropdownType) => {
+  function handleDropdownSelect(method: string, type: DropdownType) {
     console.log("Create", type, "with method:", method);
     setDropdown(null);
-  };
+  }
 
   return (
-    <div className="fc-layout" onClick={() => { setDropdown(null); setShowColPanel(false); }}>
-      {/* ===== LEFT SIDEBAR FILTERS ===== */}
+    <div className="fc-layout">
+      {/* ===== LEFT SIDEBAR ===== */}
       <aside className="fc-sidebar">
-        {filterSections.map((section) => (
+        {filter.filterSections.map((section) => (
           <div key={section.id} className="fc-filter-section">
             <button
               type="button"
               className="fc-filter-section-header"
-              onClick={() => toggleSection(section.id)}
+              onClick={() => filter.toggleSection(section.id)}
             >
               <span>{section.label}</span>
-              {section.open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              {section.open ? (
+                <ChevronUp size={14} />
+              ) : (
+                <ChevronDown size={14} />
+              )}
             </button>
+
             {section.open && (
               <div className="fc-filter-body">
                 {section.id === "fund" && (
@@ -191,8 +272,8 @@ export function FinanceScreen() {
                       <label key={f} className="fc-checkbox-item">
                         <input
                           type="checkbox"
-                          checked={selectedFunds.includes(f)}
-                          onChange={() => toggleFund(f)}
+                          checked={filter.selectedFunds.includes(f)}
+                          onChange={() => filter.toggleFund(f)}
                         />
                         <span>{f}</span>
                       </label>
@@ -203,25 +284,31 @@ export function FinanceScreen() {
                   <div className="fc-date-range">
                     <div className="fc-date-input">
                       <span className="fc-date-icon">📅</span>
-                      <span>{dateFrom} → {dateTo}</span>
+                      <span>
+                        {filter.dateFrom} → {filter.dateTo}
+                      </span>
                     </div>
                   </div>
                 )}
                 {section.id === "doctype" && (
                   <div className="fc-checkbox-list">
-                    {["Phiếu thu", "Phiếu chi", "Phiếu chuyển tiền"].map((dt) => (
-                      <label key={dt} className="fc-checkbox-item">
-                        <input
-                          type="checkbox"
-                          checked={selectedDocTypes.includes(dt)}
-                          onChange={() => toggleDocType(dt)}
-                        />
-                        <span>{dt}</span>
-                      </label>
-                    ))}
+                    {["Phiếu thu", "Phiếu chi", "Phiếu chuyển tiền"].map(
+                      (dt) => (
+                        <label key={dt} className="fc-checkbox-item">
+                          <input
+                            type="checkbox"
+                            checked={filter.selectedDocTypes.includes(dt)}
+                            onChange={() => filter.toggleDocType(dt)}
+                          />
+                          <span>{dt}</span>
+                        </label>
+                      ),
+                    )}
                   </div>
                 )}
-                {(section.id === "category" || section.id === "creator" || section.id === "accounting") && (
+                {(section.id === "category" ||
+                  section.id === "creator" ||
+                  section.id === "accounting") && (
                   <select className="fc-select">
                     <option>Tất cả</option>
                   </select>
@@ -246,11 +333,9 @@ export function FinanceScreen() {
 
       {/* ===== MAIN CONTENT ===== */}
       <div className="fc-content">
-        {/* Toolbar */}
         <div className="fc-toolbar">
           <h1 className="fc-title">Thu chi</h1>
           <div className="fc-toolbar-right">
-            {/* Search */}
             <div className="fc-search-wrap">
               <input
                 className="fc-search-input"
@@ -261,22 +346,21 @@ export function FinanceScreen() {
               <ChevronDown size={14} className="fc-search-icon" />
             </div>
 
-            {/* Phiếu thu dropdown */}
-            <div className="fc-dropdown-wrap" ref={dropdownRef}>
+            {/* Phiếu thu */}
+            <div className="fc-dropdown-wrap" ref={dropdownIncomeRef}>
               <button
                 type="button"
                 className="fc-btn fc-btn-income"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setDropdown(dropdown === "income" ? null : "income");
-                }}
+                onClick={() =>
+                  setDropdown(dropdown === "income" ? null : "income")
+                }
               >
                 <TrendingUp size={14} />
                 <span>Phiếu thu</span>
                 <ChevronDown size={14} />
               </button>
               {dropdown === "income" && (
-                <div className="fc-dropdown-menu" onClick={(e) => e.stopPropagation()}>
+                <div className="fc-dropdown-menu">
                   {PAYMENT_METHODS.map((m) => (
                     <button
                       key={m}
@@ -291,22 +375,21 @@ export function FinanceScreen() {
               )}
             </div>
 
-            {/* Phiếu chi dropdown */}
-            <div className="fc-dropdown-wrap">
+            {/* Phiếu chi */}
+            <div className="fc-dropdown-wrap" ref={dropdownExpenseRef}>
               <button
                 type="button"
                 className="fc-btn fc-btn-expense"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setDropdown(dropdown === "expense" ? null : "expense");
-                }}
+                onClick={() =>
+                  setDropdown(dropdown === "expense" ? null : "expense")
+                }
               >
                 <TrendingDown size={14} />
                 <span>Phiếu chi</span>
                 <ChevronDown size={14} />
               </button>
               {dropdown === "expense" && (
-                <div className="fc-dropdown-menu" onClick={(e) => e.stopPropagation()}>
+                <div className="fc-dropdown-menu">
                   {PAYMENT_METHODS.map((m) => (
                     <button
                       key={m}
@@ -324,31 +407,32 @@ export function FinanceScreen() {
             <button
               type="button"
               className="fc-btn fc-btn-secondary"
-              onClick={(e) => { e.stopPropagation(); setShowTransferModal(true); }}
+              onClick={() => setShowTransferModal(true)}
             >
               <ArrowUpDown size={14} />
               <span>Chuyển tiền</span>
             </button>
+
             <button type="button" className="fc-btn fc-btn-secondary">
               <Download size={14} />
               <span>Xuất file</span>
             </button>
-            {/* Thao tác dropdown */}
-            <div className="fc-dropdown-wrap">
+
+            {/* Thao tác */}
+            <div className="fc-dropdown-wrap" ref={dropdownActionsRef}>
               <button
                 type="button"
                 className="fc-btn fc-btn-secondary"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setDropdown(dropdown === "actions" ? null : "actions");
-                }}
+                onClick={() =>
+                  setDropdown(dropdown === "actions" ? null : "actions")
+                }
               >
                 <Settings2 size={14} />
                 <span>Thao tác</span>
                 <ChevronDown size={14} />
               </button>
               {dropdown === "actions" && (
-                <div className="fc-dropdown-menu" onClick={(e) => e.stopPropagation()}>
+                <div className="fc-dropdown-menu">
                   <button
                     type="button"
                     className="fc-dropdown-item"
@@ -372,24 +456,25 @@ export function FinanceScreen() {
                 </div>
               )}
             </div>
-            {/* Column visibility panel */}
+
+            {/* Column visibility */}
             <div className="fc-dropdown-wrap fc-col-panel-wrap">
               <button
                 type="button"
+                ref={colTriggerRef}
                 className={`fc-btn fc-btn-icon${showColPanel ? " active" : ""}`}
-                title="Hiển thị cột"
-                onClick={(e) => { e.stopPropagation(); setShowColPanel((v) => !v); }}
+                aria-label="Hiển thị cột"
+                onClick={() => setShowColPanel((v) => !v)}
               >
                 <Columns3 size={16} />
               </button>
               {showColPanel && (
-                <div
-                  className="fc-col-panel"
-                  onClick={(e) => e.stopPropagation()}
-                >
+                <div className="fc-col-panel" ref={colPanelRef}>
                   <div className="fc-col-panel-header">
                     <span>Hiển thị cột</span>
-                    <span className="fc-col-panel-count">{visibleCount}/{ALL_COLUMNS.length}</span>
+                    <span className="fc-col-panel-count">
+                      {visibleCount}/{ALL_COLUMNS.length}
+                    </span>
                   </div>
                   <div className="fc-col-panel-grid">
                     {ALL_COLUMNS.map((col) => (
@@ -404,12 +489,11 @@ export function FinanceScreen() {
                     ))}
                   </div>
                   <div className="fc-col-panel-footer">
+                    {/* ✅ Dùng createDefaultVisibility thay vì hardcode object */}
                     <button
                       type="button"
                       className="fc-col-panel-reset"
-                      onClick={() =>
-                        setVisibleCols({ id:true,date:true,type:true,amount:true,fund:true,person:true,creator:true })
-                      }
+                      onClick={() => setVisibleCols(createDefaultVisibility())}
                     >
                       Đặt lại
                     </button>
@@ -422,22 +506,19 @@ export function FinanceScreen() {
 
         {/* Stat Cards */}
         <div className="fc-stats-row">
-          <div className="fc-stat-card">
-            <div className="fc-stat-label">Quỹ đầu kỳ</div>
-            <div className="fc-stat-value neutral">{opening.toLocaleString("vi-VN")}</div>
-          </div>
-          <div className="fc-stat-card">
-            <div className="fc-stat-label">Tổng thu</div>
-            <div className="fc-stat-value income">{totalIncome.toLocaleString("vi-VN")}</div>
-          </div>
-          <div className="fc-stat-card">
-            <div className="fc-stat-label">Tổng chi</div>
-            <div className="fc-stat-value expense">{totalExpense.toLocaleString("vi-VN")}</div>
-          </div>
-          <div className="fc-stat-card">
-            <div className="fc-stat-label">Tồn quỹ</div>
-            <div className="fc-stat-value closing">{closing.toLocaleString("vi-VN")}</div>
-          </div>
+          {[
+            { label: "Quỹ đầu kỳ", value: opening, cls: "neutral" },
+            { label: "Tổng thu", value: totalIncome, cls: "income" },
+            { label: "Tổng chi", value: totalExpense, cls: "expense" },
+            { label: "Tồn quỹ", value: closing, cls: "closing" },
+          ].map(({ label, value, cls }) => (
+            <div key={label} className="fc-stat-card">
+              <div className="fc-stat-label">{label}</div>
+              <div className={`fc-stat-value ${cls}`}>
+                {value.toLocaleString("vi-VN")}
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Table */}
@@ -448,13 +529,15 @@ export function FinanceScreen() {
                 <th className="fc-th-check">
                   <input type="checkbox" />
                 </th>
-                {visibleCols.id && <th><div className="fc-th-content">Mã phiếu <ArrowUpDown size={12} /></div></th>}
-                {visibleCols.date && <th><div className="fc-th-content">Thời gian <ArrowUpDown size={12} /></div></th>}
-                {visibleCols.type && <th><div className="fc-th-content">Loại thu chi <ArrowUpDown size={12} /></div></th>}
-                {visibleCols.amount && <th><div className="fc-th-content">Giá trị <ArrowUpDown size={12} /></div></th>}
-                {visibleCols.fund && <th><div className="fc-th-content">Quỹ tiền <ArrowUpDown size={12} /></div></th>}
-                {visibleCols.person && <th><div className="fc-th-content">Người nộp/nhận <ArrowUpDown size={12} /></div></th>}
-                {visibleCols.creator && <th><div className="fc-th-content">Người tạo phiếu <ArrowUpDown size={12} /></div></th>}
+                {ALL_COLUMNS.filter((col) => visibleCols[col.key]).map(
+                  (col) => (
+                    <th key={col.key}>
+                      <div className="fc-th-content">
+                        {col.label} <ArrowUpDown size={12} />
+                      </div>
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
             <tbody>
@@ -464,8 +547,14 @@ export function FinanceScreen() {
                     <td className="fc-td-check">
                       <input type="checkbox" />
                     </td>
-                    {visibleCols.id && <td><span className="fc-doc-id">{r.id}</span></td>}
-                    {visibleCols.date && <td className="fc-td-muted">{r.date}</td>}
+                    {visibleCols.id && (
+                      <td>
+                        <span className="fc-doc-id">{r.id}</span>
+                      </td>
+                    )}
+                    {visibleCols.date && (
+                      <td className="fc-td-muted">{r.date}</td>
+                    )}
                     {visibleCols.type && (
                       <td>
                         <span className={`fc-badge ${r.type}`}>
@@ -487,13 +576,17 @@ export function FinanceScreen() {
                         </div>
                       </td>
                     )}
-                    {visibleCols.person && <td className="fc-td-muted">{r.person}</td>}
-                    {visibleCols.creator && <td className="fc-td-muted">{r.creator}</td>}
+                    {visibleCols.person && (
+                      <td className="fc-td-muted">{r.person}</td>
+                    )}
+                    {visibleCols.creator && (
+                      <td className="fc-td-muted">{r.creator}</td>
+                    )}
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={1 + Object.values(visibleCols).filter(Boolean).length} className="fc-empty">
+                  <td colSpan={1 + visibleCount} className="fc-empty">
                     <FileText size={32} className="fc-empty-icon" />
                     <p>Không có dữ liệu</p>
                   </td>
@@ -504,32 +597,22 @@ export function FinanceScreen() {
         </div>
       </div>
 
-      {/* ===== TRANSFER MONEY MODAL ===== */}
+      {/* ===== TRANSFER MODAL ===== */}
       {showTransferModal && (
-        <div
-          className="fc-overlay"
-          onClick={() => setShowTransferModal(false)}
-        >
-          <div
-            className="fc-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
+        <div className="fc-overlay" onClick={() => setShowTransferModal(false)}>
+          <div className="fc-modal" onClick={(e) => e.stopPropagation()}>
             <div className="fc-modal-header">
               <h2 className="fc-modal-title">Thêm phiếu chuyển tiền</h2>
               <button
                 type="button"
                 className="fc-modal-close"
-                onClick={() => setShowTransferModal(false)}
                 aria-label="Đóng"
+                onClick={() => setShowTransferModal(false)}
               >
                 <X size={18} />
               </button>
             </div>
-
-            {/* Body */}
             <div className="fc-modal-body">
-              {/* Row 1: Mã phiếu + Thời gian */}
               <div className="fc-modal-row">
                 <div className="fc-modal-field">
                   <label className="fc-modal-label">Mã phiếu</label>
@@ -537,9 +620,9 @@ export function FinanceScreen() {
                     type="text"
                     className="fc-modal-input"
                     placeholder="Tự động"
-                    value={transferForm.voucherId}
+                    value={transfer.form.voucherId}
                     onChange={(e) =>
-                      setTransferForm((f) => ({ ...f, voucherId: e.target.value }))
+                      transfer.update("voucherId", e.target.value)
                     }
                   />
                 </div>
@@ -550,25 +633,20 @@ export function FinanceScreen() {
                     <input
                       type="text"
                       className="fc-modal-input with-icon"
-                      value={transferForm.time}
-                      onChange={(e) =>
-                        setTransferForm((f) => ({ ...f, time: e.target.value }))
-                      }
+                      value={transfer.form.time}
+                      onChange={(e) => transfer.update("time", e.target.value)}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Row 2: Người chuyển (full width) */}
               <div className="fc-modal-field">
                 <label className="fc-modal-label">Người chuyển</label>
                 <div className="fc-modal-select-wrap">
                   <select
                     className="fc-modal-select"
-                    value={transferForm.sender}
-                    onChange={(e) =>
-                      setTransferForm((f) => ({ ...f, sender: e.target.value }))
-                    }
+                    value={transfer.form.sender}
+                    onChange={(e) => transfer.update("sender", e.target.value)}
                   >
                     <option>Chủ cửa hàng</option>
                     <option>Admin</option>
@@ -578,87 +656,62 @@ export function FinanceScreen() {
                 </div>
               </div>
 
-              {/* Row 3: Tài khoản chuyển + Tài khoản nhận */}
               <div className="fc-modal-row">
-                <div className="fc-modal-field">
-                  <label className="fc-modal-label">Tài khoản chuyển</label>
-                  <div className="fc-modal-select-wrap">
-                    <select
-                      className="fc-modal-select"
-                      value={transferForm.fromAccount}
-                      onChange={(e) =>
-                        setTransferForm((f) => ({ ...f, fromAccount: e.target.value }))
-                      }
-                    >
-                      <option value=""></option>
-                      <option>Tiền mặt</option>
-                      <option>Ngân hàng</option>
-                      <option>Ví điện tử</option>
-                    </select>
-                    <ChevronDown size={14} className="fc-modal-select-icon" />
+                {(["fromAccount", "toAccount"] as const).map((field) => (
+                  <div key={field} className="fc-modal-field">
+                    <label className="fc-modal-label">
+                      {field === "fromAccount"
+                        ? "Tài khoản chuyển"
+                        : "Tài khoản nhận"}
+                    </label>
+                    <div className="fc-modal-select-wrap">
+                      <select
+                        className="fc-modal-select"
+                        value={transfer.form[field]}
+                        onChange={(e) => transfer.update(field, e.target.value)}
+                      >
+                        <option value=""></option>
+                        <option>Tiền mặt</option>
+                        <option>Ngân hàng</option>
+                        <option>Ví điện tử</option>
+                      </select>
+                      <ChevronDown size={14} className="fc-modal-select-icon" />
+                    </div>
                   </div>
-                </div>
-                <div className="fc-modal-field">
-                  <label className="fc-modal-label">Tài khoản nhận</label>
-                  <div className="fc-modal-select-wrap">
-                    <select
-                      className="fc-modal-select"
-                      value={transferForm.toAccount}
-                      onChange={(e) =>
-                        setTransferForm((f) => ({ ...f, toAccount: e.target.value }))
-                      }
-                    >
-                      <option value=""></option>
-                      <option>Tiền mặt</option>
-                      <option>Ngân hàng</option>
-                      <option>Ví điện tử</option>
-                    </select>
-                    <ChevronDown size={14} className="fc-modal-select-icon" />
-                  </div>
-                </div>
+                ))}
               </div>
 
-              {/* Row 4: Số tiền (full width) */}
               <div className="fc-modal-field">
                 <label className="fc-modal-label">Số tiền</label>
                 <input
                   type="number"
                   className="fc-modal-input"
-                  placeholder=""
-                  value={transferForm.amount}
-                  onChange={(e) =>
-                    setTransferForm((f) => ({ ...f, amount: e.target.value }))
-                  }
+                  value={transfer.form.amount}
+                  onChange={(e) => transfer.update("amount", e.target.value)}
                 />
               </div>
 
-              {/* Row 5: Ghi chú (full width) */}
               <div className="fc-modal-field">
                 <label className="fc-modal-label">Ghi chú</label>
                 <input
                   type="text"
                   className="fc-modal-input"
-                  value={transferForm.note}
-                  onChange={(e) =>
-                    setTransferForm((f) => ({ ...f, note: e.target.value }))
-                  }
+                  value={transfer.form.note}
+                  onChange={(e) => transfer.update("note", e.target.value)}
                 />
               </div>
 
-              {/* Accounting checkbox */}
               <label className="fc-modal-checkbox-row">
                 <input
                   type="checkbox"
-                  checked={transferForm.accounting}
+                  checked={transfer.form.accounting}
                   onChange={(e) =>
-                    setTransferForm((f) => ({ ...f, accounting: e.target.checked }))
+                    transfer.update("accounting", e.target.checked)
                   }
                 />
                 <span>Hạch toán vào kết quả hoạt động kinh doanh</span>
               </label>
             </div>
-
-            {/* Footer */}
             <div className="fc-modal-footer">
               <button
                 type="button"
@@ -671,7 +724,7 @@ export function FinanceScreen() {
                 type="button"
                 className="fc-btn fc-btn-income"
                 onClick={() => {
-                  console.log("Tạo mới phiếu chuyển tiền", transferForm);
+                  console.log("Tạo mới", transfer.form);
                   setShowTransferModal(false);
                 }}
               >
@@ -681,7 +734,7 @@ export function FinanceScreen() {
                 type="button"
                 className="fc-btn fc-btn-income"
                 onClick={() => {
-                  console.log("Tạo và in phiếu chuyển tiền", transferForm);
+                  console.log("Tạo và in", transfer.form);
                   setShowTransferModal(false);
                 }}
               >
@@ -692,13 +745,18 @@ export function FinanceScreen() {
         </div>
       )}
 
-      {/* ===== ACTIONS: TÀI KHOẢN THANH TOÁN MODAL ===== */}
+      {/* ===== ACTIONS MODALS ===== */}
       {actionsModal === "payment-accounts" && (
         <div className="fc-overlay" onClick={() => setActionsModal(null)}>
           <div className="fc-modal" onClick={(e) => e.stopPropagation()}>
             <div className="fc-modal-header">
               <h2 className="fc-modal-title">Tài khoản thanh toán</h2>
-              <button type="button" className="fc-modal-close" onClick={() => setActionsModal(null)}>
+              <button
+                type="button"
+                className="fc-modal-close"
+                aria-label="Đóng"
+                onClick={() => setActionsModal(null)}
+              >
                 <X size={18} />
               </button>
             </div>
@@ -714,24 +772,16 @@ export function FinanceScreen() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>Tiền mặt</td>
-                      <td>Tiền mặt</td>
-                      <td className="fc-amount income">0 đ</td>
-                      <td><span className="fc-badge income">Hoạt động</span></td>
-                    </tr>
-                    <tr>
-                      <td>Ngân hàng</td>
-                      <td>Ngân hàng</td>
-                      <td className="fc-amount income">0 đ</td>
-                      <td><span className="fc-badge income">Hoạt động</span></td>
-                    </tr>
-                    <tr>
-                      <td>Ví điện tử</td>
-                      <td>Ví điện tử</td>
-                      <td className="fc-amount income">0 đ</td>
-                      <td><span className="fc-badge income">Hoạt động</span></td>
-                    </tr>
+                    {["Tiền mặt", "Ngân hàng", "Ví điện tử"].map((acc) => (
+                      <tr key={acc}>
+                        <td>{acc}</td>
+                        <td>{acc}</td>
+                        <td className="fc-amount income">0 đ</td>
+                        <td>
+                          <span className="fc-badge income">Hoạt động</span>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -740,7 +790,11 @@ export function FinanceScreen() {
               <button type="button" className="fc-btn fc-btn-income">
                 + Thêm tài khoản
               </button>
-              <button type="button" className="fc-btn fc-btn-secondary" onClick={() => setActionsModal(null)}>
+              <button
+                type="button"
+                className="fc-btn fc-btn-secondary"
+                onClick={() => setActionsModal(null)}
+              >
                 Đóng
               </button>
             </div>
@@ -748,13 +802,17 @@ export function FinanceScreen() {
         </div>
       )}
 
-      {/* ===== ACTIONS: LOẠI THU CHI MODAL ===== */}
       {actionsModal === "expense-categories" && (
         <div className="fc-overlay" onClick={() => setActionsModal(null)}>
           <div className="fc-modal" onClick={(e) => e.stopPropagation()}>
             <div className="fc-modal-header">
               <h2 className="fc-modal-title">Loại thu chi</h2>
-              <button type="button" className="fc-modal-close" onClick={() => setActionsModal(null)}>
+              <button
+                type="button"
+                className="fc-modal-close"
+                aria-label="Đóng"
+                onClick={() => setActionsModal(null)}
+              >
                 <X size={18} />
               </button>
             </div>
@@ -771,17 +829,23 @@ export function FinanceScreen() {
                   <tbody>
                     <tr>
                       <td>Thu tiền khách hàng</td>
-                      <td><span className="fc-badge income">Thu</span></td>
+                      <td>
+                        <span className="fc-badge income">Thu</span>
+                      </td>
                       <td className="fc-td-muted">—</td>
                     </tr>
                     <tr>
                       <td>Chi mua nguyên liệu</td>
-                      <td><span className="fc-badge expense">Chi</span></td>
+                      <td>
+                        <span className="fc-badge expense">Chi</span>
+                      </td>
                       <td className="fc-td-muted">—</td>
                     </tr>
                     <tr>
                       <td>Chi trả nhân viên</td>
-                      <td><span className="fc-badge expense">Chi</span></td>
+                      <td>
+                        <span className="fc-badge expense">Chi</span>
+                      </td>
                       <td className="fc-td-muted">—</td>
                     </tr>
                   </tbody>
@@ -792,7 +856,11 @@ export function FinanceScreen() {
               <button type="button" className="fc-btn fc-btn-income">
                 + Thêm loại
               </button>
-              <button type="button" className="fc-btn fc-btn-secondary" onClick={() => setActionsModal(null)}>
+              <button
+                type="button"
+                className="fc-btn fc-btn-secondary"
+                onClick={() => setActionsModal(null)}
+              >
                 Đóng
               </button>
             </div>

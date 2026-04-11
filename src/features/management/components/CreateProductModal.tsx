@@ -30,9 +30,11 @@ export function CreateProductModal({
       <section className="catalog-modal catalog-modal-xl card">
         <header className="catalog-modal-header">
           <h3>Tạo sản phẩm</h3>
+          {/* ✅ aria-label cho close button */}
           <button
             type="button"
             className="modal-close-btn"
+            aria-label="Đóng"
             onClick={modal.closeModal}
           >
             <X size={14} />
@@ -40,7 +42,7 @@ export function CreateProductModal({
         </header>
 
         <div className="catalog-modal-grid">
-          {/* ── Left: main form ─────────────────────────────────────────── */}
+          {/* ── Left: main form ──────────────────────────────────────────── */}
           <div className="catalog-modal-main">
             <section className="catalog-section panel-primitive">
               <h4>Loại sản phẩm</h4>
@@ -52,7 +54,6 @@ export function CreateProductModal({
                     className={`catalog-type-tab ${
                       modal.formProductType === type.key ? "active" : ""
                     }`}
-                    // ✅ Fix: binds to form state, NOT filter.productType
                     onClick={() => modal.setFormProductType(type.key)}
                   >
                     {type.label}
@@ -64,7 +65,6 @@ export function CreateProductModal({
             <section className="catalog-section panel-primitive">
               <h4>Thông tin chung</h4>
               <div className="catalog-form-row">
-                {/* Hidden file input — controlled by useCatalogImage */}
                 <input
                   ref={image.imageInputRef}
                   type="file"
@@ -94,7 +94,8 @@ export function CreateProductModal({
                   <span>Tên sản phẩm *</span>
                   <input className="input" />
                 </label>
-                {image.imageUrl ? (
+                {/* ✅ && thay vì ? : null */}
+                {image.imageUrl && (
                   <button
                     type="button"
                     className="btn ghost icon-only"
@@ -104,7 +105,7 @@ export function CreateProductModal({
                   >
                     <Trash2 size={12} />
                   </button>
-                ) : null}
+                )}
               </div>
               <div className="catalog-form-grid three-cols">
                 <label>
@@ -117,7 +118,6 @@ export function CreateProductModal({
                 </label>
                 <label>
                   <span>Đơn vị tính</span>
-                  {/* ✅ Fix: binds to modal.formUnit, NOT lost in CatalogScreen */}
                   <UnitSelect
                     value={modal.formUnit}
                     onChange={modal.setFormUnit}
@@ -145,13 +145,12 @@ export function CreateProductModal({
             </section>
           </div>
 
-          {/* ── Right: supplemental ─────────────────────────────────────── */}
+          {/* ── Right: supplemental ──────────────────────────────────────── */}
           <aside className="catalog-modal-side">
             <section className="catalog-section panel-primitive">
               <h4>Thông tin bổ sung</h4>
               <label>
                 <span>Danh mục</span>
-                {/* ✅ Fix: binds to modal.formCategory, NOT filter.productCategory */}
                 <CategorySelect
                   categories={categories}
                   value={modal.formCategory}

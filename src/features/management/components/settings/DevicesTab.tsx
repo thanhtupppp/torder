@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { SettingAction, SettingToggle } from "./SettingControls";
 
 type DevicesTabProps = {
@@ -5,6 +6,9 @@ type DevicesTabProps = {
 };
 
 export function DevicesTab({ onOpenCustomerDisplayConfig }: DevicesTabProps) {
+  const [autoOpenDrawer, setAutoOpenDrawer] = useState(true);
+  const [customerDisplayOn, setCustomerDisplayOn] = useState(false);
+
   return (
     <div className="settings-screen__tab settings-screen__tab--fade-in">
       <div className="settings-screen__content-header">
@@ -22,8 +26,8 @@ export function DevicesTab({ onOpenCustomerDisplayConfig }: DevicesTabProps) {
         <SettingToggle
           label="Tự động mở khi thanh toán Tiền mặt"
           description="Gửi lệnh kích hoạt ngăn kéo tiền khi hoàn thành giao dịch tiền mặt."
-          checked
-          onChange={() => {}}
+          checked={autoOpenDrawer}
+          onChange={setAutoOpenDrawer}
         />
       </div>
 
@@ -34,8 +38,8 @@ export function DevicesTab({ onOpenCustomerDisplayConfig }: DevicesTabProps) {
         <SettingToggle
           label="Bật hiển thị cho khách hàng"
           description="Kết nối với màn hình phụ để khách theo dõi giỏ hàng."
-          checked={false}
-          onChange={() => {}}
+          checked={customerDisplayOn}
+          onChange={setCustomerDisplayOn}
         />
         <SettingAction
           label="Mẫu màn hình phụ"

@@ -1,8 +1,8 @@
 .product-price-badge {
-  font-size: 11px;
+  font-size: var(--text-xs); /* 11px → token */
   font-weight: 700;
   background: var(--accent-soft);
-  color: #1d4ed8;
+  color: var(--accent-hover); /* on accent-soft bg → needs higher contrast */
   padding: 4px var(--space-2);
-  border-radius: 999px;
+  border-radius: var(--radius-full); /* 999px → token */
 }

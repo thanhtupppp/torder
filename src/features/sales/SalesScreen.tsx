@@ -12,7 +12,14 @@ import {
   Wallet,
   X,
 } from "lucide-react";
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Await, useLoaderData } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
@@ -20,7 +27,7 @@ import { getAppApi } from "../../lib/api";
 import type { Product } from "../../types";
 import { calcCartTotal, calcLineTotal, formatCurrency } from "./helpers";
 
-// ─── Local types ─────────────────────────────────────────────────────────────
+// ─── Local types ──────────────────────────────────────────────────────────────
 
 type LocalCartItem = {
   product: Product;
@@ -53,12 +60,30 @@ type OrderTab = {
 // ─── Mock data ────────────────────────────────────────────────────────────────
 
 const MOCK_TABLES = [
-  { id: "t1", name: "Bàn 1", area: "Trong nhà", capacity: 4, status: "occupied" },
+  {
+    id: "t1",
+    name: "Bàn 1",
+    area: "Trong nhà",
+    capacity: 4,
+    status: "occupied",
+  },
   { id: "t2", name: "Bàn 2", area: "Trong nhà", capacity: 4, status: "empty" },
   { id: "t3", name: "Bàn 3", area: "Trong nhà", capacity: 2, status: "empty" },
-  { id: "t4", name: "Bàn 4", area: "Ngoài sân", capacity: 6, status: "ordered" },
+  {
+    id: "t4",
+    name: "Bàn 4",
+    area: "Ngoài sân",
+    capacity: 6,
+    status: "ordered",
+  },
   { id: "t5", name: "Bàn 5", area: "Ngoài sân", capacity: 6, status: "empty" },
-  { id: "t6", name: "VIP 1", area: "Phòng VIP", capacity: 10, status: "occupied" },
+  {
+    id: "t6",
+    name: "VIP 1",
+    area: "Phòng VIP",
+    capacity: 10,
+    status: "occupied",
+  },
   { id: "t7", name: "VIP 2", area: "Phòng VIP", capacity: 10, status: "empty" },
   { id: "t8", name: "Bàn 6", area: "Trong nhà", capacity: 4, status: "empty" },
 ] as const;
@@ -74,20 +99,24 @@ const MOCK_CUSTOMERS = [
 ];
 
 const ORDER_TYPES: { value: OrderType; label: string }[] = [
-  { value: "dine-in",  label: "Tại bàn" },
+  { value: "dine-in", label: "Tại bàn" },
   { value: "takeaway", label: "Mang về" },
   { value: "delivery", label: "Giao hàng" },
 ];
 
 const STATUS_LABEL: Record<TableStatus, string> = {
-  empty:    "Bàn trống",
+  empty: "Bàn trống",
   occupied: "Đang phục vụ",
-  ordered:  "Đã đặt",
+  ordered: "Đã đặt",
+};
+
+const EMPTY_DISCOUNTS: DiscountState = {
+  discount: 0,
+  promotion: 0,
+  extraFee: 0,
 };
 
 // ─── Tab factory ──────────────────────────────────────────────────────────────
-
-let _counter = 1;
 
 function makeTab(id: string, label: string): OrderTab {
   return {
@@ -100,7 +129,7 @@ function makeTab(id: string, label: string): OrderTab {
     customerName: "",
     orderType: "takeaway",
     note: "",
-    discounts: { discount: 0, promotion: 0, extraFee: 0 },
+    discounts: { ...EMPTY_DISCOUNTS },
     cashReceived: "",
   };
 }
@@ -113,16 +142,18 @@ type SalesContentProps = { products: Product[] };
 // ─── Main component ───────────────────────────────────────────────────────────
 
 function SalesContent({ products }: SalesContentProps) {
-  const [tabs, setTabs]           = useState<OrderTab[]>([makeTab("tab-1", "Đơn mới")]);
+  const [tabs, setTabs] = useState<OrderTab[]>([makeTab("tab-1", "Đơn mới")]);
   const [activeTabId, setActiveTabId] = useState("tab-1");
-  const [keyword, setKeyword]     = useState("");
+  const [keyword, setKeyword] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
-  const [loading, setLoading]     = useState(false);
+  const [loading, setLoading] = useState(false);
   const [showTablePicker, setShowTablePicker] = useState(false);
-  const [expandedItemId, setExpandedItemId]   = useState<string | null>(null);
-  const [customerQuery, setCustomerQuery]     = useState("");
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
+  const [customerQuery, setCustomerQuery] = useState("");
   const [showCustomerDrop, setShowCustomerDrop] = useState(false);
 
+  // fix: dùng useRef thay module-level mutable variable
+  const counterRef = useRef(1);
   const customerWrapRef = useRef<HTMLDivElement>(null);
   const appApi = getAppApi();
 
@@ -131,7 +162,10 @@ function SalesContent({ products }: SalesContentProps) {
   // Close customer dropdown on outside click
   useEffect(() => {
     function onMouseDown(e: MouseEvent) {
-      if (customerWrapRef.current && !customerWrapRef.current.contains(e.target as Node)) {
+      if (
+        customerWrapRef.current &&
+        !customerWrapRef.current.contains(e.target as Node)
+      ) {
         setShowCustomerDrop(false);
       }
     }
@@ -141,14 +175,19 @@ function SalesContent({ products }: SalesContentProps) {
 
   // ── Tab helpers ────────────────────────────────────────────────────────────
 
-  function updateTab(partial: Partial<OrderTab>) {
-    setTabs((prev) => prev.map((t) => (t.id === activeTabId ? { ...t, ...partial } : t)));
-  }
+  const updateTab = useCallback(
+    (partial: Partial<OrderTab>) => {
+      setTabs((prev) =>
+        prev.map((t) => (t.id === activeTabId ? { ...t, ...partial } : t)),
+      );
+    },
+    [activeTabId],
+  );
 
   function addTab() {
-    _counter++;
-    const id  = `tab-${_counter}`;
-    const tab = makeTab(id, `Đơn ${_counter}`);
+    counterRef.current += 1;
+    const id = `tab-${counterRef.current}`;
+    const tab = makeTab(id, `Đơn ${counterRef.current}`);
     setTabs((prev) => [...prev, tab]);
     setActiveTabId(id);
     setCustomerQuery("");
@@ -159,7 +198,7 @@ function SalesContent({ products }: SalesContentProps) {
     e.stopPropagation();
     if (tabs.length === 1) return;
     setTabs((prev) => {
-      const idx      = prev.findIndex((t) => t.id === tabId);
+      const idx = prev.findIndex((t) => t.id === tabId);
       const filtered = prev.filter((t) => t.id !== tabId);
       if (activeTabId === tabId) {
         setActiveTabId(filtered[Math.min(idx, filtered.length - 1)].id);
@@ -179,7 +218,9 @@ function SalesContent({ products }: SalesContentProps) {
   function addToCart(product: Product) {
     const found = activeTab.cart.find((i) => i.product.id === product.id);
     if (!found) {
-      updateTab({ cart: [...activeTab.cart, { product, quantity: 1, note: "" }] });
+      updateTab({
+        cart: [...activeTab.cart, { product, quantity: 1, note: "" }],
+      });
     } else {
       updateTab({
         cart: activeTab.cart.map((i) =>
@@ -187,6 +228,13 @@ function SalesContent({ products }: SalesContentProps) {
         ),
       });
     }
+  }
+
+  function removeItem(productId: string) {
+    updateTab({
+      cart: activeTab.cart.filter((i) => i.product.id !== productId),
+    });
+    if (expandedItemId === productId) setExpandedItemId(null);
   }
 
   function updateQty(productId: string, nextQty: number) {
@@ -201,11 +249,6 @@ function SalesContent({ products }: SalesContentProps) {
     });
   }
 
-  function removeItem(productId: string) {
-    updateTab({ cart: activeTab.cart.filter((i) => i.product.id !== productId) });
-    if (expandedItemId === productId) setExpandedItemId(null);
-  }
-
   function updateItemNote(productId: string, note: string) {
     updateTab({
       cart: activeTab.cart.map((i) =>
@@ -216,7 +259,9 @@ function SalesContent({ products }: SalesContentProps) {
 
   function updateDiscount(field: keyof DiscountState, value: string) {
     const n = Number.parseFloat(value);
-    updateTab({ discounts: { ...activeTab.discounts, [field]: Number.isNaN(n) ? 0 : n } });
+    updateTab({
+      discounts: { ...activeTab.discounts, [field]: Number.isNaN(n) ? 0 : n },
+    });
   }
 
   // ── Table / customer helpers ───────────────────────────────────────────────
@@ -248,13 +293,16 @@ function SalesContent({ products }: SalesContentProps) {
     setLoading(true);
     try {
       await appApi.order.create({
-        items: activeTab.cart.map((i) => ({ productId: i.product.id, quantity: i.quantity })),
+        items: activeTab.cart.map((i) => ({
+          productId: i.product.id,
+          quantity: i.quantity,
+        })),
         note: activeTab.note.trim() || undefined,
       });
       updateTab({
         cart: [],
         note: "",
-        discounts: { discount: 0, promotion: 0, extraFee: 0 },
+        discounts: { ...EMPTY_DISCOUNTS },
         cashReceived: "",
         customerId: null,
         customerName: "",
@@ -262,9 +310,11 @@ function SalesContent({ products }: SalesContentProps) {
         tableName: null,
       });
       setCustomerQuery("");
-      alert("Tạo đơn thành công");
+      // TODO: thay bằng toast notification
+      window.alert("Tạo đơn thành công");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Có lỗi xảy ra");
+      // TODO: thay bằng toast notification
+      window.alert(err instanceof Error ? err.message : "Có lỗi xảy ra");
     } finally {
       setLoading(false);
     }
@@ -280,8 +330,9 @@ function SalesContent({ products }: SalesContentProps) {
   const filteredProducts = useMemo(() => {
     const text = keyword.trim().toLowerCase();
     return products.filter((p) => {
-      const matchText     = p.name.toLowerCase().includes(text);
-      const matchCategory = activeCategory === "all" || p.category === activeCategory;
+      const matchText = p.name.toLowerCase().includes(text);
+      const matchCategory =
+        activeCategory === "all" || p.category === activeCategory;
       return matchText && matchCategory;
     });
   }, [products, keyword, activeCategory]);
@@ -290,11 +341,14 @@ function SalesContent({ products }: SalesContentProps) {
     const q = customerQuery.trim().toLowerCase();
     if (!q) return MOCK_CUSTOMERS;
     return MOCK_CUSTOMERS.filter(
-      (c) => c.name.toLowerCase().includes(q) || c.phone.replace(/\s/g, "").includes(q),
+      (c) =>
+        c.name.toLowerCase().includes(q) ||
+        c.phone.replace(/\s/g, "").includes(q),
     );
   }, [customerQuery]);
 
-  const total   = useMemo(() => calcCartTotal(activeTab.cart), [activeTab.cart]);
+  const total = useMemo(() => calcCartTotal(activeTab.cart), [activeTab.cart]);
+
   const payable = useMemo(
     () =>
       Math.max(
@@ -308,13 +362,42 @@ function SalesContent({ products }: SalesContentProps) {
   );
 
   const cashReceived = Number.parseFloat(activeTab.cashReceived) || 0;
-  const change       = cashReceived - payable;
+  const change = cashReceived - payable;
+
+  // ── Keyboard handler cho interactive divs ──────────────────────────────────
+
+  function handleItemKeyDown(e: React.KeyboardEvent, productId: string) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setExpandedItemId(expandedItemId === productId ? null : productId);
+    }
+  }
+
+  function handleTabCloseKeyDown(e: React.KeyboardEvent, tabId: string) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setTabs((prev) => {
+        const idx = prev.findIndex((t) => t.id === tabId);
+        const filtered = prev.filter((t) => t.id !== tabId);
+        if (activeTabId === tabId) {
+          setActiveTabId(filtered[Math.min(idx, filtered.length - 1)].id);
+        }
+        return filtered;
+      });
+    }
+  }
+
+  function handleTableClearKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      clearTable();
+    }
+  }
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <div className="sales-page">
-
       {/* ═══ LEFT: Products ═══ */}
       <section className="sales-left">
         <div className="sales-toolbar">
@@ -341,7 +424,9 @@ function SalesContent({ products }: SalesContentProps) {
               <button
                 key={cat}
                 type="button"
-                className={activeCategory === key ? "tab-button active" : "tab-button"}
+                className={
+                  activeCategory === key ? "tab-button active" : "tab-button"
+                }
                 onClick={() => setActiveCategory(key)}
               >
                 {cat}
@@ -363,8 +448,12 @@ function SalesContent({ products }: SalesContentProps) {
                   onClick={() => addToCart(product)}
                 >
                   <div className="product-top-row">
-                    <span className="product-code">{product.id.toUpperCase()}</span>
-                    <span className="product-price-badge">{formatCurrency(product.price)}</span>
+                    <span className="product-code">
+                      {product.id.toUpperCase()}
+                    </span>
+                    <span className="product-price-badge">
+                      {formatCurrency(product.price)}
+                    </span>
                   </div>
                   <div className="product-thumb" />
                   <span className="product-name">{product.name}</span>
@@ -378,7 +467,6 @@ function SalesContent({ products }: SalesContentProps) {
 
       {/* ═══ RIGHT: Order ═══ */}
       <aside className="sales-right">
-
         {/* ── Order tabs ── */}
         <div className="order-header">
           <div className="order-tabs-scrollable">
@@ -394,9 +482,12 @@ function SalesContent({ products }: SalesContentProps) {
                   <span
                     className="order-tab-close"
                     role="button"
-                    tabIndex={-1}
+                    tabIndex={0} /* fix: tabIndex=-1 → 0 */
+                    aria-label={`Đóng ${tab.label}`} /* fix: thêm aria-label */
                     onClick={(e) => closeTab(tab.id, e)}
-                    onKeyDown={() => {}}
+                    onKeyDown={(e) =>
+                      handleTabCloseKeyDown(e, tab.id)
+                    } /* fix: handler thực */
                   >
                     <X size={11} />
                   </span>
@@ -408,6 +499,7 @@ function SalesContent({ products }: SalesContentProps) {
               className="order-tab-add"
               onClick={addTab}
               title="Thêm đơn mới"
+              aria-label="Thêm đơn mới"
             >
               <Plus size={14} />
             </button>
@@ -425,15 +517,19 @@ function SalesContent({ products }: SalesContentProps) {
                 <span
                   className="btn-table-clear"
                   role="button"
-                  tabIndex={-1}
-                  onClick={(e) => { e.stopPropagation(); clearTable(); }}
-                  onKeyDown={() => {}}
+                  tabIndex={0} /* fix: tabIndex=-1 → 0 */
+                  aria-label="Xóa bàn đã chọn" /* fix: thêm aria-label */
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    clearTable();
+                  }}
+                  onKeyDown={handleTableClearKeyDown} /* fix: handler thực */
                 >
                   <X size={10} />
                 </span>
               )}
             </button>
-            <Button variant="ghost">
+            <Button variant="ghost" aria-label="Tùy chọn thêm">
               <MoreHorizontal size={14} />
             </Button>
           </div>
@@ -441,7 +537,6 @@ function SalesContent({ products }: SalesContentProps) {
 
         {/* ── Order meta ── */}
         <div className="order-meta">
-          {/* Order type button group */}
           <div className="order-type-group">
             {ORDER_TYPES.map(({ value, label }) => (
               <button
@@ -455,14 +550,22 @@ function SalesContent({ products }: SalesContentProps) {
             ))}
           </div>
 
-          {/* Customer search */}
           <div className="customer-search-wrap" ref={customerWrapRef}>
             <div className="customer-field-row">
-              <div className={`customer-badge ${activeTab.customerId ? "selected" : "muted"}`}>
+              <div
+                className={`customer-badge ${activeTab.customerId ? "selected" : "muted"}`}
+              >
                 <User size={12} />
-                <span>{activeTab.customerId ? activeTab.customerName : "Khách lẻ"}</span>
+                <span>
+                  {activeTab.customerId ? activeTab.customerName : "Khách lẻ"}
+                </span>
                 {activeTab.customerId && (
-                  <button type="button" className="customer-badge-clear" onClick={clearCustomer}>
+                  <button
+                    type="button"
+                    className="customer-badge-clear"
+                    aria-label="Xóa khách hàng" /* fix: thêm aria-label */
+                    onClick={clearCustomer}
+                  >
                     <X size={10} />
                   </button>
                 )}
@@ -473,7 +576,10 @@ function SalesContent({ products }: SalesContentProps) {
                   className="input customer-input"
                   placeholder="Tìm khách hàng..."
                   value={customerQuery}
-                  onChange={(e) => { setCustomerQuery(e.target.value); setShowCustomerDrop(true); }}
+                  onChange={(e) => {
+                    setCustomerQuery(e.target.value);
+                    setShowCustomerDrop(true);
+                  }}
                   onFocus={() => setShowCustomerDrop(true)}
                 />
                 <ChevronDown size={12} className="customer-input-chevron" />
@@ -481,14 +587,18 @@ function SalesContent({ products }: SalesContentProps) {
             </div>
 
             {showCustomerDrop && (
-              <div className="customer-dropdown">
+              <div className="customer-dropdown" role="listbox">
                 {filteredCustomers.length === 0 ? (
-                  <div className="customer-dropdown-empty">Không tìm thấy khách hàng</div>
+                  <div className="customer-dropdown-empty">
+                    Không tìm thấy khách hàng
+                  </div>
                 ) : (
                   filteredCustomers.map((c) => (
                     <button
                       key={c.id}
                       type="button"
+                      role="option" /* fix: thêm role */
+                      aria-selected={activeTab.customerId === c.id}
                       className={`customer-option ${activeTab.customerId === c.id ? "selected" : ""}`}
                       onClick={() => selectCustomer(c.id, c.name)}
                     >
@@ -515,24 +625,30 @@ function SalesContent({ products }: SalesContentProps) {
             <div className="order-list">
               {activeTab.cart.map((item) => (
                 <div key={item.product.id} className="order-item-wrap">
-                  {/* Main row */}
                   <div
                     className="order-item"
                     role="button"
                     tabIndex={0}
                     onClick={() =>
                       setExpandedItemId(
-                        expandedItemId === item.product.id ? null : item.product.id,
+                        expandedItemId === item.product.id
+                          ? null
+                          : item.product.id,
                       )
                     }
-                    onKeyDown={() => {}}
+                    onKeyDown={(e) =>
+                      handleItemKeyDown(e, item.product.id)
+                    } /* fix: handler thực */
                   >
                     <div className="order-item-info">
                       <p className="order-item-name">{item.product.name}</p>
                       <small className="order-item-price muted">
                         {formatCurrency(item.product.price)}
                         {item.note && (
-                          <span className="order-item-note-badge"> · {item.note}</span>
+                          <span className="order-item-note-badge">
+                            {" "}
+                            · {item.note}
+                          </span>
                         )}
                       </small>
                     </div>
@@ -542,11 +658,23 @@ function SalesContent({ products }: SalesContentProps) {
                       role="presentation"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <Button variant="ghost" onClick={() => updateQty(item.product.id, item.quantity - 1)}>
+                      <Button
+                        variant="ghost"
+                        aria-label={`Giảm số lượng ${item.product.name}`}
+                        onClick={() =>
+                          updateQty(item.product.id, item.quantity - 1)
+                        }
+                      >
                         <Minus size={12} />
                       </Button>
                       <span>{item.quantity}</span>
-                      <Button variant="ghost" onClick={() => updateQty(item.product.id, item.quantity + 1)}>
+                      <Button
+                        variant="ghost"
+                        aria-label={`Tăng số lượng ${item.product.name}`}
+                        onClick={() =>
+                          updateQty(item.product.id, item.quantity + 1)
+                        }
+                      >
                         <Plus size={12} />
                       </Button>
                     </div>
@@ -557,14 +685,17 @@ function SalesContent({ products }: SalesContentProps) {
                         type="button"
                         className="cart-item-delete"
                         title="Xoá"
-                        onClick={(e) => { e.stopPropagation(); removeItem(item.product.id); }}
+                        aria-label={`Xóa ${item.product.name} khỏi giỏ hàng`} /* fix */
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeItem(item.product.id);
+                        }}
                       >
                         <Trash2 size={13} />
                       </button>
                     </div>
                   </div>
 
-                  {/* Per-item note row */}
                   {expandedItemId === item.product.id && (
                     <div className="order-item-note-row">
                       <MessageSquareDot size={13} className="muted" />
@@ -572,7 +703,9 @@ function SalesContent({ products }: SalesContentProps) {
                         className="input"
                         placeholder="Ghi chú món này..."
                         value={item.note}
-                        onChange={(e) => updateItemNote(item.product.id, e.target.value)}
+                        onChange={(e) =>
+                          updateItemNote(item.product.id, e.target.value)
+                        }
                         onClick={(e) => e.stopPropagation()}
                         // biome-ignore lint/a11y/noAutofocus: intended UX
                         autoFocus
@@ -595,6 +728,7 @@ function SalesContent({ products }: SalesContentProps) {
               <input
                 className="input input-inline"
                 type="number"
+                min={0}
                 value={activeTab.discounts.discount}
                 onChange={(e) => updateDiscount("discount", e.target.value)}
               />
@@ -604,6 +738,7 @@ function SalesContent({ products }: SalesContentProps) {
               <input
                 className="input input-inline"
                 type="number"
+                min={0}
                 value={activeTab.discounts.promotion}
                 onChange={(e) => updateDiscount("promotion", e.target.value)}
               />
@@ -613,30 +748,37 @@ function SalesContent({ products }: SalesContentProps) {
               <input
                 className="input input-inline"
                 type="number"
+                min={0}
                 value={activeTab.discounts.extraFee}
                 onChange={(e) => updateDiscount("extraFee", e.target.value)}
               />
             </div>
             <div className="summary-row total">
               <span>Tổng cộng</span>
-              <strong className="value-number">{formatCurrency(payable)}</strong>
+              <strong className="value-number">
+                {formatCurrency(payable)}
+              </strong>
             </div>
 
-            {/* Cash + change */}
             <div className="summary-row cash-row">
               <span>Tiền khách đưa</span>
               <input
                 className="input input-inline"
                 type="number"
+                min={0}
                 placeholder="0"
                 value={activeTab.cashReceived}
                 onChange={(e) => updateTab({ cashReceived: e.target.value })}
               />
             </div>
             {cashReceived > 0 && (
-              <div className={`summary-row change-row ${change >= 0 ? "positive" : "negative"}`}>
+              <div
+                className={`summary-row change-row ${change >= 0 ? "positive" : "negative"}`}
+              >
                 <span>{change >= 0 ? "Tiền thừa" : "Còn thiếu"}</span>
-                <strong className="value-number">{formatCurrency(Math.abs(change))}</strong>
+                <strong className="value-number">
+                  {formatCurrency(Math.abs(change))}
+                </strong>
               </div>
             )}
           </div>
@@ -657,7 +799,11 @@ function SalesContent({ products }: SalesContentProps) {
           <div className="order-actions-row">
             <Button variant="ghost">Lưu đơn</Button>
             <Button variant="secondary">Tạm tính</Button>
-            <Button onClick={checkout} disabled={!activeTab.cart.length || loading} fullWidth>
+            <Button
+              onClick={checkout}
+              disabled={!activeTab.cart.length || loading}
+              fullWidth
+            >
               <Wallet size={14} /> {loading ? "Đang xử lý..." : "Thanh toán"}
             </Button>
           </div>
@@ -666,10 +812,16 @@ function SalesContent({ products }: SalesContentProps) {
 
       {/* ═══ Table Picker Modal ═══ */}
       {showTablePicker && (
-        <div className="sales-overlay" onClick={() => setShowTablePicker(false)}>
+        <div
+          className="sales-overlay"
+          role="presentation"
+          onClick={() => setShowTablePicker(false)}
+        >
           <div
             className="table-picker-modal card"
             role="dialog"
+            aria-modal="true"
+            aria-label="Chọn bàn"
             onClick={(e) => e.stopPropagation()}
           >
             <header className="table-picker-header">
@@ -677,6 +829,7 @@ function SalesContent({ products }: SalesContentProps) {
               <button
                 type="button"
                 className="modal-close-btn"
+                aria-label="Đóng"
                 onClick={() => setShowTablePicker(false)}
               >
                 <X size={14} />
@@ -684,11 +837,17 @@ function SalesContent({ products }: SalesContentProps) {
             </header>
 
             <div className="table-picker-grid">
-              {/* "No table" option */}
               <button
                 type="button"
                 className={`table-picker-card card--interactive status-none ${!activeTab.tableId ? "selected" : ""}`}
-                onClick={() => { updateTab({ tableId: null, tableName: null, orderType: "takeaway" }); setShowTablePicker(false); }}
+                onClick={() => {
+                  updateTab({
+                    tableId: null,
+                    tableName: null,
+                    orderType: "takeaway",
+                  });
+                  setShowTablePicker(false);
+                }}
               >
                 <span className="tpc-name">Không bàn</span>
                 <span className="tpc-cap">—</span>
@@ -703,7 +862,9 @@ function SalesContent({ products }: SalesContentProps) {
                   onClick={() => selectTable(t.id, t.name)}
                 >
                   <span className="tpc-name">{t.name}</span>
-                  <span className="tpc-cap">{t.capacity} người · {t.area}</span>
+                  <span className="tpc-cap">
+                    {t.capacity} người · {t.area}
+                  </span>
                   <span className="tpc-badge">{STATUS_LABEL[t.status]}</span>
                 </button>
               ))}

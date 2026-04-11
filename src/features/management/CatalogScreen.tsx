@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from "react";
+import { useCallback, useMemo, type ReactNode } from "react";
 import { CatalogFilters } from "./components/CatalogFilters";
 import { CatalogToolbar } from "./components/CatalogToolbar";
 import { CategoriesTab } from "./components/CategoriesTab";
@@ -16,8 +16,6 @@ import { useCatalogImage } from "./hooks/useCatalogImage";
 import { useCatalogMocks } from "./hooks/useCatalogMocks";
 import { useCatalogModal } from "./hooks/useCatalogModal";
 
-// ── Helper ────────────────────────────────────────────────────────────────────
-
 function ComingSoonTab({ label }: { label: string }) {
   return (
     <section className="catalog-placeholder card">
@@ -25,8 +23,6 @@ function ComingSoonTab({ label }: { label: string }) {
     </section>
   );
 }
-
-// ── Screen ────────────────────────────────────────────────────────────────────
 
 export function CatalogScreen() {
   const { categories, products, isLoading } = useCatalogMocks();
@@ -39,44 +35,45 @@ export function CatalogScreen() {
     [],
   );
 
-  function handleOpenCreate() {
+  const handleOpenCreate = useCallback(() => {
     image.clearImage();
     modal.openCreateProduct();
-  }
+  }, [image, modal]);
 
-  // ── Tab content map — O(1) lookup, scales cleanly when new tabs are added ──
-  const TAB_CONTENT: Record<CatalogTab, ReactNode> = {
-    products: (
-      <section className="catalog-products card">
-        <CatalogToolbar filter={filter} onOpenCreate={handleOpenCreate} />
-        <div className="catalog-products-layout">
-          <CatalogFilters filter={filter} />
-          <ProductTable
-            products={filter.pagedRows}
-            columns={visibleColumns}
-            page={filter.page}
-            pageSize={filter.pageSize}
-            total={filter.totalRows}
-            onPageChange={filter.setPage}
-          />
-        </div>
-      </section>
-    ),
-    categories: (
-      <CategoriesTab
-        categories={categories}
-        isLoading={isLoading}
-        onCreateCategory={modal.openEditCategory}
-        onEditCategory={(name) => modal.openEditCategory(name)}
-      />
-    ),
-    addons: <ComingSoonTab label="Món thêm" />,
-    notes: <ComingSoonTab label="Ghi chú món" />,
-  };
+  const TAB_CONTENT = useMemo<Record<CatalogTab, ReactNode>>(
+    () => ({
+      products: (
+        <section className="catalog-products card">
+          <CatalogToolbar filter={filter} onOpenCreate={handleOpenCreate} />
+          <div className="catalog-products-layout">
+            <CatalogFilters filter={filter} />
+            <ProductTable
+              products={filter.pagedRows}
+              columns={visibleColumns}
+              page={filter.page}
+              pageSize={filter.pageSize}
+              total={filter.totalRows}
+              onPageChange={filter.setPage}
+            />
+          </div>
+        </section>
+      ),
+      categories: (
+        <CategoriesTab
+          categories={categories}
+          isLoading={isLoading}
+          onCreateCategory={modal.openEditCategory}
+          onEditCategory={modal.openEditCategory}
+        />
+      ),
+      addons: <ComingSoonTab label="Món thêm" />,
+      notes: <ComingSoonTab label="Ghi chú món" />,
+    }),
+    [filter, handleOpenCreate, visibleColumns, categories, isLoading, modal],
+  );
 
   return (
     <div className="catalog-page">
-      {/* ── Top tab bar ──────────────────────────────────────────────────── */}
       <header className="catalog-top-tabs">
         {TOP_TABS.map((tab) => (
           <button
@@ -90,10 +87,8 @@ export function CatalogScreen() {
         ))}
       </header>
 
-      {/* ── Active tab content ───────────────────────────────────────────── */}
       {TAB_CONTENT[filter.activeTab]}
 
-      {/* ── Modals ───────────────────────────────────────────────────────── */}
       {modal.activeModal === "create-product" ? (
         <CreateProductModal
           modal={modal}

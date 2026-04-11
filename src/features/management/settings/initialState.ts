@@ -1,4 +1,5 @@
 import type {
+  CustomerDisplayConfig,
   PaymentSettings,
   SalesSettings,
   SettingTab,
@@ -7,9 +8,11 @@ import type {
 
 export const INITIAL_ACTIVE_TAB: SettingTab = "storeInfo";
 
-export const INITIAL_CUSTOMER_DISPLAY_TEXT = "Cảm ơn bạn đã mua hàng!";
-export const INITIAL_CUSTOMER_DISPLAY_WEBSITE = "Website: posorder.vn";
-export const INITIAL_SHOW_ORDER_INFO = true;
+export const INITIAL_CUSTOMER_DISPLAY: CustomerDisplayConfig = {
+  text: "Cảm ơn bạn đã mua hàng!",
+  website: "Website: posorder.vn",
+  showOrderInfo: true,
+};
 
 export const INITIAL_SALES_SETTINGS: SalesSettings = {
   allowNegativeStock: true,

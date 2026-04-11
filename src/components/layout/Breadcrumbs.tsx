@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 type BreadcrumbItem = {
   label: string;
   to?: string;
@@ -12,12 +14,19 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
 
   return (
     <nav className="breadcrumbs" aria-label="Breadcrumb">
-      {items.map((item, index) => (
-        <span key={`${item.label}-${index}`} className="breadcrumb-item">
-          {item.label}
-          {index < items.length - 1 ? " / " : ""}
-        </span>
-      ))}
+      {items.map((item, index) => {
+        const isLast = index === items.length - 1;
+        return (
+          <span key={item.label} className="breadcrumb-item">
+            {item.to && !isLast ? (
+              <Link to={item.to}>{item.label}</Link>
+            ) : (
+              item.label
+            )}
+            {!isLast && " / "}
+          </span>
+        );
+      })}
     </nav>
   );
 }

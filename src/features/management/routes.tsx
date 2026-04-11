@@ -6,64 +6,49 @@ import { MENU_KEYS, type MenuKey } from "../../constants/navigation";
 import { APP_ROUTES } from "../../constants/routes";
 
 const ComingSoonScreen = lazy(() =>
-  import("../common/ComingSoonScreen").then((module) => ({
-    default: module.ComingSoonScreen,
+  import("../common/ComingSoonScreen").then((m) => ({
+    default: m.ComingSoonScreen,
   })),
 );
 
 const OrdersScreen = lazy(() =>
-  import("./OrdersScreen").then((module) => ({
-    default: module.OrdersScreen,
-  })),
+  import("./OrdersScreen").then((m) => ({ default: m.OrdersScreen })),
 );
 
 const CustomersScreen = lazy(() =>
-  import("./CustomersScreen").then((module) => ({
-    default: module.CustomersScreen,
-  })),
+  import("./CustomersScreen").then((m) => ({ default: m.CustomersScreen })),
 );
 
 const FinanceScreen = lazy(() =>
-  import("./FinanceScreen").then((module) => ({
-    default: module.FinanceScreen,
-  })),
+  import("./FinanceScreen").then((m) => ({ default: m.FinanceScreen })),
 );
 
 const CatalogScreen = lazy(() =>
-  import("./CatalogScreen").then((module) => ({
-    default: module.CatalogScreen,
-  })),
+  import("./CatalogScreen").then((m) => ({ default: m.CatalogScreen })),
 );
 
+// ✅ Nhất quán với các screen khác — dùng named export
 const SettingsScreen = lazy(() =>
-  import("./SettingsScreen").then((module) => ({
-    default: module.default,
-  })),
+  import("./SettingsScreen").then((m) => ({ default: m.SettingsScreen })),
 );
 
 const InventoryScreen = lazy(() =>
-  import("./InventoryScreen").then((module) => ({
-    default: module.InventoryScreen,
-  })),
+  import("./InventoryScreen").then((m) => ({ default: m.InventoryScreen })),
 );
 
 const ReportsScreen = lazy(() =>
-  import("./ReportsScreen").then((module) => ({
-    default: module.ReportsScreen,
-  })),
+  import("./ReportsScreen").then((m) => ({ default: m.ReportsScreen })),
 );
 
 const TablesScreen = lazy(() =>
-  import("./TablesScreen").then((module) => ({
-    default: module.TablesScreen,
-  })),
+  import("./TablesScreen").then((m) => ({ default: m.TablesScreen })),
 );
 
 const EmployeesScreen = lazy(() =>
-  import("./EmployeesScreen").then((module) => ({
-    default: module.EmployeesScreen,
-  })),
+  import("./EmployeesScreen").then((m) => ({ default: m.EmployeesScreen })),
 );
+
+// ── Route config ──────────────────────────────────────────────────────────────
 
 type ManagementRouteConfig = {
   menuKey: MenuKey;
@@ -84,51 +69,23 @@ const SCREEN_BY_MENU_KEY: Partial<Record<MenuKey, typeof ComingSoonScreen>> = {
 };
 
 const managementConfigs: ManagementRouteConfig[] = [
-  {
-    menuKey: MENU_KEYS.TABLES,
-    path: APP_ROUTES.tables,
-    title: "Quản lý bàn",
-  },
-  {
-    menuKey: MENU_KEYS.CATALOG,
-    path: APP_ROUTES.catalog,
-    title: "Danh mục",
-  },
-  {
-    menuKey: MENU_KEYS.ORDERS,
-    path: APP_ROUTES.orders,
-    title: "Đơn hàng",
-  },
-  {
-    menuKey: MENU_KEYS.INVENTORY,
-    path: APP_ROUTES.inventory,
-    title: "Kho",
-  },
-  {
-    menuKey: MENU_KEYS.REPORTS,
-    path: APP_ROUTES.reports,
-    title: "Báo cáo",
-  },
+  { menuKey: MENU_KEYS.TABLES, path: APP_ROUTES.tables, title: "Quản lý bàn" },
+  { menuKey: MENU_KEYS.CATALOG, path: APP_ROUTES.catalog, title: "Danh mục" },
+  { menuKey: MENU_KEYS.ORDERS, path: APP_ROUTES.orders, title: "Đơn hàng" },
+  { menuKey: MENU_KEYS.INVENTORY, path: APP_ROUTES.inventory, title: "Kho" },
+  { menuKey: MENU_KEYS.REPORTS, path: APP_ROUTES.reports, title: "Báo cáo" },
   {
     menuKey: MENU_KEYS.CUSTOMERS,
     path: APP_ROUTES.customers,
     title: "Khách hàng",
   },
-  {
-    menuKey: MENU_KEYS.FINANCE,
-    path: APP_ROUTES.finance,
-    title: "Thu chi",
-  },
+  { menuKey: MENU_KEYS.FINANCE, path: APP_ROUTES.finance, title: "Thu chi" },
   {
     menuKey: MENU_KEYS.EMPLOYEES,
     path: APP_ROUTES.employees,
     title: "Nhân viên",
   },
-  {
-    menuKey: MENU_KEYS.SETTINGS,
-    path: APP_ROUTES.settings,
-    title: "Cài đặt",
-  },
+  { menuKey: MENU_KEYS.SETTINGS, path: APP_ROUTES.settings, title: "Cài đặt" },
 ];
 
 export const managementRoutes: RouteObject[] = managementConfigs.map(

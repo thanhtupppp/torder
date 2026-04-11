@@ -1,9 +1,4 @@
-import {
-  type ChangeEvent,
-  type DragEvent,
-  useRef,
-  useState,
-} from "react";
+import { type ChangeEvent, type DragEvent, useRef, useState } from "react";
 
 /**
  * Manages product image state: URL preview, drag-active flag, file-input ref,
@@ -37,8 +32,8 @@ export function useCatalogImage() {
     setIsDragActive(true);
   }
 
-  function handleDragLeave(event: DragEvent<HTMLButtonElement>) {
-    event.preventDefault();
+  // ✅ dragLeave không có default behavior cần cancel
+  function handleDragLeave() {
     setIsDragActive(false);
   }
 

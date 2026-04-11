@@ -6,7 +6,8 @@ import type { CatalogTab, ProductType } from "../constants/catalog";
 export type { CatalogTab, ProductType };
 
 const PAGE_SIZE = 20;
-const EMPTY: ProductDto[] = [];
+
+const VALID_TABS = new Set<CatalogTab>(["categories", "addons", "notes"]);
 
 /**
  * Manages product filtering, pagination, and URL-param sync for the
@@ -16,14 +17,18 @@ const EMPTY: ProductDto[] = [];
 export function useCatalogFilter(products: ProductDto[]) {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // ── Initialise from URL ────────────────────────────────────────────────────
-  const tabFromQuery = searchParams.get("tab");
-  const initialTab: CatalogTab =
-    tabFromQuery === "categories" ||
-    tabFromQuery === "addons" ||
-    tabFromQuery === "notes"
-      ? tabFromQuery
-      : "products";
+  // ── Initialise from URL (computed once on mount) ──────────────────────────
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const initialTab = useMemo<CatalogTab>(() => {
+    const tab = searchParams.get("tab") as CatalogTab | null;
+    return tab && VALID_TABS.has(tab) ? tab : "products";
+  }, []);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const initialPage = useMemo(() => {
+    const parsed = Number(searchParams.get("page") ?? "1");
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+  }, []);
 
   const [activeTab, setActiveTab] = useState<CatalogTab>(initialTab);
   const [productSearch, setProductSearch] = useState(
@@ -33,15 +38,12 @@ export function useCatalogFilter(products: ProductDto[]) {
   const [productCategory, setProductCategory] = useState(
     searchParams.get("category") ?? "",
   );
-  const [page, setPage] = useState(() => {
-    const parsed = Number(searchParams.get("page") ?? "1");
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
-  });
+  const [page, setPage] = useState(initialPage);
 
   // ── Derived ────────────────────────────────────────────────────────────────
   const filteredRows = useMemo(
     () =>
-      (products.length ? products : EMPTY).filter((row) => {
+      products.filter((row) => {
         const keywordMatch =
           row.name.toLowerCase().includes(productSearch.toLowerCase()) ||
           row.code.toLowerCase().includes(productSearch.toLowerCase());

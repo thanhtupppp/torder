@@ -4,11 +4,15 @@
 :root[data-theme="light"] {
   /* ── Backgrounds / Surfaces ─────────────────────────────────────────── */
   --bg-app: #eef2f7;
+  --bg-body: #eef2f7; /* ← thêm: alias */
   --bg-surface: #ffffff;
   --bg-surface-soft: #f8fafc;
-  --bg-surface-2: #f1f5f9; /* card nền trong card */
-  --bg-overlay: rgba(15, 23, 42, 0.4); /* modal backdrop */
+  --bg-surface-2: #f1f5f9;
+  --bg-surface-offset: #e8eef5; /* ← thêm: dùng trong catalog */
+  --bg-surface-dynamic: #e2e8f0; /* ← thêm: dùng trong catalog */
+  --bg-overlay: rgba(15, 23, 42, 0.4);
   --bg-tooltip: #1e293b;
+  --bg-card: #ffffff; /* ← thêm: alias */
 
   /* ── Sidebar ────────────────────────────────────────────────────────── */
   --bg-sidebar-from: #111c33;
@@ -27,37 +31,58 @@
   --text-tooltip: #f8fafc;
 
   /* ── Borders ────────────────────────────────────────────────────────── */
+  --border: #dbe1ec; /* ← thêm: alias của border-soft */
   --border-soft: #dbe1ec;
   --border-base: #cbd5e1;
   --border-strong: #94a3b8;
   --border-focus: #2563eb;
+  --border-input: #dbe1ec;
+  --border-input-focus: #2563eb;
 
   /* ── Accent (Blue) ──────────────────────────────────────────────────── */
   --accent: #2563eb;
   --accent-hover: #1d4ed8;
   --accent-active: #1e40af;
   --accent-soft: #dbeafe;
+  --accent-muted: #bfdbfe; /* ← thêm: dùng trong sales/catalog */
+  --accent-soft-border: #93c5fd; /* ← thêm: dùng trong sales */
   --accent-text: #ffffff;
 
-  /* ── Semantic colors ────────────────────────────────────────────────── */
+  /* ── Focus ring ─────────────────────────────────────────────────────── */
+  --focus-ring: 0 0 0 2px rgba(37, 99, 235, 0.22);
+
+  /* ── Success ────────────────────────────────────────────────────────── */
   --success: #16a34a;
+  --success-hover: #15803d; /* ← thêm */
   --success-soft: #dcfce7;
+  --success-muted: #86efac; /* ← thêm */
+  --success-dark: #166534; /* ← thêm */
   --success-text: #ffffff;
 
-  --warning: #d97706;
-  --warning-soft: #fef3c7;
-  --warning-text: #ffffff;
-
+  /* ── Danger ─────────────────────────────────────────────────────────── */
   --danger: #dc2626;
   --danger-hover: #b91c1c;
   --danger-soft: #fee2e2;
+  --danger-muted: #fca5a5; /* ← thêm */
   --danger-text: #ffffff;
 
+  /* ── Warning ────────────────────────────────────────────────────────── */
+  --warning: #d97706;
+  --warning-hover: #b45309; /* ← thêm */
+  --warning-soft: #fef3c7;
+  --warning-muted: #fde68a; /* ← thêm */
+  --warning-dark: #854d0e; /* ← thêm */
+  --warning-text: #ffffff;
+
+  /* ── Info ───────────────────────────────────────────────────────────── */
   --info: #0284c7;
   --info-soft: #e0f2fe;
+  --info-muted: #7dd3fc; /* ← thêm */
+  --info-bg: #c7def3; /* ← thêm: table header tint */
+  --info-dark: #0f172a; /* ← thêm: text on info-bg */
   --info-text: #ffffff;
 
-  /* ── Shadows (override tokens.css cho light theme) ──────────────────── */
+  /* ── Shadows ────────────────────────────────────────────────────────── */
   --shadow-xs: 0 1px 2px rgba(17, 24, 39, 0.05);
   --shadow-sm:
     0 1px 4px rgba(17, 24, 39, 0.07), 0 1px 2px rgba(17, 24, 39, 0.04);
@@ -67,12 +92,7 @@
     0 8px 24px rgba(17, 24, 39, 0.1), 0 2px 8px rgba(17, 24, 39, 0.05);
   --shadow-xl:
     0 16px 40px rgba(17, 24, 39, 0.12), 0 4px 12px rgba(17, 24, 39, 0.06);
-
-  /* backward-compat — giữ để không break code cũ */
-  --shadow-soft: var(--shadow-md);
-
-  /* ── Focus ring ─────────────────────────────────────────────────────── */
-  --focus-ring: 0 0 0 2px rgba(37, 99, 235, 0.22);
+  --shadow-soft: var(--shadow-md); /* backward-compat */
 
   /* ── Table ──────────────────────────────────────────────────────────── */
   --bg-table-header: #f1f5f9;
@@ -82,6 +102,8 @@
   /* ── Input ──────────────────────────────────────────────────────────── */
   --bg-input: #ffffff;
   --bg-input-disabled: #f8fafc;
-  --border-input: #dbe1ec;
-  --border-input-focus: #2563eb;
+
+  /* ── Interaction ────────────────────────────────────────────────────── */
+  --hover-lift: translateY(-1px); /* ← thêm */
+  --press-inset: translateY(1px) scale(0.98); /* ← thêm */
 }

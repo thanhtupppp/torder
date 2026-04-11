@@ -1,51 +1,49 @@
-/* ===================================================
-   EMPLOYEES SCREEN — employees.css
-   =================================================== */
-
-/* ── Page wrapper ──────────────────────────────── */
+/* ── Page wrapper ────────────────────────────────── */
 .emp-page {
   display: flex;
   flex-direction: column;
   flex: 1;
-  background: #f8f9fb;
+  background: var(--bg-app); /* #f8f9fb → token */
   min-height: 0;
 }
 
-/* ── Top Tabs ──────────────────────────────────── */
+/* ── Top tabs ────────────────────────────────────── */
 .emp-tabs-bar {
   display: flex;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 0 20px;
-  background: #ffffff;
+  border-bottom: 1px solid var(--border-soft); /* #e5e7eb → token */
+  padding: 0 var(--space-5); /* 20px → token */
+  background: var(--bg-surface); /* #ffffff → token */
 }
 
 .emp-tab {
-  padding: 12px 18px;
+  padding: var(--space-3) 18px; /* 12px → token */
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #6b7280;
+  color: var(--text-secondary); /* #6b7280 → token */
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--text-md); /* 14px → token */
   font-weight: 500;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color var(--transition-fast),
+    /* 0.15s → token */ border-color var(--transition-fast);
 }
 
 .emp-tab:hover {
-  color: #111827;
+  color: var(--text-primary); /* #111827 → token */
 }
 
 .emp-tab.active {
-  color: #2563eb;
-  border-bottom-color: #2563eb;
+  color: var(--accent); /* #2563eb → token */
+  border-bottom-color: var(--accent);
   font-weight: 600;
 }
 
-/* ── Section ───────────────────────────────────── */
+/* ── Section ─────────────────────────────────────── */
 .emp-section {
-  background: #ffffff;
+  background: var(--bg-surface); /* #ffffff → token */
   border-radius: 0;
-  padding: 20px 24px;
+  padding: var(--space-5) var(--space-6); /* 20px 24px → token */
   flex: 1;
 }
 
@@ -53,23 +51,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4); /* 16px → token */
 }
 
 .emp-section-title {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--text-lg); /* 15px → token */
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary); /* #111827 → token */
 }
 
 .emp-header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2); /* 8px → token */
 }
 
-/* ── Search ────────────────────────────────────── */
+/* ── Search ──────────────────────────────────────── */
 .emp-search-wrap {
   position: relative;
   display: flex;
@@ -79,98 +77,39 @@
 .emp-search-icon {
   position: absolute;
   left: 10px;
-  color: #9ca3af;
+  color: var(--text-tertiary); /* #9ca3af → token */
   pointer-events: none;
 }
 
+/* .input handles base styles — override only unique properties */
 .emp-search-input {
-  padding: 7px 12px 7px 30px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 13px;
+  padding-left: 30px; /* clearance for the absolute icon */
   width: 200px;
-  outline: none;
-  background: #fff;
-  color: #111827;
-  transition: border-color 0.15s;
 }
 
-.emp-search-input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
-}
+/* .btn .btn.primary .btn.outline .btn.ghost.icon-only from design system */
 
-/* ── Buttons ───────────────────────────────────── */
-.emp-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-
-.emp-btn-primary {
-  background: #2563eb;
-  color: #ffffff;
-  border-color: #2563eb;
-}
-
-.emp-btn-primary:hover {
-  background: #1d4ed8;
-  border-color: #1d4ed8;
-}
-
-.emp-btn-secondary {
-  background: #ffffff;
-  color: #374151;
-  border-color: #d1d5db;
-}
-
-.emp-btn-secondary:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
-}
-
-.emp-btn-icon {
-  padding: 7px 8px;
-  background: #ffffff;
-  border: 1px solid #d1d5db;
-  color: #6b7280;
-  border-radius: 6px;
-}
-
-.emp-btn-icon:hover {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-/* ── Table ─────────────────────────────────────── */
+/* ── Table ───────────────────────────────────────── */
 .emp-table-wrap {
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border: 1px solid var(--border-soft); /* #e5e7eb → token */
+  border-radius: var(--radius-lg); /* 8px → token */
   overflow: hidden;
 }
 
 .emp-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: var(--text-base); /* 13px → token */
 }
 
 .emp-table thead th {
-  background: #f8f9fb;
+  background: var(--bg-surface-soft); /* #f8f9fb → token */
   padding: 10px 14px;
   text-align: left;
-  font-size: 12px;
+  font-size: var(--text-xs); /* 12px → token */
   font-weight: 600;
-  color: #6b7280;
-  border-bottom: 1px solid #e5e7eb;
+  color: var(--text-secondary); /* #6b7280 → token */
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .emp-th-check {
@@ -180,7 +119,7 @@
 
 .emp-table tbody td {
   padding: 12px 14px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--border-soft); /* #f3f4f6 → token */
   vertical-align: middle;
 }
 
@@ -189,7 +128,7 @@
 }
 
 .emp-tr:hover td {
-  background: #f9fafb;
+  background: var(--bg-surface-soft); /* #f9fafb → token */
 }
 
 .emp-td-check {
@@ -197,7 +136,7 @@
   width: 40px;
 }
 
-/* ── Name cell with avatar ─────────────────────── */
+/* ── Name cell ───────────────────────────────────── */
 .emp-name-cell {
   display: flex;
   align-items: center;
@@ -207,109 +146,109 @@
 .emp-avatar {
   width: 34px;
   height: 34px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg); /* 8px → token */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: var(--text-xs); /* 12px → token */
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-inverse); /* #ffffff → token */
   flex-shrink: 0;
   text-transform: uppercase;
 }
 
 .emp-name {
   font-weight: 500;
-  color: #111827;
+  color: var(--text-primary); /* #111827 → token */
 }
 
-/* ── Phone cell ────────────────────────────────── */
+/* ── Phone cell ──────────────────────────────────── */
 .emp-phone-cell {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: #16a34a;
+  gap: var(--space-1); /* 6px → token */
+  color: var(--success); /* #16a34a → token */
 }
 
 .emp-phone-icon {
-  color: #16a34a;
+  color: var(--success);
   flex-shrink: 0;
 }
 
-/* ── Role + muted ──────────────────────────────── */
+/* ── Role text ───────────────────────────────────── */
 .emp-role-text {
-  color: #374151;
-}
-
+  color: var(--text-secondary);
+} /* #374151 → token */
 .emp-role-name {
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
 }
-
 .emp-muted {
-  color: #9ca3af;
-}
+  color: var(--text-tertiary);
+} /* #9ca3af → token */
 
-/* ── Row action ────────────────────────────────── */
+/* ── Row action button ───────────────────────────── */
 .emp-row-action {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #9ca3af;
-  padding: 4px;
-  border-radius: 4px;
+  color: var(--text-tertiary); /* #9ca3af → token */
+  padding: var(--space-1);
+  border-radius: var(--radius-sm); /* 4px → token */
   display: flex;
   align-items: center;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .emp-row-action:hover {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--bg-surface-2); /* #f3f4f6 → token */
+  color: var(--text-secondary); /* #374151 → token */
 }
 
 .emp-link-btn {
   background: transparent;
   border: none;
-  font-size: 13px;
-  color: #2563eb;
+  font-size: var(--text-base); /* 13px → token */
+  color: var(--accent); /* #2563eb → token */
   cursor: pointer;
-  padding: 4px 0;
+  padding: var(--space-1) 0;
   text-decoration: underline;
   text-underline-offset: 2px;
+  transition: color var(--transition-fast);
 }
 
 .emp-link-btn:hover {
-  color: #1d4ed8;
+  color: var(--accent-hover); /* #1d4ed8 → token */
 }
 
-/* ── Empty state ───────────────────────────────── */
+/* ── Empty state ─────────────────────────────────── */
 .emp-empty {
   text-align: center;
-  padding: 40px !important;
-  color: #9ca3af;
-  font-size: 13px;
+  padding: var(--space-10) !important; /* 40px → token */
+  color: var(--text-tertiary); /* #9ca3af → token */
+  font-size: var(--text-base); /* 13px → token */
 }
 
-/* ═══════════════════════════════════════════════
-   MODALS
-═══════════════════════════════════════════════ */
+/* ── Overlay + Modal ─────────────────────────────── */
 .emp-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--bg-overlay); /* rgba(0,0,0,0.45) → token */
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  z-index: 1000;
-  padding: 40px 16px;
+  z-index: var(--z-modal); /* 1000 → token */
+  padding: var(--space-10) var(--space-4); /* 40px 16px → token */
   overflow-y: auto;
 }
 
 .emp-modal {
   width: min(520px, 100%);
-  background: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  background: var(--bg-surface); /* #ffffff → token */
+  border-radius: var(--radius-lg); /* 10px → token */
+  box-shadow: var(--shadow-xl); /* hardcode rgba → token */
   display: flex;
   flex-direction: column;
 }
@@ -322,14 +261,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: var(--space-4) var(--space-5); /* 16px 20px → token */
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .emp-modal-title {
-  font-size: 16px;
+  font-size: var(--text-lg); /* 16px → token */
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary); /* #111827 → token */
   margin: 0;
 }
 
@@ -337,23 +276,26 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #6b7280;
-  padding: 4px;
-  border-radius: 4px;
+  color: var(--text-secondary); /* #6b7280 → token */
+  padding: var(--space-1);
+  border-radius: var(--radius-sm); /* 4px → token */
   display: flex;
   align-items: center;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .emp-modal-close:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--bg-surface-2); /* #f3f4f6 → token */
+  color: var(--text-primary); /* #111827 → token */
 }
 
 .emp-modal-body {
-  padding: 20px;
+  padding: var(--space-5); /* 20px → token */
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--space-5);
   overflow-y: auto;
   max-height: 70vh;
 }
@@ -362,17 +304,17 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
-  padding: 14px 20px;
-  border-top: 1px solid #e5e7eb;
-  background: #fafafa;
+  gap: var(--space-2); /* 8px → token */
+  padding: 14px var(--space-5);
+  border-top: 1px solid var(--border-soft);
+  background: var(--bg-surface-soft); /* #fafafa → token */
 }
 
-/* ── Add employee form ──────────────────────────── */
+/* ── Form ────────────────────────────────────────── */
 .emp-form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: var(--space-4); /* 16px → token */
 }
 
 .emp-form-col {
@@ -384,84 +326,44 @@
 .emp-form-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-1); /* 6px → token */
 }
 
 .emp-form-label {
-  font-size: 13px;
+  font-size: var(--text-base); /* 13px → token */
   font-weight: 500;
-  color: #374151;
+  color: var(--text-secondary); /* #374151 → token */
 }
 
-.emp-form-input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 13px;
-  color: #111827;
-  background: #fff;
-  outline: none;
-  box-sizing: border-box;
-  font-family: inherit;
-}
-
-.emp-form-input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
-}
-
-.emp-form-input:disabled {
-  background: #f9fafb;
-  color: #9ca3af;
-}
-
-.emp-form-select-wrap {
-  position: relative;
-}
-
+/* .input handles base styles — .emp-form-select adds only select-specific overrides */
 .emp-form-select {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 13px;
-  color: #111827;
-  background: #fff;
-  outline: none;
   cursor: pointer;
   appearance: none;
-  box-sizing: border-box;
 }
 
-.emp-form-select:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
-}
-
-/* ── Role warning banner ───────────────────────── */
+/* ── Role warning banner ─────────────────────────── */
 .emp-role-warning {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  color: #92400e;
-  padding: 12px 16px;
-  border-radius: 6px;
-  font-size: 13px;
+  background: var(--warning-soft); /* #fff7ed → token */
+  border: 1px solid color-mix(in srgb, var(--warning) 30%, transparent);
+  color: var(--warning); /* #92400e → token */
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md); /* 6px → token */
+  font-size: var(--text-base); /* 13px → token */
 }
 
 .emp-role-warning svg {
-  color: #f59e0b;
+  color: var(--warning); /* #f59e0b → token */
   flex-shrink: 0;
 }
 
-/* ── Permissions ───────────────────────────────── */
+/* ── Permissions ─────────────────────────────────── */
 .emp-perm-grid {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--space-5); /* 20px → token */
 }
 
 .emp-perm-group {
@@ -472,45 +374,46 @@
 
 .emp-perm-group-title {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-md); /* 14px → token */
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary); /* #111827 → token */
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2); /* 8px → token */
 }
 
 .emp-perm-group-title input[type="checkbox"] {
   width: 16px;
   height: 16px;
-  accent-color: #2563eb;
+  accent-color: var(--accent); /* #2563eb → token */
   cursor: pointer;
 }
 
 .emp-perm-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 20px;
+  gap: var(--space-2) var(--space-5); /* 8px 20px → token */
   padding-left: 24px;
 }
 
 .emp-perm-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1); /* 6px → token */
   cursor: pointer;
-  font-size: 13px;
-  color: #6b7280;
+  font-size: var(--text-base); /* 13px → token */
+  color: var(--text-secondary); /* #6b7280 → token */
   white-space: nowrap;
+  transition: color var(--transition-fast);
 }
 
 .emp-perm-item:hover {
-  color: #111827;
+  color: var(--text-primary); /* #111827 → token */
 }
 
 .emp-perm-item input[type="checkbox"] {
   width: 14px;
   height: 14px;
-  accent-color: #2563eb;
+  accent-color: var(--accent); /* #2563eb → token */
   cursor: pointer;
 }

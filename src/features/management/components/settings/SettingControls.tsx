@@ -1,10 +1,10 @@
-import type { ChangeEvent } from "react";
+
 
 type SettingToggleProps = {
   label: string;
   description?: string;
   checked: boolean;
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onChange: (checked: boolean) => void;
 };
 
 export function SettingToggle({
@@ -21,7 +21,7 @@ export function SettingToggle({
       </div>
       <div className="settings-screen__row-action">
         <label className="settings-screen__switch" aria-label={label}>
-          <input type="checkbox" checked={checked} onChange={onChange} />
+          <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
           <span className="settings-screen__switch-track"></span>
         </label>
       </div>

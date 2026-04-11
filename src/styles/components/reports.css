@@ -1,3 +1,4 @@
+/* ── Page layout ─────────────────────────────────── */
 .reports-screen {
   display: flex;
   flex-direction: column;
@@ -13,11 +14,11 @@
 
 .reports-screen__header h2 {
   margin: 0;
-  font-size: 22px;
+  font-size: var(--text-2xl); /* 22px → token */
 }
 
 .reports-screen__header p {
-  margin: 6px 0 0;
+  margin: var(--space-1) 0 0; /* 6px → token */
   color: var(--text-secondary);
 }
 
@@ -26,32 +27,43 @@
   gap: var(--space-2);
 }
 
+/* ── Tab bar ─────────────────────────────────────── */
 .reports-screen__tabbar {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2); /* 8px → token */
   overflow-x: auto;
   padding: 10px;
 }
 
 .reports-screen__tab {
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--border-soft); /* --border-default → token */
   background: var(--bg-surface);
   color: var(--text-secondary);
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 13px;
+  padding: var(--space-2) var(--space-3); /* 8px 12px → token */
+  border-radius: var(--radius-lg); /* 10px → token */
+  font-size: var(--text-base); /* 13px → token */
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.reports-screen__tab:hover {
+  background: var(--bg-surface-2); /* ← thêm mới */
+  color: var(--text-primary);
 }
 
 .reports-screen__tab--active {
-  background: var(--state-info-soft);
-  border-color: var(--state-info);
-  color: var(--state-info);
+  background: var(--accent-soft); /* --state-info-soft → token */
+  border-color: var(--accent); /* --state-info → token */
+  color: var(--accent);
 }
 
+/* ── Toolbar ─────────────────────────────────────── */
 .reports-screen__toolbar {
   display: flex;
   justify-content: space-between;
@@ -62,38 +74,46 @@
 
 .reports-screen__time-filters {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2); /* 8px → token */
   flex-wrap: wrap;
 }
 
+/* ── Applied range ───────────────────────────────── */
 .reports-screen__applied-range {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2); /* 8px → token */
   padding: 6px 10px;
-  border-radius: 10px;
-  border: 1px solid var(--border-default);
-  background: #f8fafc;
-  color: #334155;
-  font-size: 12px;
+  border-radius: var(--radius-lg); /* 10px → token */
+  border: 1px solid var(--border-soft); /* --border-default → token */
+  background: var(--bg-surface-soft); /* #f8fafc → token */
+  color: var(--text-secondary); /* #334155 → token */
+  font-size: var(--text-xs); /* 12px → token */
 }
 
 .reports-screen__applied-range-label {
-  color: #64748b;
+  color: var(--text-secondary); /* #64748b → token */
 }
 
 .reports-screen__copy-range-btn {
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #334155;
-  border-radius: 8px;
+  border: 1px solid var(--border-base); /* #cbd5e1 → token */
+  background: var(--bg-surface); /* #ffffff → token */
+  color: var(--text-secondary); /* #334155 → token */
+  border-radius: var(--radius-md); /* 8px → token */
   height: 26px;
-  padding: 0 8px;
-  font-size: 11px;
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs); /* 11px → token */
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.reports-screen__copy-range-btn:hover {
+  background: var(--bg-surface-2); /* ← thêm mới */
 }
 
 .reports-screen__copy-range-btn:disabled {
@@ -101,22 +121,32 @@
   cursor: not-allowed;
 }
 
+/* ── Time chips ──────────────────────────────────── */
 .reports-screen__time-chip {
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--border-soft); /* --border-default → token */
   background: var(--bg-surface);
   color: var(--text-secondary);
-  border-radius: 999px;
-  font-size: 13px;
+  border-radius: var(--radius-full); /* 999px → token */
+  font-size: var(--text-base); /* 13px → token */
   padding: 6px 12px;
   cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.reports-screen__time-chip:hover {
+  background: var(--bg-surface-2); /* ← thêm mới */
 }
 
 .reports-screen__time-chip--active {
-  border-color: var(--state-info);
-  color: var(--state-info);
-  background: var(--state-info-soft);
+  border-color: var(--accent); /* --state-info → token */
+  color: var(--accent);
+  background: var(--accent-soft); /* --state-info-soft → token */
 }
 
+/* ── KPIs ────────────────────────────────────────── */
 .reports-screen__kpis {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -130,14 +160,15 @@
 .reports-screen__kpi p {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: var(--text-base); /* 13px → token */
 }
 
 .reports-screen__kpi h3 {
-  margin: 8px 0 0;
-  font-size: 24px;
+  margin: var(--space-2) 0 0; /* 8px → token */
+  font-size: var(--text-2xl); /* 24px → token */
 }
 
+/* ── Panel + Table ───────────────────────────────── */
 .reports-screen__panel {
   padding: 0;
 }
@@ -156,8 +187,8 @@
 .reports-screen__table td {
   text-align: left;
   padding: 12px 14px;
-  border-bottom: 1px solid var(--border-muted);
-  font-size: 13px;
+  border-bottom: 1px solid var(--border-soft); /* --border-muted → token */
+  font-size: var(--text-base); /* 13px → token */
 }
 
 .reports-screen__table th {
@@ -165,70 +196,73 @@
   font-weight: 600;
 }
 
+/* Orders table header — blue tint */
 .reports-screen__orders-table thead th {
-  background: #c7def3;
-  color: #0f172a;
-  border-bottom: 1px solid #d9e2ec;
+  background: var(--info-soft); /* #c7def3 → token */
+  color: var(--text-primary); /* #0f172a → token */
+  border-bottom: 1px solid var(--border-base);
 }
 
+/* ── Empty state ─────────────────────────────────── */
 .reports-screen__empty {
   text-align: center !important;
   color: var(--text-secondary);
-  padding: 48px 0 !important;
+  padding: var(--space-12) 0 !important; /* 48px → token */
 }
 
+/* ── End-of-day report ───────────────────────────── */
 .reports-screen__endday-head {
   padding: 18px 18px 14px;
   text-align: center;
-  border-bottom: 1px solid #d9e2ec;
-  background: #ffffff;
+  border-bottom: 1px solid var(--border-base); /* #d9e2ec → token */
+  background: var(--bg-surface); /* #ffffff → token */
 }
 
 .reports-screen__endday-head span {
   display: block;
   text-align: left;
-  color: #6b7280;
-  font-size: 12px;
+  color: var(--text-secondary); /* #6b7280 → token */
+  font-size: var(--text-xs); /* 12px → token */
   line-height: 18px;
 }
 
 .reports-screen__endday-head h3 {
-  margin: 6px 0 0;
-  font-size: 22px;
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-2xl); /* 22px → token */
   line-height: 30px;
   letter-spacing: 0.4px;
-  color: #111827;
+  color: var(--text-primary); /* #111827 → token */
 }
 
 .reports-screen__report-range {
   display: block;
-  margin-top: 4px;
-  color: #6b7280;
-  font-size: 12px;
+  margin-top: var(--space-1);
+  color: var(--text-secondary); /* #6b7280 → token */
+  font-size: var(--text-xs); /* 12px → token */
 }
 
 .reports-screen__endday-wrap {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 12px;
-  background: #f8fafc;
+  padding: var(--space-3); /* 12px → token */
+  background: var(--bg-surface-soft); /* #f8fafc → token */
 }
 
 .reports-screen__endday-table {
   width: 100%;
   border-collapse: collapse;
-  background: #ffffff;
+  background: var(--bg-surface); /* #ffffff → token */
 }
 
 .reports-screen__endday-table th,
 .reports-screen__endday-table td {
-  border: 1px solid #d9e2ec;
+  border: 1px solid var(--border-base); /* #d9e2ec → token */
   padding: 0 12px;
   height: 38px;
-  font-size: 13px;
+  font-size: var(--text-base); /* 13px → token */
   line-height: 18px;
-  color: #111827;
+  color: var(--text-primary); /* #111827 → token */
 }
 
 .reports-screen__endday-table th {
@@ -236,16 +270,16 @@
 }
 
 .reports-screen__endday-table thead tr:nth-child(2) th {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--bg-surface-2); /* #f3f4f6 → token */
+  color: var(--text-secondary); /* #374151 → token */
 }
 
 .reports-screen__endday-title {
-  background: #c7def3;
-  color: #0f172a;
+  background: var(--info-soft); /* #c7def3 → token */
+  color: var(--text-primary); /* #0f172a → token */
   text-align: left;
   font-weight: 700;
-  font-size: 13px;
+  font-size: var(--text-base);
   letter-spacing: 0.15px;
 }
 
@@ -254,11 +288,12 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ── Filter drawer ───────────────────────────────── */
 .reports-filter-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.28);
-  z-index: 120;
+  background: var(--bg-overlay); /* rgba → token */
+  z-index: var(--z-modal); /* 120 → token */
   display: flex;
   justify-content: flex-end;
 }
@@ -266,8 +301,8 @@
 .reports-filter-drawer {
   width: min(360px, 100vw);
   height: 100vh;
-  background: #ffffff;
-  border-left: 1px solid #e5e7eb;
+  background: var(--bg-surface); /* #ffffff → token */
+  border-left: 1px solid var(--border-soft); /* #e5e7eb → token */
   display: flex;
   flex-direction: column;
 }
@@ -277,18 +312,18 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 14px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .reports-filter-drawer__header h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--text-xl); /* 18px → token */
   line-height: 1.2;
   font-weight: 600;
 }
 
 .reports-filter-drawer__body {
-  padding: 12px 14px;
+  padding: var(--space-3) 14px; /* 12px → token */
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -297,73 +332,81 @@
 
 .reports-filter-drawer__body h4 {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-md); /* 14px → token */
   font-weight: 600;
-  color: #334155;
+  color: var(--text-secondary); /* #334155 → token */
 }
 
+/* ── Quick filter grid ───────────────────────────── */
 .reports-filter-drawer__quick-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
+  gap: var(--space-1); /* 6px → token */
 }
 
 .reports-filter-drawer__quick-btn {
   min-height: 32px;
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
-  border-radius: 8px;
-  font-size: 13px;
+  border: 1px solid var(--border-input); /* #d1d5db → token */
+  background: var(--bg-surface-soft); /* #f9fafb → token */
+  border-radius: var(--radius-lg); /* 8px → token */
+  font-size: var(--text-base); /* 13px → token */
   line-height: 1.2;
-  color: #475569;
+  color: var(--text-secondary); /* #475569 → token */
   cursor: pointer;
-  padding: 4px 6px;
+  padding: var(--space-1) var(--space-1);
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .reports-filter-drawer__quick-btn--active {
-  border-color: #2563eb;
-  background: #eff6ff;
-  color: #1d4ed8;
+  border-color: var(--accent); /* #2563eb → token */
+  background: var(--accent-soft); /* #eff6ff → token */
+  color: var(--accent-hover); /* #1d4ed8 → token */
 }
 
+/* ── Date fields ─────────────────────────────────── */
 .reports-filter-drawer__date-row {
   margin-top: 2px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: var(--space-2); /* 8px → token */
 }
 
 .reports-filter-drawer__date-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1); /* 4px → token */
 }
 
 .reports-filter-drawer__date-field span {
-  font-size: 12px;
-  color: #64748b;
+  font-size: var(--text-xs); /* 12px → token */
+  color: var(--text-secondary); /* #64748b → token */
 }
 
 .reports-filter-drawer__date-field input {
   height: 34px;
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 
+/* ── Drawer footer ───────────────────────────────── */
 .reports-filter-drawer__footer {
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border-soft);
   padding: 10px 14px;
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--space-2); /* 8px → token */
 }
 
 .reports-filter-drawer__footer .btn {
   height: 32px;
   padding: 0 10px;
-  font-size: 12px;
-  border-radius: 8px;
+  font-size: var(--text-xs); /* 12px → token */
+  border-radius: var(--radius-lg); /* 8px → token */
 }
 
+/* ── Responsive ──────────────────────────────────── */
 @media (max-width: 1200px) {
   .reports-screen__kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));

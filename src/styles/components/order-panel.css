@@ -1,3 +1,4 @@
+/* ── Order panel ─────────────────────────────────── */
 .order-panel {
   min-height: 530px;
   display: flex;
@@ -5,6 +6,7 @@
   gap: var(--space-2);
 }
 
+/* ── Order list ──────────────────────────────────── */
 .order-list {
   display: grid;
   gap: var(--space-2);
@@ -22,28 +24,30 @@
 
 .order-item p {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--text-base); /* 13px → token */
   font-weight: 600;
 }
 
 .order-item small {
   color: var(--text-secondary);
-  font-size: 11px;
+  font-size: var(--text-xs); /* 11px → token */
 }
 
+/* ── Qty control ─────────────────────────────────── */
 .qty-control {
   display: flex;
   align-items: center;
   gap: var(--space-1);
 }
 
+/* ── Empty cart ──────────────────────────────────── */
 .empty-cart {
   min-height: 168px;
-  border: 1px dashed #cfd8e3;
-  border-radius: 12px;
+  border: 1px dashed var(--border-base); /* #cfd8e3 → token */
+  border-radius: var(--radius-xl); /* 12px → token */
   display: grid;
   place-items: center;
-  color: #94a3b8;
+  color: var(--text-tertiary); /* #94a3b8 → token */
   text-align: center;
   padding: var(--space-5);
 }
@@ -51,12 +55,13 @@
 .empty-logo {
   font-size: 40px;
   font-weight: 700;
-  color: #93c5fd;
+  color: var(--accent); /* #93c5fd → accent token */
 }
 
+/* ── Summary panel ───────────────────────────────── */
 .summary-panel {
-  border-top: 1px solid #e5e7eb;
-  border-bottom: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border-soft); /* #e5e7eb → token */
+  border-bottom: 1px solid var(--border-soft);
   padding: var(--space-2) 0;
   display: grid;
   gap: var(--space-2);
@@ -67,7 +72,7 @@
   grid-template-columns: 1fr 132px;
   align-items: center;
   gap: var(--space-2);
-  font-size: 13px;
+  font-size: var(--text-base); /* 13px → token */
 }
 
 .summary-row .value-number {
@@ -76,12 +81,13 @@
 }
 
 .summary-row.total {
-  background: #eff6ff;
-  border-radius: 8px;
+  background: var(--accent-soft); /* #eff6ff → token */
+  border-radius: var(--radius-lg); /* 8px → token */
   padding: var(--space-2);
   font-weight: 700;
 }
 
+/* ── Order actions ───────────────────────────────── */
 .order-actions-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1.4fr;
@@ -89,10 +95,11 @@
   margin-top: auto;
 }
 
+/* ── Note label ──────────────────────────────────── */
 .note-label {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  font-size: 12px;
+  font-size: var(--text-xs); /* 12px → token */
   color: var(--text-secondary);
 }

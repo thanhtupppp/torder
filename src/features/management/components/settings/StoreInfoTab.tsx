@@ -1,6 +1,32 @@
 import { Store } from "lucide-react";
 import type { StoreInfo } from "../../settings/types";
 
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+type FieldConfig = {
+  key: keyof StoreInfo;
+  label: string;
+  type?: string;
+  required?: boolean;
+};
+
+const STORE_FIELDS: FieldConfig[][] = [
+  // Row 1 — 2 cols
+  [
+    { key: "name", label: "Tên cửa hàng", required: true },
+    { key: "phone", label: "Số điện thoại", required: true },
+  ],
+  // Row 2 — full width
+  [{ key: "address", label: "Địa chỉ", required: true }],
+  // Row 3 — 2 cols
+  [
+    { key: "email", label: "Email", type: "email" },
+    { key: "wifi", label: "Thông tin WiFi (In trên bill)" },
+  ],
+];
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
 type StoreInfoTabProps = {
   storeInfo: StoreInfo;
   onStoreInfoChange: (key: keyof StoreInfo, value: string) => void;
@@ -24,59 +50,36 @@ export function StoreInfoTab({
           <h3>Cơ bản</h3>
         </div>
         <div className="settings-screen__panel-body">
-          <div className="settings-screen__grid settings-screen__grid--two">
-            <div className="settings-screen__field">
-              <label className="settings-screen__label">Tên cửa hàng *</label>
-              <input
-                type="text"
-                className="input"
-                value={storeInfo.name}
-                onChange={(e) => onStoreInfoChange("name", e.target.value)}
-              />
+          {STORE_FIELDS.map((row) => (
+            <div
+              key={row.map((f) => f.key).join("-")}
+              className={
+                row.length > 1
+                  ? "settings-screen__grid settings-screen__grid--two"
+                  : undefined
+              }
+            >
+              {row.map(({ key, label, type = "text", required }) => (
+                <div key={key} className="settings-screen__field">
+                  {/* ✅ htmlFor + id — click label focuses input */}
+                  <label
+                    htmlFor={`store-${key}`}
+                    className="settings-screen__label"
+                  >
+                    {label}
+                    {required && " *"}
+                  </label>
+                  <input
+                    id={`store-${key}`}
+                    type={type}
+                    className="input"
+                    value={storeInfo[key]}
+                    onChange={(e) => onStoreInfoChange(key, e.target.value)}
+                  />
+                </div>
+              ))}
             </div>
-            <div className="settings-screen__field">
-              <label className="settings-screen__label">Số điện thoại *</label>
-              <input
-                type="text"
-                className="input"
-                value={storeInfo.phone}
-                onChange={(e) => onStoreInfoChange("phone", e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="settings-screen__field">
-            <label className="settings-screen__label">Địa chỉ *</label>
-            <input
-              type="text"
-              className="input"
-              value={storeInfo.address}
-              onChange={(e) => onStoreInfoChange("address", e.target.value)}
-            />
-          </div>
-
-          <div className="settings-screen__grid settings-screen__grid--two">
-            <div className="settings-screen__field">
-              <label className="settings-screen__label">Email</label>
-              <input
-                type="email"
-                className="input"
-                value={storeInfo.email}
-                onChange={(e) => onStoreInfoChange("email", e.target.value)}
-              />
-            </div>
-            <div className="settings-screen__field">
-              <label className="settings-screen__label">
-                Thông tin WiFi (In trên bill)
-              </label>
-              <input
-                type="text"
-                className="input"
-                value={storeInfo.wifi}
-                onChange={(e) => onStoreInfoChange("wifi", e.target.value)}
-              />
-            </div>
-          </div>
+          ))}
 
           <div className="settings-screen__divider-top settings-screen__actions settings-screen__actions--end">
             <button type="button" className="btn primary">

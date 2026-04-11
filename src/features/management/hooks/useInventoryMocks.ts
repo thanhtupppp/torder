@@ -1,36 +1,26 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type {
   InventoryAuditDto,
   InventoryStockDto,
   SupplierDto,
 } from "../dtos/inventory";
 
-type UseInventoryMocksResult = {
+type InventoryMocksState = {
   stockItems: InventoryStockDto[];
   auditItems: InventoryAuditDto[];
   suppliers: SupplierDto[];
   isLoading: boolean;
 };
 
-export function useInventoryMocks(): UseInventoryMocksResult {
-  const [stockItems, setStockItems] = useState<InventoryStockDto[]>([]);
-  const [auditItems, setAuditItems] = useState<InventoryAuditDto[]>([]);
-  const [suppliers, setSuppliers] = useState<SupplierDto[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+// Khi có fetch thật: thay bằng async function + setState một lần duy nhất
+const INITIAL_STATE: InventoryMocksState = {
+  stockItems: [],
+  auditItems: [],
+  suppliers: [],
+  isLoading: false,
+};
 
-  useEffect(() => {
-    // Placeholder loader: keep empty for now.
-    // Later replace with real fetch functions.
-    setStockItems([]);
-    setAuditItems([]);
-    setSuppliers([]);
-    setIsLoading(false);
-  }, []);
-
-  return {
-    stockItems,
-    auditItems,
-    suppliers,
-    isLoading,
-  };
+export function useInventoryMocks(): InventoryMocksState {
+  const [state] = useState<InventoryMocksState>(INITIAL_STATE);
+  return state;
 }

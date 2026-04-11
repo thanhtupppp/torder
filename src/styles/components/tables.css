@@ -1,3 +1,4 @@
+/* ── Page layout ─────────────────────────────────── */
 .tables-page {
   display: grid;
   gap: var(--space-3);
@@ -12,21 +13,23 @@
 
 .tables-page-title {
   margin: 0;
-  font-size: 32px;
+  font-size: var(--text-3xl); /* 32px → token */
   line-height: 1.05;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary); /* #111827 → token */
 }
 
+/* ── Body ────────────────────────────────────────── */
 .tables-body {
   padding: var(--space-3);
   display: grid;
   gap: var(--space-3);
-  border-radius: 12px;
+  border-radius: var(--radius-xl); /* 12px → token */
 }
 
+/* ── Tabs ────────────────────────────────────────── */
 .tables-tabs-wrap {
-  border-bottom: 1px solid #edf2f7;
+  border-bottom: 1px solid var(--border-soft); /* #edf2f7 → token */
   padding-bottom: var(--space-2);
 }
 
@@ -40,13 +43,18 @@
 .tables-tab {
   border: none;
   background: transparent;
-  color: #6b7280;
-  font-size: 14px;
+  color: var(--text-secondary); /* #6b7280 → token */
+  font-size: var(--text-md); /* 14px → token */
   font-weight: 600;
   padding: 4px 0;
   cursor: pointer;
   position: relative;
   white-space: nowrap;
+  transition: color var(--transition-fast); /* ← thêm mới */
+}
+
+.tables-tab:hover {
+  color: var(--text-primary); /* ← thêm mới */
 }
 
 .tables-tab.active {
@@ -61,9 +69,10 @@
   right: 0;
   height: 2px;
   background: var(--accent);
-  border-radius: 2px 2px 0 0;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
 
+/* ── Toolbar ─────────────────────────────────────── */
 .tables-toolbar {
   display: flex;
   align-items: center;
@@ -76,6 +85,7 @@
   flex: 1;
 }
 
+/* ── Grid ────────────────────────────────────────── */
 .tables-grid-wrap {
   min-height: 400px;
   padding: var(--space-3);
@@ -87,22 +97,27 @@
   gap: var(--space-3);
 }
 
+/* ── Table card ──────────────────────────────────── */
 .table-card {
-  background: #ffffff;
-  border: 1px solid #edf2f7;
-  border-radius: 12px;
+  background: var(--bg-surface); /* #ffffff → token */
+  border: 1px solid var(--border-soft); /* #edf2f7 → token */
+  border-radius: var(--radius-xl); /* 12px → token */
   padding: var(--space-3);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  transition: all 0.2s ease;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast),
+    background var(--transition-fast); /* all 0.2s → specific tokens */
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-xs); /* hardcode → token */
 }
 
 .table-card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-color: var(--border-base); /* #cbd5e1 → token */
+  box-shadow: var(--shadow-md); /* hardcode → token */
   transform: translateY(-2px);
 }
 
@@ -113,21 +128,23 @@
 }
 
 .table-card-name {
-  font-size: 16px;
+  font-size: var(--text-lg); /* 16px → token */
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary); /* #111827 → token */
 }
 
+/* ── More button ─────────────────────────────────── */
 .btn-more {
   margin: -8px -8px 0 0;
-  color: #9ca3af;
+  color: var(--text-tertiary); /* #9ca3af → token */
 }
 
 .btn-more:hover {
-  color: #4b5563;
-  background: #f3f4f6;
+  color: var(--text-secondary); /* #4b5563 → token */
+  background: var(--bg-surface-2); /* #f3f4f6 → token */
 }
 
+/* ── Card body ───────────────────────────────────── */
 .table-card-body {
   display: flex;
   flex-direction: column;
@@ -140,66 +157,73 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
-  color: #6b7280;
+  font-size: var(--text-sm); /* 12px → token */
+  color: var(--text-secondary); /* #6b7280 → token */
   font-weight: 500;
 }
 
+/* ── Status badge ────────────────────────────────── */
 .table-status-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 4px 8px;
-  border-radius: 999px;
-  font-size: 11px;
+  border-radius: var(--radius-full); /* 999px → token */
+  font-size: var(--text-xs); /* 11px → token */
   font-weight: 600;
-  background: #f3f4f6;
-  color: #4b5563;
+  background: var(--bg-surface-2); /* #f3f4f6 → token */
+  color: var(--text-secondary); /* #4b5563 → token */
 }
 
-/* Status variants */
+/* ── Status variants ─────────────────────────────── */
 .table-card.status-empty .table-status-badge {
-  background: #f1f5f9;
-  color: #475569;
-}
-.table-card.status-occupied {
-  border-color: #bbf7d0;
-  background: #f0fdf4;
-}
-.table-card.status-occupied .table-status-badge {
-  background: #dcfce7;
-  color: #166534;
-}
-.table-card.status-ordered {
-  border-color: #fef08a;
-  background: #fefce8;
-}
-.table-card.status-ordered .table-status-badge {
-  background: #fef9c3;
-  color: #854d0e;
+  background: var(--bg-surface-2);
+  color: var(--text-secondary);
 }
 
+.table-card.status-occupied {
+  border-color: var(--success-soft); /* #bbf7d0 → token */
+  background: color-mix(in srgb, var(--success-soft) 40%, var(--bg-surface));
+}
+
+.table-card.status-occupied .table-status-badge {
+  background: var(--success-soft); /* #dcfce7 → token */
+  color: var(--success); /* #166534 → token */
+}
+
+.table-card.status-ordered {
+  border-color: var(--warning-soft); /* #fef08a → token */
+  background: color-mix(in srgb, var(--warning-soft) 30%, var(--bg-surface));
+}
+
+.table-card.status-ordered .table-status-badge {
+  background: var(--warning-soft); /* #fef9c3 → token */
+  color: var(--warning); /* #854d0e → token */
+}
+
+/* ── Empty state ─────────────────────────────────── */
 .tables-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #9ca3af;
+  color: var(--text-tertiary); /* #9ca3af → token */
   gap: var(--space-2);
 }
+
 .tables-empty-icon {
-  color: #d1d5db;
+  color: var(--text-disabled); /* #d1d5db → token */
 }
 
-/* Modals re-use from customers but localized */
+/* ── Overlay + Modal ─────────────────────────────── */
 .tables-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
+  background: var(--bg-overlay); /* rgba(15,23,42,0.45) → token */
   display: grid;
   place-items: center;
-  z-index: 80;
+  z-index: var(--z-overlay); /* 80 → token */
   padding: var(--space-3);
 }
 
@@ -210,7 +234,7 @@
   display: grid;
   gap: var(--space-3);
   padding: var(--space-4);
-  border-radius: 14px;
+  border-radius: var(--radius-xl); /* 14px → token */
 }
 
 .tables-modal-header {
@@ -218,15 +242,16 @@
   align-items: center;
   justify-content: space-between;
   padding-bottom: var(--space-1);
-  border-bottom: 1px solid #edf2f7;
+  border-bottom: 1px solid var(--border-soft); /* #edf2f7 → token */
 }
 
 .tables-modal-header h3 {
   margin: 0;
-  font-size: 17px;
+  font-size: var(--text-lg); /* 17px → gần nhất là text-lg */
   font-weight: 700;
 }
 
+/* ── Form grid ───────────────────────────────────── */
 .tables-form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -235,12 +260,12 @@
 
 .tables-form-grid label {
   display: grid;
-  gap: 6px;
+  gap: var(--space-1); /* 6px → token */
 }
 
 .tables-form-grid label span {
-  font-size: 11px;
-  color: #4b5563;
+  font-size: var(--text-xs); /* 11px → token */
+  color: var(--text-secondary); /* #4b5563 → token */
   font-weight: 600;
 }
 
@@ -252,14 +277,16 @@
   grid-column: 1 / -1;
 }
 
+/* ── Modal actions ───────────────────────────────── */
 .tables-modal-actions {
   display: flex;
   justify-content: flex-end;
   gap: var(--space-1);
   padding-top: var(--space-1);
-  border-top: 1px solid #edf2f7;
+  border-top: 1px solid var(--border-soft); /* #edf2f7 → token */
 }
 
+/* ── Responsive ──────────────────────────────────── */
 @media (max-width: 768px) {
   .tables-header-row {
     flex-wrap: wrap;

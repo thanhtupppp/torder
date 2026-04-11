@@ -1,33 +1,44 @@
+/* ── Page layout ─────────────────────────────────── */
 .inventory-page {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
 
+/* ── Tabs ────────────────────────────────────────── */
 .inventory-tabs {
   display: flex;
   align-items: center;
   gap: 2px;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-soft); /* #e5e7eb → token */
+  padding-bottom: var(--space-1); /* 4px → token */
 }
 
 .inventory-tab {
   border: none;
   background: transparent;
   padding: 7px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  color: #4b5563;
+  border-radius: var(--radius-lg); /* 8px → token */
+  font-size: var(--text-xs); /* 12px → token */
+  color: var(--text-secondary); /* #4b5563 → token */
   cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.inventory-tab:hover {
+  background: var(--bg-surface-2); /* ← thêm mới */
+  color: var(--text-primary);
 }
 
 .inventory-tab.active {
-  color: #2563eb;
-  background: #eff6ff;
+  color: var(--accent); /* #2563eb → token */
+  background: var(--accent-soft); /* #eff6ff → token */
   font-weight: 700;
 }
 
+/* ── View ────────────────────────────────────────── */
 .inventory-view {
   padding: 10px;
   display: flex;
@@ -37,14 +48,15 @@
 
 .inventory-view-header h3 {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-md); /* 14px → token */
   font-weight: 700;
 }
 
+/* ── Summary grid ────────────────────────────────── */
 .inventory-summary-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  gap: var(--space-2); /* 8px → token */
 }
 
 .inventory-summary-card {
@@ -53,18 +65,19 @@
 
 .inventory-summary-card h4 {
   margin: 0;
-  font-size: 11px;
-  color: #6b7280;
+  font-size: var(--text-xs); /* 11px → token */
+  color: var(--text-secondary); /* #6b7280 → token */
   font-weight: 600;
 }
 
 .inventory-summary-card p {
-  margin: 4px 0 0;
-  font-size: 18px;
+  margin: var(--space-1) 0 0; /* 4px → token */
+  font-size: var(--text-xl); /* 18px → token */
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary); /* #111827 → token */
 }
 
+/* ── Body ────────────────────────────────────────── */
 .inventory-body {
   display: grid;
   grid-template-columns: 1fr;
@@ -76,39 +89,41 @@
   grid-template-columns: 220px 1fr;
 }
 
+/* ── Filter sidebar ──────────────────────────────── */
 .inventory-filter {
-  padding: 8px;
+  padding: var(--space-2); /* 8px → token */
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .inventory-filter-section header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 12px;
+  font-size: var(--text-xs); /* 12px → token */
   font-weight: 700;
-  margin-bottom: 6px;
+  margin-bottom: var(--space-1); /* 6px → token */
 }
 
 .inventory-filter-list {
   display: grid;
-  gap: 6px;
+  gap: var(--space-1); /* 6px → token */
 }
 
 .inventory-check-row {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: #4b5563;
+  gap: var(--space-2); /* 8px → token */
+  font-size: var(--text-xs); /* 12px → token */
+  color: var(--text-secondary); /* #4b5563 → token */
 }
 
+/* ── Main table area ─────────────────────────────── */
 .inventory-main-table {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2); /* 8px → token */
 }
 
 .inventory-toolbar {
@@ -124,9 +139,10 @@
 
 .inventory-toolbar-actions {
   display: inline-flex;
-  gap: 8px;
+  gap: var(--space-2); /* 8px → token */
 }
 
+/* ── Table ───────────────────────────────────────── */
 .inventory-table-wrap {
   overflow: auto;
   min-height: 500px;
@@ -140,39 +156,42 @@
 
 .inventory-table th,
 .inventory-table td {
-  border-bottom: 1px solid #edf2f7;
+  border-bottom: 1px solid var(--border-soft); /* #edf2f7 → token */
   padding: 10px;
-  font-size: 12px;
+  font-size: var(--text-xs); /* 12px → token */
   text-align: left;
   white-space: nowrap;
 }
 
 .inventory-table th {
-  color: #6b7280;
+  color: var(--text-secondary); /* #6b7280 → token */
   font-weight: 700;
-  background: #fafafa;
+  background: var(--bg-surface-soft); /* #fafafa → token */
 }
 
+/* ── Empty state ─────────────────────────────────── */
 .inventory-empty-state {
   text-align: center !important;
-  color: #9ca3af;
+  color: var(--text-tertiary); /* #9ca3af → token */
   padding: 26px 0 !important;
 }
 
+/* ── Floating create button ──────────────────────── */
 .inventory-floating-create {
   position: fixed;
   right: 24px;
   bottom: 24px;
-  z-index: 5;
+  z-index: var(--z-base); /* 5 → token */
 }
 
+/* ── Overlay + Modal ─────────────────────────────── */
 .inventory-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.32);
+  background: var(--bg-overlay); /* rgba(15,23,42,0.32) → token */
   display: grid;
   place-items: center;
-  z-index: 50;
+  z-index: var(--z-overlay); /* 50 → token */
 }
 
 .inventory-modal {
@@ -180,6 +199,8 @@
   max-height: calc(100vh - 40px);
   overflow: auto;
   padding: 0;
+  background: var(--bg-surface); /* ← thêm: dark mode safe */
+  border-radius: var(--radius-xl); /* ← thêm: consistent với system */
 }
 
 .inventory-modal-header {
@@ -187,16 +208,16 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 14px;
-  border-bottom: 1px solid #edf2f7;
+  border-bottom: 1px solid var(--border-soft); /* #edf2f7 → token */
 }
 
 .inventory-modal-header h3 {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-md); /* 14px → token */
 }
 
 .inventory-modal-body {
-  padding: 12px 14px;
+  padding: var(--space-3) 14px; /* 12px → token */
   display: grid;
   gap: 10px;
 }
@@ -212,15 +233,15 @@
 
 .inventory-modal-body label {
   display: grid;
-  gap: 4px;
-  font-size: 12px;
-  color: #4b5563;
+  gap: var(--space-1); /* 4px → token */
+  font-size: var(--text-xs); /* 12px → token */
+  color: var(--text-secondary); /* #4b5563 → token */
 }
 
 .inventory-modal-footer {
-  border-top: 1px solid #edf2f7;
+  border-top: 1px solid var(--border-soft); /* #edf2f7 → token */
   padding: 10px 14px;
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--space-2); /* 8px → token */
 }

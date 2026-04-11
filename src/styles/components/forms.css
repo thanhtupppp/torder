@@ -1,0 +1,22 @@
+.input {
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: var(--space-2) var(--space-3);
+  font-size: 13px;
+  width: 100%;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  transition:
+    border-color var(--motion-fast),
+    box-shadow var(--motion-fast);
+}
+
+.input-inline {
+  height: 33px;
+  padding: 4px var(--space-2);
+  text-align: right;
+}
+
+.note {
+  resize: vertical;
+}

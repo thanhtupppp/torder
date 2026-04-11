@@ -1,0 +1,1 @@
+import{j as n}from"./index-GYRtRpRM.js";function i({title:e,description:s}){return n.jsxs("section",{className:"card",children:[n.jsx("h3",{children:e}),n.jsx("p",{className:"muted",style:{marginTop:8},children:s??"Màn hình này sẽ được triển khai ở bước tiếp theo."})]})}export{i as ComingSoonScreen};

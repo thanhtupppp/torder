@@ -1,0 +1,11 @@
+.toggle-group {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 13px;
+}

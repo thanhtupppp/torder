@@ -1,0 +1,20 @@
+:root,
+:root[data-theme="light"] {
+  --bg-app: #eef2f7;
+  --bg-surface: #ffffff;
+  --bg-surface-soft: #f8fafc;
+  --bg-sidebar: linear-gradient(180deg, #111c33 0%, #0c1324 100%);
+
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-sidebar: #e5e7eb;
+
+  --border-soft: #dbe1ec;
+  --shadow-soft: 0 6px 18px rgba(17, 24, 39, 0.08);
+
+  --accent: #2563eb;
+  --accent-soft: #dbeafe;
+  --success: #16a34a;
+
+  --focus-ring: 0 0 0 2px rgba(37, 99, 235, 0.22);
+}

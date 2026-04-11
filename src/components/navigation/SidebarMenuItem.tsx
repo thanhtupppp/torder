@@ -7,6 +7,8 @@ type SidebarMenuItemProps = {
   label: string;
   icon: MenuItem["icon"];
   collapsed?: boolean;
+  /** First item of a visual group — renders a separator above. */
+  groupStart?: boolean;
   /** Called after navigation — used to collapse the hover-expanded sidebar. */
   onClick?: () => void;
 };
@@ -16,6 +18,7 @@ export function SidebarMenuItem({
   label,
   icon: Icon,
   collapsed,
+  groupStart,
   onClick,
 }: SidebarMenuItemProps) {
   return (
@@ -27,6 +30,7 @@ export function SidebarMenuItem({
       onClick={onClick}
       aria-label={label}
       title={collapsed ? label : undefined}
+      data-group-start={groupStart ? "true" : undefined}
     >
       <span className="menu-item-icon">
         <Icon size={20} strokeWidth={1.8} />

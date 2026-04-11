@@ -1,79 +1,73 @@
-/* ===================================================
-   SIDEBAR — sidebar.css
-   Sidebar is ALWAYS position:fixed so it NEVER affects
-   the content layout. Content has a constant margin-left
-   of 60px (collapsed width). Sidebar expands as overlay.
-   =================================================== */
+/* ── SIDEBAR sidebar.css ──────────────────────────────────────────────────────
+   Sidebar is ALWAYS position:fixed — NEVER affects content layout.
+   Content always has margin-left: 60px (collapsed width).
+   Sidebar expands as overlay. */
 
-/* ── Base: always fixed ─────────────────────────── */
+/* ── Base ──────────────────────────────────────────────────────────────────── */
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
   height: 100vh;
   width: 220px;
-  background: linear-gradient(
-    180deg,
-    var(--bg-sidebar-from),
-    var(--bg-sidebar-to)
-  );
+  background: linear-gradient(180deg, var(--bg-sidebar-from), var(--bg-sidebar-to));
   color: var(--text-sidebar);
-  padding: var(--space-4) var(--space-2);
-  z-index: var(--z-sticky);
+  padding: 16px 10px;
+  z-index: 100;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   transition:
-    width var(--transition-base),
-    padding var(--transition-base),
-    box-shadow var(--transition-base);
+    width var(--motion-base),
+    padding var(--motion-base),
+    box-shadow var(--motion-base);
 }
 
-/* ── Collapsed state (60px icon-only strip) ─────── */
+/* ── Collapsed: 60px icon-only strip ───────────────────────────────────────── */
 .sidebar--collapsed {
   width: 60px;
-  padding: var(--space-4) var(--space-2);
+  padding: 16px 8px;
   box-shadow: none;
 }
 
-/* ── Hover-expanded (overlays content, no layout shift) */
+/* ── Hover-expanded: overlays content, no layout shift ─────────────────────── */
 .sidebar--hover {
   width: 220px;
-  padding: var(--space-4) var(--space-2);
-  box-shadow: 4px 0 24px var(--shadow-md);
+  padding: 16px 10px;
+  box-shadow: 6px 0 32px rgba(0, 0, 0, 0.45);
 }
 
-/* ── Top row: logo + toggle ─────────────────────── */
+/* ── Top row: logo + toggle ─────────────────────────────────────────────────── */
 .sidebar__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-2);
-  margin-bottom: var(--space-5);
+  gap: 8px;
+  margin-bottom: 24px;
   min-height: 36px;
   overflow: hidden;
 }
 
+/* ── Logo ──────────────────────────────────────────────────────────────────── */
 .logo {
-  font-weight: 800;
-  font-size: var(--text-xl);
-  margin: 0;
+  font-weight: 900;
+  font-size: 17px;
+  letter-spacing: -0.8px;
   white-space: nowrap;
   overflow: hidden;
-  letter-spacing: -0.3px;
-  color: var(--text-inverse);
+  /* ✅ Gradient text — nổi bật hơn plain white */
+  background: linear-gradient(120deg, #ffffff 30%, #7dd3fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   opacity: 1;
-  transition:
-    opacity var(--transition-base),
-    max-width var(--transition-base);
+  transition: opacity var(--motion-base), max-width var(--motion-base);
   max-width: 160px;
 }
 
 .sidebar--collapsed .logo {
   opacity: 0;
   max-width: 0;
-  padding: 0;
-  margin: 0;
   pointer-events: none;
 }
 
@@ -88,103 +82,126 @@
   pointer-events: auto;
 }
 
-/* ── Sidebar toggle ──────────────────────────────── */
+/* ── Toggle button ─────────────────────────────────────────────────────────── */
 .sidebar__toggle {
-  border: 1px solid color-mix(in srgb, var(--text-inverse) 16%, transparent);
-  background: var(--bg-sidebar-item-hover);
-  color: var(--text-sidebar-muted);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
   width: 30px;
   height: 30px;
   min-width: 30px;
-  border-radius: var(--radius-lg);
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition:
-    background var(--transition-fast),
-    color var(--transition-fast);
+    background var(--motion-fast),
+    color var(--motion-fast),
+    border-color var(--motion-fast);
   flex-shrink: 0;
 }
 
 .sidebar__toggle:hover {
-  background: var(--bg-sidebar-item-active);
-  color: var(--text-inverse);
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: #fff;
 }
 
-/* ── Nav menu ───────────────────────────────────── */
+/* ── Nav menu ──────────────────────────────────────────────────────────────── */
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   flex: 1;
 }
 
-/* ── Menu item ──────────────────────────────────── */
+/* ✅ Visual divider giữa các nhóm — thêm margin-top cho item đầu nhóm */
+.menu-item[data-group-start="true"] {
+  margin-top: 10px;
+}
+.menu-item[data-group-start="true"]::after {
+  content: "";
+  display: block;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: -6px;
+}
+
+/* ── Menu item ──────────────────────────────────────────────────────────────── */
 .menu-item {
   border: none;
   background: transparent;
-  color: var(--text-sidebar-muted);
+  /* ✅ Sáng hơn default */
+  color: #8fa4c0;
   text-align: left;
-  padding: var(--space-2) var(--space-2);
-  border-radius: var(--radius-lg);
+  padding: 9px 10px;
+  border-radius: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 11px;
-  font-size: var(--text-base);
+  font-size: 13px;
   font-weight: 500;
   width: 100%;
   white-space: nowrap;
   overflow: hidden;
   transition:
-    background var(--transition-fast),
-    color var(--transition-fast),
-    transform var(--transition-fast);
+    background var(--motion-fast),
+    color var(--motion-fast),
+    transform var(--motion-fast);
   position: relative;
 }
 
+/* Collapsed: center icon */
 .sidebar--collapsed .menu-item {
   justify-content: center;
-  padding: var(--space-2) 0;
+  padding: 10px 0;
   gap: 0;
 }
 
+/* Hover-expanded: restore layout */
 .sidebar--hover .menu-item {
   justify-content: flex-start;
-  padding: var(--space-2) var(--space-2);
+  padding: 9px 10px;
   gap: 11px;
 }
 
 .menu-item:hover {
-  background: var(--bg-sidebar-item-hover);
-  color: var(--text-sidebar);
+  background: rgba(255, 255, 255, 0.09);
+  color: #e8edf5;
 }
 
 .sidebar:not(.sidebar--collapsed) .menu-item:hover {
   transform: translateX(2px);
 }
 
+/* ✅ Active: gradient đậm hơn + inset highlight */
 .menu-item.active {
-  background: var(--bg-sidebar-item-active);
-  color: var(--text-inverse);
-  box-shadow: var(--shadow-sm);
+  background: linear-gradient(135deg, #1e3a6e 0%, #243660 100%);
+  color: #ffffff;
+  box-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-.menu-item:active {
+.menu-item.active:active {
   transform: scale(0.97);
 }
 
-/* ── Left accent bar for active item ────────────── */
+/* ✅ Active left bar — gradient sáng hơn */
 .menu-item.active::before {
   content: "";
   position: absolute;
   left: 0;
-  top: 20%;
-  height: 60%;
+  top: 18%;
+  height: 64%;
   width: 3px;
-  background: var(--accent);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: linear-gradient(180deg, #93c5fd, #60a5fa);
+  border-radius: 0 3px 3px 0;
 }
 
 .sidebar--collapsed .menu-item.active::before {
@@ -195,16 +212,17 @@
   display: block;
 }
 
-/* ── Icon ───────────────────────────────────────── */
+/* ── Icon ───────────────────────────────────────────────────────────────────── */
 .menu-item-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  /* ✅ Tăng từ 22px → 24px */
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
-  opacity: 0.85;
-  transition: opacity var(--transition-fast);
+  opacity: 0.75;
+  transition: opacity var(--motion-fast), filter var(--motion-fast);
 }
 
 .menu-item:hover .menu-item-icon,
@@ -213,18 +231,17 @@
 }
 
 .menu-item.active .menu-item-icon {
-  filter: drop-shadow(
-    0 0 4px color-mix(in srgb, var(--accent) 40%, transparent)
-  );
+  /* ✅ Glow xanh nhẹ trên icon active */
+  filter: drop-shadow(0 0 5px rgba(147, 197, 253, 0.5));
 }
 
-/* ── Label ──────────────────────────────────────── */
+/* ── Label ───────────────────────────────────────────────────────────────────── */
 .menu-item-label {
   overflow: hidden;
   white-space: nowrap;
   transition:
-    opacity var(--transition-base),
-    max-width var(--transition-base);
+    opacity var(--motion-base),
+    max-width var(--motion-base);
   max-width: 160px;
   opacity: 1;
 }

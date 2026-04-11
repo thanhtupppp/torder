@@ -19,6 +19,7 @@ export function SidebarMenu({ items, collapsed, onSelect }: SidebarMenuProps) {
           label={item.label}
           icon={item.icon}
           collapsed={collapsed}
+          groupStart={item.groupStart}
           onClick={onSelect ? () => onSelect(item.id) : undefined}
         />
       ))}

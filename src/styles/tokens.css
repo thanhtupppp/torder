@@ -56,8 +56,9 @@
   --transition-base: var(--duration-base) var(--ease-default);
   --transition-slow: var(--duration-slow) var(--ease-default);
 
-  /* giữ backward-compat với code cũ đang dùng --motion-fast */
+  /* backward-compat — giữ để không break code cũ dùng --motion-fast / --motion-base */
   --motion-fast: var(--transition-fast);
+  --motion-base: var(--transition-base);
 
   /* ── Z-index scale ──────────────────────────────────────────────────── */
   --z-base: 0;

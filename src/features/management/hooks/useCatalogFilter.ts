@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { ProductDto } from "../dtos/catalog";
+import type { CatalogTab, ProductType } from "../constants/catalog";
 
-export type CatalogTab = "products" | "categories" | "addons" | "notes";
-export type ProductType = "goods" | "service" | "combo" | "ingredient";
+export type { CatalogTab, ProductType };
 
 const PAGE_SIZE = 20;
 const EMPTY: ProductDto[] = [];
@@ -62,12 +62,10 @@ export function useCatalogFilter(products: ProductDto[]) {
   }, [filteredRows, page, totalPages]);
 
   // ── Effects ────────────────────────────────────────────────────────────────
-  // Clamp page when total pages shrinks
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);
   }, [page, totalPages]);
 
-  // Sync state → URL search params
   useEffect(() => {
     const next = new URLSearchParams(searchParams);
 

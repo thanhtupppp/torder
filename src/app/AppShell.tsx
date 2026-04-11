@@ -9,7 +9,7 @@ type MatchWithHandle = {
 };
 
 export function AppShell() {
-  const { activeMenuId, activeMenu, setActiveMenuId } = useSidebarMenu();
+  const { activeMenu, setActiveMenuId } = useSidebarMenu();
   const matches = useMatches() as MatchWithHandle[];
 
   const currentHandle = [...matches]
@@ -25,7 +25,6 @@ export function AppShell() {
 
   return (
     <MainLayout
-      activeMenuId={activeMenuId}
       headerTitle={headerTitle}
       headerSubtitle={headerSubtitle}
       breadcrumbs={currentHandle?.meta.breadcrumb}

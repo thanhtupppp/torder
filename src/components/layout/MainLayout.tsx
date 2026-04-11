@@ -6,7 +6,6 @@ import { AppContent } from "./AppContent";
 import { AppHeader } from "./AppHeader";
 
 type MainLayoutProps = PropsWithChildren<{
-  activeMenuId: MenuKey;
   headerTitle: string;
   headerSubtitle?: string;
   breadcrumbs?: Array<{
@@ -18,7 +17,6 @@ type MainLayoutProps = PropsWithChildren<{
 
 export function MainLayout({
   children,
-  activeMenuId,
   headerTitle,
   headerSubtitle,
   breadcrumbs,
@@ -126,7 +124,6 @@ export function MainLayout({
         </div>
         <SidebarMenu
           items={SIDEBAR_MENU_ITEMS}
-          activeId={activeMenuId}
           onSelect={handleSelect}
           collapsed={isCollapsed}
         />

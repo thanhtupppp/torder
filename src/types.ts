@@ -1,29 +1,11 @@
-export type Product = {
-  id: string;
-  name: string;
-  price: number;
-  category: string;
-};
+import type { Product } from "./shared/types";
 
+// Re-export shared types — source of truth is src/shared/types.ts
+export type { Product, CreateOrderPayload, AppApi } from "./shared/types";
+
+// Renderer-specific types
 export type CartItem = {
   product: Product;
   quantity: number;
   note?: string;
-};
-
-export type CreateOrderPayload = {
-  items: Array<{
-    productId: string;
-    quantity: number;
-  }>;
-  note?: string;
-};
-
-export type AppApi = {
-  product: {
-    list: () => Promise<Product[]>;
-  };
-  order: {
-    create: (payload: CreateOrderPayload) => Promise<{ orderId: number }>;
-  };
 };

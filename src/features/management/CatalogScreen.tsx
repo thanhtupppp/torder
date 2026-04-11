@@ -19,46 +19,33 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import {
-  type ChangeEvent,
-  type DragEvent,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CategorySelect } from "../../components/ui/CategorySelect";
 import { UnitSelect } from "../../components/ui/UnitSelect";
 import type { UnitOption } from "../../constants/units";
 import { ProductTable } from "./components/ProductTable";
-import type { ProductDto } from "./dtos/catalog";
+import { useCatalogFilter } from "./hooks/useCatalogFilter";
+import { useCatalogImage } from "./hooks/useCatalogImage";
 import { useCatalogMocks } from "./hooks/useCatalogMocks";
+import { useCatalogModal } from "./hooks/useCatalogModal";
 
-type CatalogTab = "products" | "categories" | "addons" | "notes";
-type ProductType = "goods" | "service" | "combo" | "ingredient";
-type CatalogModal = "create-product" | "edit-category" | null;
+// ── Constants ────────────────────────────────────────────────────────────────
 
-type ProductColumn = {
-  key: string;
-  label: string;
-};
-
-const TOP_TABS: Array<{ key: CatalogTab; label: string }> = [
+const TOP_TABS = [
   { key: "products", label: "Sản phẩm" },
   { key: "categories", label: "Danh mục" },
   { key: "addons", label: "Món thêm" },
   { key: "notes", label: "Ghi chú món" },
-];
+] as const;
 
-const PRODUCT_TYPES: Array<{ key: ProductType; label: string }> = [
+const PRODUCT_TYPES = [
   { key: "goods", label: "Hàng hoá" },
   { key: "service", label: "Dịch vụ" },
   { key: "combo", label: "Combo" },
   { key: "ingredient", label: "Hàng chưa nguyên liệu" },
-];
+] as const;
 
-const PRODUCT_COLUMNS: ProductColumn[] = [
+const PRODUCT_COLUMNS = [
   { key: "code", label: "Mã hàng" },
   { key: "name", label: "Tên hàng" },
   { key: "barcode", label: "Barcode" },
@@ -85,8 +72,6 @@ const DEFAULT_VISIBLE_COLUMNS = new Set([
   "stock",
 ]);
 
-const EMPTY_PRODUCTS: ProductDto[] = [];
-
 const ACTION_MENU_ITEMS: Array<{
   key: string;
   label: string;
@@ -103,128 +88,39 @@ const ACTION_MENU_ITEMS: Array<{
   { key: "unfavorite", label: "Ngừng yêu thích", icon: StarOff },
 ];
 
+// ── Component ─────────────────────────────────────────────────────────────────
+
 export function CatalogScreen() {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const tabFromQuery = searchParams.get("tab");
-  const initialTab: CatalogTab =
-    tabFromQuery === "categories" ||
-    tabFromQuery === "addons" ||
-    tabFromQuery === "notes"
-      ? tabFromQuery
-      : "products";
-
-  const [activeTab, setActiveTab] = useState<CatalogTab>(initialTab);
-  const [activeModal, setActiveModal] = useState<CatalogModal>(null);
-  const [productSearch, setProductSearch] = useState(
-    searchParams.get("keyword") ?? "",
-  );
-  const [productType, setProductType] = useState<ProductType>("goods");
-  const [productImageUrl, setProductImageUrl] = useState<string | null>(null);
-  const [isImageDragActive, setIsImageDragActive] = useState(false);
-  const [productUnit, setProductUnit] = useState<UnitOption | "">("");
-  const [productCategory, setProductCategory] = useState(
-    searchParams.get("category") ?? "",
-  );
-  const [productPage, setProductPage] = useState(() => {
-    const parsed = Number(searchParams.get("page") ?? "1");
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
-  });
-  const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
-  const [isColumnMenuOpen, setIsColumnMenuOpen] = useState(false);
-  const [visibleColumnKeys, setVisibleColumnKeys] = useState<Set<string>>(
-    () => new Set(DEFAULT_VISIBLE_COLUMNS),
-  );
-  const productPageSize = 20;
-  const productImageInputRef = useRef<HTMLInputElement>(null);
-  const actionMenuRef = useRef<HTMLDivElement>(null);
-  const columnMenuRef = useRef<HTMLDivElement>(null);
   const { categories, products, isLoading } = useCatalogMocks();
 
-  const filteredRows = useMemo(
-    () =>
-      (products.length ? products : EMPTY_PRODUCTS).filter((row) => {
-        const keywordMatch =
-          row.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-          row.code.toLowerCase().includes(productSearch.toLowerCase());
+  // ── Custom hooks ──────────────────────────────────────────────────────────
+  const filter = useCatalogFilter(products);
+  const modal = useCatalogModal();
+  const image = useCatalogImage();
 
-        const categoryMatch =
-          productCategory.length === 0 || row.categoryId === productCategory;
-
-        return keywordMatch && categoryMatch;
-      }),
-    [products, productSearch, productCategory],
-  );
-
-  const totalRows = filteredRows.length;
-  const totalPages = Math.max(1, Math.ceil(totalRows / productPageSize));
-
+  // ── Local UI state (toolbar menus + form state) ───────────────────────────
+  const [productUnit, setProductUnit] = useState<UnitOption | "">("");
+  const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
+  const [isColumnMenuOpen, setIsColumnMenuOpen] = useState(false);
+  // Column visibility — static for now; add useState + toggleColumnVisibility when the
+  // column-picker dropdown UI (LayoutGrid button) is implemented.
   const visibleColumns = useMemo(
-    () => PRODUCT_COLUMNS.filter((column) => visibleColumnKeys.has(column.key)),
-    [visibleColumnKeys],
+    () => PRODUCT_COLUMNS.filter((col) => DEFAULT_VISIBLE_COLUMNS.has(col.key)),
+    [],
   );
 
-  const pagedRows = useMemo(() => {
-    const safePage = Math.min(productPage, totalPages);
-    const start = (safePage - 1) * productPageSize;
-    return filteredRows.slice(start, start + productPageSize);
-  }, [filteredRows, productPage, productPageSize, totalPages]);
+  const actionMenuRef = useRef<HTMLDivElement>(null);
+  const columnMenuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (productPage > totalPages) {
-      setProductPage(totalPages);
-    }
-  }, [productPage, totalPages]);
-
-  useEffect(() => {
-    const next = new URLSearchParams(searchParams);
-
-    if (activeTab !== "products") {
-      next.set("tab", activeTab);
-    } else {
-      next.delete("tab");
-    }
-
-    if (productPage > 1) {
-      next.set("page", String(productPage));
-    } else {
-      next.delete("page");
-    }
-
-    if (productSearch.trim()) {
-      next.set("keyword", productSearch.trim());
-    } else {
-      next.delete("keyword");
-    }
-
-    if (productCategory) {
-      next.set("category", productCategory);
-    } else {
-      next.delete("category");
-    }
-
-    if (next.toString() !== searchParams.toString()) {
-      setSearchParams(next, { replace: true });
-    }
-  }, [
-    activeTab,
-    productPage,
-    productSearch,
-    productCategory,
-    searchParams,
-    setSearchParams,
-  ]);
-
+  // Click-outside + Escape to close toolbar menus
   useEffect(() => {
     if (!isActionMenuOpen && !isColumnMenuOpen) return;
 
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as Node;
-
       if (actionMenuRef.current && !actionMenuRef.current.contains(target)) {
         setIsActionMenuOpen(false);
       }
-
       if (columnMenuRef.current && !columnMenuRef.current.contains(target)) {
         setIsColumnMenuOpen(false);
       }
@@ -239,89 +135,19 @@ export function CatalogScreen() {
 
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleEsc);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEsc);
     };
   }, [isActionMenuOpen, isColumnMenuOpen]);
 
-  function openCreateProductModal() {
-    setProductImageUrl(null);
+  function handleOpenCreateProduct() {
+    image.clearImage();
     setProductUnit("");
-    setProductCategory("");
-    setProductPage(1);
-    setActiveModal("create-product");
+    modal.openCreateProduct();
   }
 
-  function triggerProductImagePicker() {
-    productImageInputRef.current?.click();
-  }
-
-  function loadProductImage(file: File) {
-    if (!file.type.startsWith("image/")) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result;
-      if (typeof result === "string") {
-        setProductImageUrl(result);
-      }
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function handleProductImageChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    loadProductImage(file);
-  }
-
-  function handleProductImageDragOver(event: DragEvent<HTMLButtonElement>) {
-    event.preventDefault();
-    setIsImageDragActive(true);
-  }
-
-  function handleProductImageDragLeave(event: DragEvent<HTMLButtonElement>) {
-    event.preventDefault();
-    setIsImageDragActive(false);
-  }
-
-  function handleProductImageDrop(event: DragEvent<HTMLButtonElement>) {
-    event.preventDefault();
-    setIsImageDragActive(false);
-
-    const file = event.dataTransfer.files?.[0];
-    if (!file) return;
-
-    loadProductImage(file);
-  }
-
-  function clearProductImage() {
-    setProductImageUrl(null);
-    if (productImageInputRef.current) {
-      productImageInputRef.current.value = "";
-    }
-  }
-
-  function toggleColumnVisibility(columnKey: string) {
-    setVisibleColumnKeys((prev) => {
-      const next = new Set(prev);
-
-      if (next.has(columnKey)) {
-        if (next.size === 1) {
-          return prev;
-        }
-        next.delete(columnKey);
-      } else {
-        next.add(columnKey);
-      }
-
-      return next;
-    });
-  }
-
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="catalog-page">
       <header className="catalog-top-tabs">
@@ -329,20 +155,15 @@ export function CatalogScreen() {
           <button
             key={tab.key}
             type="button"
-            className={`catalog-top-tab ${activeTab === tab.key ? "active" : ""}`}
-            onClick={() => {
-              setActiveTab(tab.key);
-              if (tab.key !== "products") {
-                setProductPage(1);
-              }
-            }}
+            className={`catalog-top-tab ${filter.activeTab === tab.key ? "active" : ""}`}
+            onClick={() => filter.setTab(tab.key)}
           >
             {tab.label}
           </button>
         ))}
       </header>
 
-      {activeTab === "products" ? (
+      {filter.activeTab === "products" ? (
         <section className="catalog-products card">
           <header className="catalog-products-header">
             <h2>Sản phẩm</h2>
@@ -352,18 +173,15 @@ export function CatalogScreen() {
                 <input
                   className="input"
                   placeholder="Theo mã, tên hàng"
-                  value={productSearch}
-                  onChange={(event) => {
-                    setProductSearch(event.target.value);
-                    setProductPage(1);
-                  }}
+                  value={filter.productSearch}
+                  onChange={(e) => filter.setSearch(e.target.value)}
                 />
                 <ChevronDown size={14} className="catalog-search-caret" />
               </div>
               <button
                 type="button"
                 className="btn primary catalog-header-btn"
-                onClick={openCreateProductModal}
+                onClick={handleOpenCreateProduct}
               >
                 <Plus size={14} /> Thêm
               </button>
@@ -383,7 +201,6 @@ export function CatalogScreen() {
                 >
                   <EllipsisVertical size={14} /> Thao tác
                 </button>
-
                 {isActionMenuOpen ? (
                   <div className="catalog-action-menu__popup" role="menu">
                     {ACTION_MENU_ITEMS.map((item) => {
@@ -431,8 +248,8 @@ export function CatalogScreen() {
                   <label key={type.key} className="catalog-check-row">
                     <input
                       type="radio"
-                      checked={productType === type.key}
-                      onChange={() => setProductType(type.key)}
+                      checked={filter.productType === type.key}
+                      onChange={() => filter.setProductType(type.key)}
                     />
                     <span>{type.label}</span>
                   </label>
@@ -487,18 +304,18 @@ export function CatalogScreen() {
             </aside>
 
             <ProductTable
-              products={pagedRows}
-              columns={PRODUCT_COLUMNS}
-              page={productPage}
-              pageSize={productPageSize}
-              total={totalRows}
-              onPageChange={setProductPage}
+              products={filter.pagedRows}
+              columns={visibleColumns}
+              page={filter.page}
+              pageSize={filter.pageSize}
+              total={filter.totalRows}
+              onPageChange={filter.setPage}
             />
           </div>
         </section>
       ) : null}
 
-      {activeTab === "categories" ? (
+      {filter.activeTab === "categories" ? (
         <section className="catalog-categories card">
           <div className="catalog-categories-list">
             {categories.map((row) => (
@@ -516,7 +333,7 @@ export function CatalogScreen() {
                 <button
                   type="button"
                   className="catalog-category-sort"
-                  onClick={() => setActiveModal("edit-category")}
+                  onClick={modal.openEditCategory}
                 >
                   <Grip size={16} />
                 </button>
@@ -532,26 +349,27 @@ export function CatalogScreen() {
           <button
             type="button"
             className="btn primary catalog-add-category"
-            onClick={() => setActiveModal("edit-category")}
+            onClick={modal.openEditCategory}
           >
             <Plus size={14} /> Tạo danh mục
           </button>
         </section>
       ) : null}
 
-      {activeTab === "addons" ? (
+      {filter.activeTab === "addons" ? (
         <section className="catalog-placeholder card">
           Màn Món thêm sẽ được dựng tiếp theo thiết kế.
         </section>
       ) : null}
 
-      {activeTab === "notes" ? (
+      {filter.activeTab === "notes" ? (
         <section className="catalog-placeholder card">
           Màn Ghi chú món sẽ được dựng tiếp theo thiết kế.
         </section>
       ) : null}
 
-      {activeModal === "create-product" ? (
+      {/* ── Create Product Modal ─────────────────────────────────────────── */}
+      {modal.activeModal === "create-product" ? (
         <div className="catalog-overlay">
           <section className="catalog-modal catalog-modal-xl card">
             <header className="catalog-modal-header">
@@ -559,7 +377,7 @@ export function CatalogScreen() {
               <button
                 type="button"
                 className="modal-close-btn"
-                onClick={() => setActiveModal(null)}
+                onClick={modal.closeModal}
               >
                 <X size={14} />
               </button>
@@ -574,8 +392,8 @@ export function CatalogScreen() {
                       <button
                         key={type.key}
                         type="button"
-                        className={`catalog-type-tab ${productType === type.key ? "active" : ""}`}
-                        onClick={() => setProductType(type.key)}
+                        className={`catalog-type-tab ${filter.productType === type.key ? "active" : ""}`}
+                        onClick={() => filter.setProductType(type.key)}
                       >
                         {type.label}
                       </button>
@@ -587,24 +405,24 @@ export function CatalogScreen() {
                   <h4>Thông tin chung</h4>
                   <div className="catalog-form-row">
                     <input
-                      ref={productImageInputRef}
+                      ref={image.imageInputRef}
                       type="file"
                       accept="image/*"
                       className="catalog-image-input"
-                      onChange={handleProductImageChange}
+                      onChange={image.handleChange}
                     />
                     <button
                       type="button"
-                      className={`catalog-upload-circle ${isImageDragActive ? "drag-active" : ""}`}
-                      onClick={triggerProductImagePicker}
-                      onDragOver={handleProductImageDragOver}
-                      onDragLeave={handleProductImageDragLeave}
-                      onDrop={handleProductImageDrop}
+                      className={`catalog-upload-circle ${image.isDragActive ? "drag-active" : ""}`}
+                      onClick={image.triggerPicker}
+                      onDragOver={image.handleDragOver}
+                      onDragLeave={image.handleDragLeave}
+                      onDrop={image.handleDrop}
                       aria-label="Chọn ảnh sản phẩm"
                       title="Chọn hoặc kéo thả ảnh sản phẩm"
                     >
-                      {productImageUrl ? (
-                        <img src={productImageUrl} alt="Ảnh sản phẩm" />
+                      {image.imageUrl ? (
+                        <img src={image.imageUrl} alt="Ảnh sản phẩm" />
                       ) : (
                         <ImagePlus size={18} />
                       )}
@@ -613,11 +431,11 @@ export function CatalogScreen() {
                       <span>Tên sản phẩm *</span>
                       <input className="input" />
                     </label>
-                    {productImageUrl ? (
+                    {image.imageUrl ? (
                       <button
                         type="button"
                         className="btn ghost icon-only"
-                        onClick={clearProductImage}
+                        onClick={image.clearImage}
                         aria-label="Xoá ảnh sản phẩm"
                         title="Xoá ảnh"
                       >
@@ -645,7 +463,7 @@ export function CatalogScreen() {
                 </section>
 
                 <section className="catalog-section panel-primitive">
-                  <h4>Giá bán & thuế</h4>
+                  <h4>Giá bán &amp; thuế</h4>
                   <div className="catalog-form-grid two-cols">
                     <label>
                       <span>Giá bán *</span>
@@ -670,11 +488,8 @@ export function CatalogScreen() {
                     <span>Danh mục</span>
                     <CategorySelect
                       categories={categories}
-                      value={productCategory}
-                      onChange={(value) => {
-                        setProductCategory(value);
-                        setProductPage(1);
-                      }}
+                      value={filter.productCategory}
+                      onChange={filter.setCategory}
                       disabled={isLoading}
                     />
                   </label>
@@ -707,7 +522,8 @@ export function CatalogScreen() {
         </div>
       ) : null}
 
-      {activeModal === "edit-category" ? (
+      {/* ── Edit Category Modal ──────────────────────────────────────────── */}
+      {modal.activeModal === "edit-category" ? (
         <div className="catalog-overlay">
           <section className="catalog-modal card">
             <header className="catalog-modal-header">
@@ -715,7 +531,7 @@ export function CatalogScreen() {
               <button
                 type="button"
                 className="modal-close-btn"
-                onClick={() => setActiveModal(null)}
+                onClick={modal.closeModal}
               >
                 <X size={14} />
               </button>
@@ -747,7 +563,7 @@ export function CatalogScreen() {
                 </tr>
               </thead>
               <tbody>
-                {filteredRows.slice(0, 4).map((row) => (
+                {filter.filteredRows.slice(0, 4).map((row) => (
                   <tr key={`mini-${row.code}`}>
                     <td>{row.code}</td>
                     <td>{row.name}</td>

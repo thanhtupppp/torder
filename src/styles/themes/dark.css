@@ -1,19 +1,82 @@
+/* ─── themes/dark.css ────────────────────────────────────────────────────── */
+
 :root[data-theme="dark"] {
+  /* ── Backgrounds / Surfaces ─────────────────────────────────────────── */
   --bg-app: #0b1220;
   --bg-surface: #111827;
   --bg-surface-soft: #0f172a;
-  --bg-sidebar: linear-gradient(180deg, #0a1020 0%, #060b16 100%);
+  --bg-surface-2: #1e293b;
+  --bg-overlay: rgba(2, 6, 23, 0.65);
+  --bg-tooltip: #334155;
 
+  /* ── Sidebar ────────────────────────────────────────────────────────── */
+  --bg-sidebar-from: #0a1020;
+  --bg-sidebar-to: #060b16;
+  --bg-sidebar-item-hover: rgba(255, 255, 255, 0.06);
+  --bg-sidebar-item-active: rgba(255, 255, 255, 0.1);
+
+  /* ── Text ───────────────────────────────────────────────────────────── */
   --text-primary: #e5e7eb;
   --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-disabled: #334155;
+  --text-inverse: #0f172a;
   --text-sidebar: #e5e7eb;
+  --text-sidebar-muted: rgba(229, 231, 235, 0.45);
+  --text-tooltip: #f1f5f9;
 
-  --border-soft: #334155;
-  --shadow-soft: 0 6px 18px rgba(2, 6, 23, 0.5);
+  /* ── Borders ────────────────────────────────────────────────────────── */
+  --border-soft: #1e293b;
+  --border-base: #334155;
+  --border-strong: #475569;
+  --border-focus: #3b82f6;
 
+  /* ── Accent (Blue) ──────────────────────────────────────────────────── */
   --accent: #3b82f6;
-  --accent-soft: #1e3a8a;
-  --success: #22c55e;
+  --accent-hover: #60a5fa;
+  --accent-active: #93c5fd;
+  --accent-soft: #1e3654;
+  --accent-text: #ffffff;
 
+  /* ── Semantic colors ────────────────────────────────────────────────── */
+  --success: #22c55e;
+  --success-soft: #14301f;
+  --success-text: #ffffff;
+
+  --warning: #f59e0b;
+  --warning-soft: #2d1f06;
+  --warning-text: #ffffff;
+
+  --danger: #f87171;
+  --danger-hover: #fca5a5;
+  --danger-soft: #2d0f0f;
+  --danger-text: #ffffff;
+
+  --info: #38bdf8;
+  --info-soft: #0c2333;
+  --info-text: #ffffff;
+
+  /* ── Shadows — dùng màu tối hơn cho dark mode ───────────────────────── */
+  --shadow-xs: 0 1px 2px rgba(2, 6, 23, 0.3);
+  --shadow-sm: 0 1px 4px rgba(2, 6, 23, 0.4), 0 1px 2px rgba(2, 6, 23, 0.25);
+  --shadow-md: 0 4px 12px rgba(2, 6, 23, 0.5), 0 2px 4px rgba(2, 6, 23, 0.3);
+  --shadow-lg: 0 8px 24px rgba(2, 6, 23, 0.55), 0 2px 8px rgba(2, 6, 23, 0.35);
+  --shadow-xl: 0 16px 40px rgba(2, 6, 23, 0.6), 0 4px 12px rgba(2, 6, 23, 0.4);
+
+  /* backward-compat */
+  --shadow-soft: var(--shadow-md);
+
+  /* ── Focus ring ─────────────────────────────────────────────────────── */
   --focus-ring: 0 0 0 2px rgba(59, 130, 246, 0.28);
+
+  /* ── Table ──────────────────────────────────────────────────────────── */
+  --bg-table-header: #1e293b;
+  --bg-table-row-even: #0f172a;
+  --bg-table-row-hover: #1e3654;
+
+  /* ── Input ──────────────────────────────────────────────────────────── */
+  --bg-input: #1e293b;
+  --bg-input-disabled: #0f172a;
+  --border-input: #334155;
+  --border-input-focus: #3b82f6;
 }

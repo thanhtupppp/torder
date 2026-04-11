@@ -1,22 +1,34 @@
+/* ── Base card — layout container, không interactive ── */
 .card {
   background: var(--bg-surface);
-  border-radius: 14px;
-  box-shadow: var(--shadow-soft);
+  border-radius: var(
+    --radius-xl
+  ); /* 14px → token (radius-xl = 12px, gần nhất) */
+  box-shadow: var(--shadow-sm); /* --shadow-soft → token gốc */
   padding: var(--space-3);
+  transition: background var(--transition-fast); /* chỉ transition bg, không lift */
+}
+
+/* ── Clickable card — dùng khi card là interactive element ── */
+.card--interactive {
+  cursor: pointer;
   transition:
-    transform var(--motion-fast),
-    box-shadow var(--motion-fast),
-    background var(--motion-fast);
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
 }
 
-.card:hover {
+.card--interactive:hover {
   transform: var(--hover-lift);
+  box-shadow: var(--shadow-md);
 }
 
-.card:active {
+.card--interactive:active {
   transform: var(--press-inset);
+  box-shadow: var(--shadow-xs);
 }
 
+/* ── Card header ────────────────────────────────────── */
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -27,6 +39,16 @@
 
 .card-header h3 {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-md); /* 14px → token */
   font-weight: 700;
+}
+
+/* ── Card variants ──────────────────────────────────── */
+.card--flat {
+  box-shadow: none;
+  border: 1px solid var(--border-soft);
+}
+
+.card--elevated {
+  box-shadow: var(--shadow-md);
 }

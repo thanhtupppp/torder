@@ -90,10 +90,21 @@ export function TablesScreen() {
           {displayedTables.length > 0 ? (
             <div className="tables-grid">
               {displayedTables.map(table => (
-                <div key={table.id} className={`table-card status-${table.status}`}>
+                <div
+                  key={table.id}
+                  className={`table-card card--interactive status-${table.status}`}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setActiveModal("add-table")}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setActiveModal("add-table"); }}
+                >
                    <header className="table-card-header">
                      <span className="table-card-name">{table.name}</span>
-                     <button type="button" className="btn ghost icon-only btn-more">
+                     <button
+                       type="button"
+                       className="btn ghost icon-only btn-more"
+                       onClick={(e) => { e.stopPropagation(); }}
+                     >
                        <MoreVertical size={16} />
                      </button>
                    </header>

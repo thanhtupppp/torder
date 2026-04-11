@@ -359,7 +359,7 @@ function SalesContent({ products }: SalesContentProps) {
                 <button
                   key={product.id}
                   type="button"
-                  className="product-card"
+                  className="product-card card--interactive"
                   onClick={() => addToCart(product)}
                 >
                   <div className="product-top-row">
@@ -687,7 +687,7 @@ function SalesContent({ products }: SalesContentProps) {
               {/* "No table" option */}
               <button
                 type="button"
-                className={`table-picker-card status-none ${!activeTab.tableId ? "selected" : ""}`}
+                className={`table-picker-card card--interactive status-none ${!activeTab.tableId ? "selected" : ""}`}
                 onClick={() => { updateTab({ tableId: null, tableName: null, orderType: "takeaway" }); setShowTablePicker(false); }}
               >
                 <span className="tpc-name">Không bàn</span>
@@ -699,7 +699,7 @@ function SalesContent({ products }: SalesContentProps) {
                 <button
                   key={t.id}
                   type="button"
-                  className={`table-picker-card status-${t.status} ${activeTab.tableId === t.id ? "selected" : ""}`}
+                  className={`table-picker-card card--interactive status-${t.status} ${activeTab.tableId === t.id ? "selected" : ""}`}
                   onClick={() => selectTable(t.id, t.name)}
                 >
                   <span className="tpc-name">{t.name}</span>

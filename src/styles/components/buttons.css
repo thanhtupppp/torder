@@ -1,19 +1,19 @@
 .btn {
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-lg); /* 10px → token */
   padding: var(--space-2) var(--space-3);
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--text-base); /* 13px → token */
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-1);
   transition:
-    transform var(--motion-fast),
-    box-shadow var(--motion-fast),
-    filter var(--motion-fast),
-    background var(--motion-fast);
+    transform var(--transition-fast),
+    /* --motion-fast → token */ box-shadow var(--transition-fast),
+    filter var(--transition-fast),
+    background var(--transition-fast);
 }
 
 .btn:hover {
@@ -24,27 +24,53 @@
   transform: var(--press-inset);
 }
 
+/* ── Variants ───────────────────────────────────── */
 .btn.primary {
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-text); /* #fff → token */
+}
+
+.btn.primary:hover {
+  background: var(--accent-hover); /* ← thêm mới — chưa có */
+}
+
+.btn.primary:active {
+  background: var(--accent-active); /* ← thêm mới — chưa có */
 }
 
 .btn.secondary {
-  background: #334155;
-  color: #fff;
+  background: var(--border-strong); /* #334155 → token */
+  color: var(--text-inverse); /* #fff → token */
+}
+
+.btn.secondary:hover {
+  background: var(--border-base); /* ← thêm mới */
 }
 
 .btn.ghost {
-  background: #e2e8f0;
-  color: #0f172a;
+  background: var(--bg-surface-2); /* #e2e8f0 → token */
+  color: var(--text-primary); /* #0f172a → token */
   padding: 4px var(--space-2);
 }
 
+.btn.ghost:hover {
+  background: var(--border-soft); /* ← thêm mới */
+}
+
+/* ── States ─────────────────────────────────────── */
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none; /* ← thêm: disabled không lift */
+  pointer-events: none; /* ← thêm: tránh click xuyên qua */
 }
 
 .btn.full-width {
   width: 100%;
+}
+
+/* ── Icon-only variant ──────────────────────────── */
+.btn.icon-only {
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
 }

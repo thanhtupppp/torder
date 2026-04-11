@@ -1,20 +1,87 @@
+/* ─── themes/light.css ───────────────────────────────────────────────────── */
+
 :root,
 :root[data-theme="light"] {
+  /* ── Backgrounds / Surfaces ─────────────────────────────────────────── */
   --bg-app: #eef2f7;
   --bg-surface: #ffffff;
   --bg-surface-soft: #f8fafc;
-  --bg-sidebar: linear-gradient(180deg, #111c33 0%, #0c1324 100%);
+  --bg-surface-2: #f1f5f9; /* card nền trong card */
+  --bg-overlay: rgba(15, 23, 42, 0.4); /* modal backdrop */
+  --bg-tooltip: #1e293b;
 
+  /* ── Sidebar ────────────────────────────────────────────────────────── */
+  --bg-sidebar-from: #111c33;
+  --bg-sidebar-to: #0c1324;
+  --bg-sidebar-item-hover: rgba(255, 255, 255, 0.07);
+  --bg-sidebar-item-active: rgba(255, 255, 255, 0.12);
+
+  /* ── Text ───────────────────────────────────────────────────────────── */
   --text-primary: #0f172a;
   --text-secondary: #64748b;
+  --text-tertiary: #94a3b8;
+  --text-disabled: #cbd5e1;
+  --text-inverse: #ffffff;
   --text-sidebar: #e5e7eb;
+  --text-sidebar-muted: rgba(229, 231, 235, 0.55);
+  --text-tooltip: #f8fafc;
 
+  /* ── Borders ────────────────────────────────────────────────────────── */
   --border-soft: #dbe1ec;
-  --shadow-soft: 0 6px 18px rgba(17, 24, 39, 0.08);
+  --border-base: #cbd5e1;
+  --border-strong: #94a3b8;
+  --border-focus: #2563eb;
 
+  /* ── Accent (Blue) ──────────────────────────────────────────────────── */
   --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-active: #1e40af;
   --accent-soft: #dbeafe;
-  --success: #16a34a;
+  --accent-text: #ffffff;
 
+  /* ── Semantic colors ────────────────────────────────────────────────── */
+  --success: #16a34a;
+  --success-soft: #dcfce7;
+  --success-text: #ffffff;
+
+  --warning: #d97706;
+  --warning-soft: #fef3c7;
+  --warning-text: #ffffff;
+
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+  --danger-soft: #fee2e2;
+  --danger-text: #ffffff;
+
+  --info: #0284c7;
+  --info-soft: #e0f2fe;
+  --info-text: #ffffff;
+
+  /* ── Shadows (override tokens.css cho light theme) ──────────────────── */
+  --shadow-xs: 0 1px 2px rgba(17, 24, 39, 0.05);
+  --shadow-sm:
+    0 1px 4px rgba(17, 24, 39, 0.07), 0 1px 2px rgba(17, 24, 39, 0.04);
+  --shadow-md:
+    0 4px 12px rgba(17, 24, 39, 0.08), 0 2px 4px rgba(17, 24, 39, 0.04);
+  --shadow-lg:
+    0 8px 24px rgba(17, 24, 39, 0.1), 0 2px 8px rgba(17, 24, 39, 0.05);
+  --shadow-xl:
+    0 16px 40px rgba(17, 24, 39, 0.12), 0 4px 12px rgba(17, 24, 39, 0.06);
+
+  /* backward-compat — giữ để không break code cũ */
+  --shadow-soft: var(--shadow-md);
+
+  /* ── Focus ring ─────────────────────────────────────────────────────── */
   --focus-ring: 0 0 0 2px rgba(37, 99, 235, 0.22);
+
+  /* ── Table ──────────────────────────────────────────────────────────── */
+  --bg-table-header: #f1f5f9;
+  --bg-table-row-even: #f8fafc;
+  --bg-table-row-hover: #eff6ff;
+
+  /* ── Input ──────────────────────────────────────────────────────────── */
+  --bg-input: #ffffff;
+  --bg-input-disabled: #f8fafc;
+  --border-input: #dbe1ec;
+  --border-input-focus: #2563eb;
 }

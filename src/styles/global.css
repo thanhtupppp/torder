@@ -26,23 +26,28 @@
 @import "./components/finance.css";
 @import "./components/employees.css";
 
+/* ── Reset ───────────────────────────────────────────────────────────────── */
 * {
   box-sizing: border-box;
 }
 
+/* ── Root ────────────────────────────────────────────────────────────────── */
 :root {
   color: var(--text-primary);
   background: var(--bg-app);
 }
 
+/* ── Body ────────────────────────────────────────────────────────────────── */
 body {
   margin: 0;
   min-height: 100vh;
+  font-family: var(--font-sans);
   transition:
-    background var(--motion-fast),
-    color var(--motion-fast);
+    background var(--transition-base),
+    color var(--transition-base);
 }
 
+/* ── App shell ───────────────────────────────────────────────────────────── */
 #root {
   min-height: 100vh;
 }
@@ -51,6 +56,8 @@ body {
   display: block;
   min-height: 100vh;
 }
+
+/* ── Content area ────────────────────────────────────────────────────────── */
 
 /* Content always offset by the COLLAPSED sidebar width (60px).
    Sidebar expands over content as an overlay — no layout shift ever. */
@@ -61,7 +68,7 @@ body {
   flex-direction: column;
   gap: var(--space-3);
   min-height: 100vh;
-  transition: margin-left var(--motion-base);
+  transition: margin-left var(--transition-base);
 }
 
 /* For screens that need to stretch full height without padding */
@@ -74,10 +81,12 @@ body {
   overflow: hidden;
 }
 
+/* ── Utilities ───────────────────────────────────────────────────────────── */
 .muted {
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
+/* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 1250px) {
   .sales-page {
     grid-template-columns: 1fr;

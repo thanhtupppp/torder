@@ -9,11 +9,13 @@ type EditCategoryModalProps = {
 };
 
 export function EditCategoryModal({ modal, filteredRows }: EditCategoryModalProps) {
+  const isEditMode = modal.editingCategoryName !== undefined;
+
   return (
     <div className="catalog-overlay">
       <section className="catalog-modal card">
         <header className="catalog-modal-header">
-          <h3>Sửa danh mục</h3>
+          <h3>{isEditMode ? "Sửa danh mục" : "Tạo danh mục"}</h3>
           <button
             type="button"
             className="modal-close-btn"
@@ -27,7 +29,11 @@ export function EditCategoryModal({ modal, filteredRows }: EditCategoryModalProp
           <div className="catalog-upload-circle small" />
           <label>
             <span>Tên danh mục *</span>
-            <input className="input" defaultValue="Ăn vặt" />
+            <input
+              className="input"
+              defaultValue={modal.editingCategoryName ?? ""}
+              placeholder="Tên danh mục"
+            />
           </label>
           <label className="catalog-check-inline">
             <input type="checkbox" defaultChecked />
@@ -65,11 +71,15 @@ export function EditCategoryModal({ modal, filteredRows }: EditCategoryModalProp
         </table>
 
         <footer className="catalog-modal-footer between">
-          <button type="button" className="btn ghost">
-            Xoá
-          </button>
+          {isEditMode ? (
+            <button type="button" className="btn ghost">
+              Xoá
+            </button>
+          ) : (
+            <span />
+          )}
           <button type="button" className="btn primary">
-            Cập nhật
+            {isEditMode ? "Cập nhật" : "Tạo danh mục"}
           </button>
         </footer>
       </section>

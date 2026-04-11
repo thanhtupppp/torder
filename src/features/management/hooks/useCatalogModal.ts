@@ -5,40 +5,49 @@ import type { ProductType } from "../constants/catalog";
 export type CatalogModal = "create-product" | "edit-category" | null;
 
 /**
- * Manages modal open/close state AND the isolated form fields
- * for the "Create Product" modal.
+ * Manages modal open/close state AND the isolated form fields for
+ * "Create Product" and "Edit/Create Category" modals.
  *
- * Keeping form state here (separate from useCatalogFilter) prevents
- * the table-level productType / productCategory filters from being
- * accidentally mutated when the user interacts with modal inputs.
+ * - `openEditCategory()` — opens modal in **create** mode (no pre-fill)
+ * - `openEditCategory(name)` — opens modal in **edit** mode (pre-fills name)
  */
 export function useCatalogModal() {
   const [activeModal, setActiveModal] = useState<CatalogModal>(null);
 
-  // ── Isolated form state (does NOT affect table filters) ───────────────────
+  // ── Product form state (does NOT affect table filters) ────────────────────
   const [formProductType, setFormProductType] = useState<ProductType>("goods");
   const [formCategory, setFormCategory] = useState<string>("");
   const [formUnit, setFormUnit] = useState<UnitOption | "">("");
 
+  // ── Category form state ───────────────────────────────────────────────────
+  /** The name of the category being edited, or undefined when creating new. */
+  const [editingCategoryName, setEditingCategoryName] = useState<
+    string | undefined
+  >(undefined);
+
   // ── Actions ───────────────────────────────────────────────────────────────
   function openCreateProduct() {
-    // Reset form to clean defaults every time the modal opens
     setFormProductType("goods");
     setFormCategory("");
     setFormUnit("");
     setActiveModal("create-product");
   }
 
-  function openEditCategory() {
+  /**
+   * @param categoryName — pass to enter edit mode, omit for create mode.
+   */
+  function openEditCategory(categoryName?: string) {
+    setEditingCategoryName(categoryName);
     setActiveModal("edit-category");
   }
 
   function closeModal() {
     setActiveModal(null);
-    // Reset form fields on close so stale data doesn't linger
+    // Reset all form state on close
     setFormProductType("goods");
     setFormCategory("");
     setFormUnit("");
+    setEditingCategoryName(undefined);
   }
 
   return {
@@ -46,12 +55,14 @@ export function useCatalogModal() {
     openCreateProduct,
     openEditCategory,
     closeModal,
-    // Form fields — only used by CreateProductModal
+    // Product form
     formProductType,
     setFormProductType,
     formCategory,
     setFormCategory,
     formUnit,
     setFormUnit,
+    // Category form
+    editingCategoryName,
   };
 }

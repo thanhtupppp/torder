@@ -66,7 +66,8 @@ export function CatalogScreen() {
       <CategoriesTab
         categories={categories}
         isLoading={isLoading}
-        onEditCategory={modal.openEditCategory}
+        onCreateCategory={modal.openEditCategory}
+        onEditCategory={(name) => modal.openEditCategory(name)}
       />
     ),
     addons: <ComingSoonTab label="Món thêm" />,

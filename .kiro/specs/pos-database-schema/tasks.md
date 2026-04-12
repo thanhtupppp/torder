@@ -202,15 +202,15 @@
     - _Requirements: 7.6_
 
 - [x] 15. Write property-based tests (Property 9: Migration idempotency)
-  - [ ]\* 15.1 Write property test: running `initDb()` on a fresh in-memory DB SHALL result in `PRAGMA user_version = 2` and all expected tables present in `sqlite_master`
+  - [x] 15.1 Write property test: running `initDb()` on a fresh in-memory DB SHALL result in `PRAGMA user_version = 2` and all expected tables present in `sqlite_master`
     - _Requirements: 10.1, 10.2, 10.3_
-  - [ ]\* 15.2 Write property test: running `applyPragmas` + `createSchema` + `runMigrations` + `seedDefaults` twice on the same in-memory DB SHALL leave `user_version` and table count unchanged
+  - [x] 15.2 Write property test: running `applyPragmas` + `createSchema` + `runMigrations` + `seedDefaults` twice on the same in-memory DB SHALL leave `user_version` and table count unchanged
     - _Requirements: 10.2, 10.4_
 
-- [ ] 16. Write unit/example tests
-  - [ ]\* 16.1 Write smoke test: after `initDb()` on an in-memory DB, all 33 tables SHALL exist in `sqlite_master` (categories, products, addons, product_addons, combo_items, areas, tables, customer_groups, customers, loyalty_transactions, roles, permissions, role_permissions, employees, suppliers, stock_imports, stock_import_items, stock_exports, stock_export_items, stock_audits, stock_audit_items, stock_transfers, stock_transfer_items, stock_logs, fund_accounts, finance_categories, vouchers, settings, shifts, orders, order_items, order_item_addons, and all named indexes)
+- [x] 16. Write unit/example tests
+  - [x] 16.1 Write smoke test: after `initDb()` on an in-memory DB, all 33 tables SHALL exist in `sqlite_master` (categories, products, addons, product_addons, combo_items, areas, tables, customer_groups, customers, loyalty_transactions, roles, permissions, role_permissions, employees, suppliers, stock_imports, stock_import_items, stock_exports, stock_export_items, stock_audits, stock_audit_items, stock_transfers, stock_transfer_items, stock_logs, fund_accounts, finance_categories, vouchers, settings, shifts, orders, order_items, order_item_addons, and all named indexes)
     - _Requirements: 10.3_
-  - [ ]\* 16.2 Write example test: after `seedDefaults()`, all 22 settings keys SHALL be present in the `settings` table with their correct default values
+  - [-] 16.2 Write example test: after `seedDefaults()`, all 22 settings keys SHALL be present in the `settings` table with their correct default values
     - _Requirements: 8.2_
   - [ ]\* 16.3 Write example test: inserting a product mid-migration and then rolling back (simulated via a thrown error inside the transaction) SHALL leave `user_version` unchanged at the pre-migration value
     - _Requirements: 10.4_

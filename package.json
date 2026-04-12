@@ -18,7 +18,10 @@
     "postinstall": "npm run rebuild:electron",
     "preview": "vite preview",
     "lint": "eslint . --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest --run",
+    "pretest": "npm rebuild better-sqlite3 --runtime=node",
+    "posttest": "npm run rebuild:electron"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",
@@ -41,8 +44,10 @@
     "eslint": "^9.23.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
+    "fast-check": "^4.6.0",
     "typescript": "^5.8.2",
     "vite": "^6.2.4",
+    "vitest": "^4.1.4",
     "wait-on": "^8.0.3"
   }
 }

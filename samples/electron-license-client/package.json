@@ -1,0 +1,15 @@
+{
+    "name": "electron-license-client-sample",
+    "version": "1.0.0",
+    "private": true,
+    "main": "main/main.js",
+    "scripts": {
+        "start": "electron ."
+    },
+    "dependencies": {
+        "electron-store": "^8.2.0"
+    },
+    "devDependencies": {
+        "electron": "^31.0.0"
+    }
+}

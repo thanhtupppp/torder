@@ -1,7 +1,15 @@
 import path from "node:path";
+import crypto from "node:crypto";
 import { app } from "electron";
 import Database from "better-sqlite3";
-import type { CreateOrderPayload, Product } from "./types";
+import type {
+  CreateEmployeePayload,
+  CreateOrderPayload,
+  EmployeeRecord,
+  EmployeeRoleKey,
+  Product,
+  UpdateEmployeePayload,
+} from "./types";
 
 let db: Database.Database | null = null;
 
@@ -187,18 +195,19 @@ export function runMigrations(database: Database.Database): void {
         );
 
         CREATE TABLE IF NOT EXISTS employees (
-          id         INTEGER PRIMARY KEY AUTOINCREMENT,
-          code       TEXT    UNIQUE,
-          name       TEXT    NOT NULL,
-          phone      TEXT    UNIQUE,
-          pin        TEXT,
-          role_id    INTEGER REFERENCES roles(id) ON DELETE SET NULL,
-          branch     TEXT    NOT NULL DEFAULT 'Main',
-          avatar_url TEXT,
-          is_active  INTEGER NOT NULL DEFAULT 1 CHECK(is_active IN (0,1)),
-          created_at TEXT    NOT NULL DEFAULT (datetime('now','localtime')),
-          updated_at TEXT    NOT NULL DEFAULT (datetime('now','localtime')),
-          deleted_at TEXT
+          id            INTEGER PRIMARY KEY AUTOINCREMENT,
+          code          TEXT    UNIQUE,
+          name          TEXT    NOT NULL,
+          phone         TEXT    UNIQUE,
+          pin           TEXT,
+          password_hash TEXT,
+          role_id       INTEGER REFERENCES roles(id) ON DELETE SET NULL,
+          branch        TEXT    NOT NULL DEFAULT 'Main',
+          avatar_url    TEXT,
+          is_active     INTEGER NOT NULL DEFAULT 1 CHECK(is_active IN (0,1)),
+          created_at    TEXT    NOT NULL DEFAULT (datetime('now','localtime')),
+          updated_at    TEXT    NOT NULL DEFAULT (datetime('now','localtime')),
+          deleted_at    TEXT
         );
 
         -- ── 2.8 Inventory tables ──────────────────────────────────────────────
@@ -686,6 +695,24 @@ export function runMigrations(database: Database.Database): void {
 
     migrate();
   }
+
+  if (version < 3) {
+    const employeeColumns = database
+      .prepare("PRAGMA table_info(employees)")
+      .all() as Array<{ name: string }>;
+
+    const hasPasswordHash = employeeColumns.some(
+      (col) => col.name === "password_hash",
+    );
+
+    if (!hasPasswordHash) {
+      database.exec(`
+        ALTER TABLE employees ADD COLUMN password_hash TEXT;
+      `);
+    }
+
+    database.pragma("user_version = 3");
+  }
 }
 
 // ── Schema ─────────────────────────────────────────────────────────────────────
@@ -746,6 +773,7 @@ export function seedDefaults(db: Database.Database): void {
   );
 
   const defaults: [string, string][] = [
+    ["app.setup.completed", "false"],
     ["store.name", ""],
     ["store.address", ""],
     ["store.phone", ""],
@@ -807,6 +835,380 @@ export function backupDb(): Promise<void> {
   return getDb()
     .backup(backupPath)
     .then(() => {});
+}
+
+export function getInitialSetupState() {
+  const database = getDb();
+
+  const setupFlag =
+    (
+      database
+        .prepare(
+          "SELECT value FROM settings WHERE key = 'app.setup.completed' LIMIT 1",
+        )
+        .get() as { value?: string } | undefined
+    )?.value === "true";
+
+  const hasAdmin =
+    Number(
+      (
+        database
+          .prepare(
+            "SELECT COUNT(1) as count FROM employees WHERE deleted_at IS NULL",
+          )
+          .get() as { count: number }
+      ).count,
+    ) > 0;
+
+  const storeInfo = database
+    .prepare(
+      "SELECT key, value FROM settings WHERE key IN ('store.name','store.address','store.phone')",
+    )
+    .all() as Array<{ key: string; value: string }>;
+
+  const map = Object.fromEntries(storeInfo.map((i) => [i.key, i.value]));
+  const hasStoreInfo = Boolean(
+    map["store.name"] && map["store.address"] && map["store.phone"],
+  );
+
+  return {
+    isCompleted: setupFlag,
+    hasAdmin,
+    hasStoreInfo,
+  };
+}
+
+function hashPassword(raw: string): string {
+  const salt = crypto.randomBytes(16);
+  const key = crypto.scryptSync(raw, salt, 64);
+  return `scrypt:${salt.toString("hex")}:${key.toString("hex")}`;
+}
+
+function verifyPassword(raw: string, encoded: string): boolean {
+  if (!encoded) return false;
+
+  const parts = encoded.split(":");
+
+  // Backward compatibility for legacy sha256 hashes
+  if (parts.length === 1) {
+    const legacy = crypto.createHash("sha256").update(raw).digest("hex");
+    return legacy === encoded;
+  }
+
+  if (parts.length !== 3 || parts[0] !== "scrypt") return false;
+
+  const salt = Buffer.from(parts[1], "hex");
+  const expected = Buffer.from(parts[2], "hex");
+  const derived = crypto.scryptSync(raw, salt, expected.length);
+
+  if (derived.length !== expected.length) return false;
+  return crypto.timingSafeEqual(derived, expected);
+}
+
+function resolveRoleAndPermissions(roleName: string | null): {
+  role: "admin" | "manager" | "cashier";
+  permissions: string[];
+} {
+  const normalized = (roleName ?? "").toLowerCase();
+
+  if (normalized.includes("manager") || normalized.includes("quản lý")) {
+    return {
+      role: "manager",
+      permissions: [
+        "app:access",
+        "sales:access",
+        "tables:access",
+        "catalog:access",
+        "orders:access",
+        "inventory:access",
+        "customers:access",
+        "reports:access",
+      ],
+    };
+  }
+
+  if (normalized.includes("cashier") || normalized.includes("thu ngân")) {
+    return {
+      role: "cashier",
+      permissions: [
+        "app:access",
+        "sales:access",
+        "tables:access",
+        "orders:access",
+        "customers:access",
+      ],
+    };
+  }
+
+  return {
+    role: "admin",
+    permissions: [
+      "app:access",
+      "sales:access",
+      "tables:access",
+      "catalog:access",
+      "orders:access",
+      "inventory:access",
+      "reports:access",
+      "finance:access",
+      "customers:access",
+      "employees:access",
+      "settings:access",
+    ],
+  };
+}
+
+function roleKeyToName(roleKey: EmployeeRoleKey): string {
+  if (roleKey === "admin") return "Chủ cửa hàng";
+  if (roleKey === "manager") return "Quản lý";
+  return "Thu ngân";
+}
+
+function ensureRole(database: Database.Database, roleKey: EmployeeRoleKey): number {
+  const roleName = roleKeyToName(roleKey);
+  database
+    .prepare(
+      `INSERT OR IGNORE INTO roles (name, description, created_at, updated_at)
+       VALUES (?, ?, datetime('now','localtime'), datetime('now','localtime'))`,
+    )
+    .run(roleName, `Vai trò ${roleName}`);
+
+  const role = database
+    .prepare("SELECT id FROM roles WHERE name = ? LIMIT 1")
+    .get(roleName) as { id: number } | undefined;
+
+  if (!role) throw new Error("Không thể xác định vai trò nhân viên.");
+  return role.id;
+}
+
+export function listEmployees(): EmployeeRecord[] {
+  const rows = getDb()
+    .prepare(
+      `SELECT e.id, e.name, e.phone, e.branch, e.is_active, e.created_at, r.name AS role_name
+       FROM employees e
+       LEFT JOIN roles r ON r.id = e.role_id
+       WHERE e.deleted_at IS NULL
+       ORDER BY e.id DESC`,
+    )
+    .all() as Array<{
+    id: number;
+    name: string;
+    phone: string;
+    branch: string;
+    is_active: number;
+    created_at: string;
+    role_name: string | null;
+  }>;
+
+  return rows.map((row) => ({
+    id: String(row.id),
+    name: row.name,
+    phone: row.phone,
+    roleKey: resolveRoleAndPermissions(row.role_name).role,
+    roleName: row.role_name ?? roleKeyToName("cashier"),
+    branch: row.branch,
+    isActive: row.is_active === 1,
+    createdAt: row.created_at,
+  }));
+}
+
+export function createEmployee(payload: CreateEmployeePayload): number {
+  const database = getDb();
+  const roleId = ensureRole(database, payload.roleKey);
+
+  const exists = database
+    .prepare("SELECT id FROM employees WHERE phone = ? AND deleted_at IS NULL LIMIT 1")
+    .get(payload.phone) as { id: number } | undefined;
+
+  if (exists) {
+    throw new Error("Số điện thoại đã tồn tại. Vui lòng dùng số khác.");
+  }
+
+  const result = database
+    .prepare(
+      `INSERT INTO employees (name, phone, pin, password_hash, role_id, branch, is_active, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, 1, datetime('now','localtime'), datetime('now','localtime'))`,
+    )
+    .run(
+      payload.name,
+      payload.phone,
+      payload.pin ?? null,
+      hashPassword(payload.password),
+      roleId,
+      payload.branch,
+    );
+
+  return Number(result.lastInsertRowid);
+}
+
+export function updateEmployee(payload: UpdateEmployeePayload): void {
+  const database = getDb();
+  const roleId = ensureRole(database, payload.roleKey);
+
+  const exists = database
+    .prepare(
+      "SELECT id FROM employees WHERE phone = ? AND id != ? AND deleted_at IS NULL LIMIT 1",
+    )
+    .get(payload.phone, Number(payload.id)) as { id: number } | undefined;
+
+  if (exists) {
+    throw new Error("Số điện thoại đã tồn tại. Vui lòng dùng số khác.");
+  }
+
+  if (payload.password && payload.password.trim()) {
+    database
+      .prepare(
+        `UPDATE employees
+         SET name = ?, phone = ?, pin = ?, password_hash = ?, role_id = ?, branch = ?,
+             is_active = ?, updated_at = datetime('now','localtime')
+         WHERE id = ? AND deleted_at IS NULL`,
+      )
+      .run(
+        payload.name,
+        payload.phone,
+        payload.pin ?? null,
+        hashPassword(payload.password),
+        roleId,
+        payload.branch,
+        payload.isActive ? 1 : 0,
+        Number(payload.id),
+      );
+    return;
+  }
+
+  database
+    .prepare(
+      `UPDATE employees
+       SET name = ?, phone = ?, pin = ?, role_id = ?, branch = ?,
+           is_active = ?, updated_at = datetime('now','localtime')
+       WHERE id = ? AND deleted_at IS NULL`,
+    )
+    .run(
+      payload.name,
+      payload.phone,
+      payload.pin ?? null,
+      roleId,
+      payload.branch,
+      payload.isActive ? 1 : 0,
+      Number(payload.id),
+    );
+}
+
+export function deleteEmployee(id: string): void {
+  getDb()
+    .prepare(
+      `UPDATE employees
+       SET deleted_at = datetime('now','localtime'), updated_at = datetime('now','localtime')
+       WHERE id = ? AND deleted_at IS NULL`,
+    )
+    .run(Number(id));
+}
+
+export function authenticateEmployee(phone: string, password: string) {
+  const row = getDb()
+    .prepare(
+      `SELECT e.id, e.name, e.password_hash, r.name as role_name
+       FROM employees e
+       LEFT JOIN roles r ON r.id = e.role_id
+       WHERE e.phone = ? AND e.deleted_at IS NULL AND e.is_active = 1
+       LIMIT 1`,
+    )
+    .get(phone) as
+    | {
+        id: number;
+        name: string;
+        password_hash: string | null;
+        role_name: string | null;
+      }
+    | undefined;
+
+  if (!row || !row.password_hash) return null;
+  if (!verifyPassword(password, row.password_hash)) return null;
+
+  const roleInfo = resolveRoleAndPermissions(row.role_name);
+
+  return {
+    userId: String(row.id),
+    displayName: row.name,
+    role: roleInfo.role,
+    permissions: roleInfo.permissions,
+    isAuthenticated: true,
+  };
+}
+
+export function completeInitialSetup(payload: {
+  adminName: string;
+  adminPhone: string;
+  adminPin: string;
+  adminPassword: string;
+  storeName: string;
+  storeAddress: string;
+  storePhone: string;
+  storeEmail: string;
+  storeWifi: string;
+}) {
+  const database = getDb();
+
+  const tx = database.transaction(() => {
+    const now = "datetime('now','localtime')";
+
+    database
+      .prepare(
+        `INSERT OR IGNORE INTO roles (name, description, created_at, updated_at)
+         VALUES ('Chủ cửa hàng', 'Toàn quyền hệ thống', ${now}, ${now})`,
+      )
+      .run();
+
+    const ownerRole = database
+      .prepare("SELECT id FROM roles WHERE name = 'Chủ cửa hàng' LIMIT 1")
+      .get() as { id: number };
+
+    const exists = database
+      .prepare(
+        "SELECT id FROM employees WHERE phone = ? AND deleted_at IS NULL LIMIT 1",
+      )
+      .get(payload.adminPhone) as { id: number } | undefined;
+
+    if (exists) {
+      throw new Error(
+        "Số điện thoại quản trị đã tồn tại. Vui lòng dùng số khác.",
+      );
+    }
+
+    database
+      .prepare(
+        `INSERT INTO employees (name, phone, pin, password_hash, role_id, branch, is_active, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, 'Main', 1, ${now}, ${now})`,
+      )
+      .run(
+        payload.adminName,
+        payload.adminPhone,
+        payload.adminPin,
+        hashPassword(payload.adminPassword),
+        ownerRole.id,
+      );
+
+    const upsert = database.prepare(
+      `INSERT INTO settings (key, value, updated_at)
+       VALUES (?, ?, datetime('now','localtime'))
+       ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=datetime('now','localtime')`,
+    );
+
+    const settings: Array<[string, string]> = [
+      ["store.name", payload.storeName],
+      ["store.address", payload.storeAddress],
+      ["store.phone", payload.storePhone],
+      ["store.email", payload.storeEmail],
+      ["store.wifi", payload.storeWifi],
+      ["app.setup.completed", "true"],
+    ];
+
+    for (const [key, value] of settings) {
+      upsert.run(key, value);
+    }
+  });
+
+  tx();
 }
 
 export function listProducts(): Product[] {

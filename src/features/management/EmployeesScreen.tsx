@@ -6,21 +6,17 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import "../../styles/components/employees.css";
+import type {
+  CreateEmployeePayload,
+  EmployeeRecord,
+  EmployeeRoleKey,
+  UpdateEmployeePayload,
+} from "../../shared/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type EmployeeTab = "employees" | "roles";
-
-type Employee = {
-  id: string;
-  name: string;
-  phone: string;
-  role: string;
-  branch: string;
-  createdAt: string;
-  avatar?: string;
-};
 
 type Role = {
   id: string;

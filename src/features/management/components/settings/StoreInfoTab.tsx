@@ -1,4 +1,5 @@
 import { Store } from "lucide-react";
+import type { LicenseResult } from "../../../../shared/types";
 import type { StoreInfo } from "../../settings/types";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -30,11 +31,31 @@ const STORE_FIELDS: FieldConfig[][] = [
 type StoreInfoTabProps = {
   storeInfo: StoreInfo;
   onStoreInfoChange: (key: keyof StoreInfo, value: string) => void;
+  licenseCode: string;
+  onLicenseCodeChange: (value: string) => void;
+  isActivating: boolean;
+  isVerifying: boolean;
+  isDeactivating: boolean;
+  hasLocalLicense: boolean;
+  lastLicenseResult: LicenseResult | null;
+  onActivate: () => Promise<void>;
+  onVerify: () => Promise<void>;
+  onDeactivate: () => Promise<void>;
 };
 
 export function StoreInfoTab({
   storeInfo,
   onStoreInfoChange,
+  licenseCode,
+  onLicenseCodeChange,
+  isActivating,
+  isVerifying,
+  isDeactivating,
+  hasLocalLicense,
+  lastLicenseResult,
+  onActivate,
+  onVerify,
+  onDeactivate,
 }: StoreInfoTabProps) {
   return (
     <div className="settings-screen__tab settings-screen__tab--fade-in">
@@ -61,7 +82,6 @@ export function StoreInfoTab({
             >
               {row.map(({ key, label, type = "text", required }) => (
                 <div key={key} className="settings-screen__field">
-                  {/* ✅ htmlFor + id — click label focuses input */}
                   <label
                     htmlFor={`store-${key}`}
                     className="settings-screen__label"
@@ -84,6 +104,71 @@ export function StoreInfoTab({
           <div className="settings-screen__divider-top settings-screen__actions settings-screen__actions--end">
             <button type="button" className="btn primary">
               Lưu thay đổi
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="settings-screen__panel settings-screen__stack-gap-lg">
+        <div className="settings-screen__panel-header">
+          <h3>Kích hoạt ứng dụng</h3>
+        </div>
+
+        <div className="settings-screen__panel-body">
+          <div className="settings-screen__field">
+            <label htmlFor="license-code" className="settings-screen__label">
+              License key
+            </label>
+            <input
+              id="license-code"
+              type="text"
+              className="input"
+              value={licenseCode}
+              onChange={(e) => onLicenseCodeChange(e.target.value)}
+              placeholder="Nhập key kích hoạt"
+            />
+          </div>
+
+          <p className="settings-screen__help-text">
+            Trạng thái local:{" "}
+            {hasLocalLicense ? "Đã có license" : "Chưa có license"}
+          </p>
+
+          {lastLicenseResult ? (
+            <p
+              className="settings-screen__help-text"
+              style={{ color: lastLicenseResult.ok ? "#166534" : "#b91c1c" }}
+            >
+              {lastLicenseResult.message}
+            </p>
+          ) : null}
+
+          <div className="settings-screen__actions">
+            <button
+              type="button"
+              className="btn primary"
+              onClick={() => void onActivate()}
+              disabled={
+                isActivating || !licenseCode.trim() || !storeInfo.name.trim()
+              }
+            >
+              {isActivating ? "Đang kích hoạt..." : "Kích hoạt"}
+            </button>
+            <button
+              type="button"
+              className="btn"
+              onClick={() => void onVerify()}
+              disabled={isVerifying || !storeInfo.name.trim()}
+            >
+              {isVerifying ? "Đang kiểm tra..." : "Kiểm tra"}
+            </button>
+            <button
+              type="button"
+              className="btn"
+              onClick={() => void onDeactivate()}
+              disabled={isDeactivating || !storeInfo.name.trim()}
+            >
+              {isDeactivating ? "Đang hủy..." : "Hủy kích hoạt"}
             </button>
           </div>
         </div>

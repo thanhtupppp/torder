@@ -1,4 +1,10 @@
-import { useCallback, useMemo, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { CustomerDisplayModal } from "./components/settings/CustomerDisplayModal";
 import { DevicesTab } from "./components/settings/DevicesTab";
 import { LoyaltyTab } from "./components/settings/LoyaltyTab";
@@ -24,8 +30,7 @@ import type {
   SettingTab,
   StoreInfo,
 } from "./settings/types";
-
-// ── CustomerDisplay state hook ───────────────────────────────────────────────
+import type { LicenseResult } from "../../shared/types";
 
 function useCustomerDisplay() {
   const [isOpen, setIsOpen] = useState(false);
@@ -52,8 +57,6 @@ function useCustomerDisplay() {
   };
 }
 
-// ── Screen ───────────────────────────────────────────────────────────────────
-
 export function SettingsScreen() {
   const [activeTab, setActiveTab] = useState<SettingTab>(INITIAL_ACTIVE_TAB);
 
@@ -66,6 +69,27 @@ export function SettingsScreen() {
     INITIAL_PAYMENT_SETTINGS,
   );
   const [storeInfo, setStoreInfo] = useState<StoreInfo>(INITIAL_STORE_INFO);
+
+  const [licenseCode, setLicenseCode] = useState("");
+  const [isActivating, setIsActivating] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isDeactivating, setIsDeactivating] = useState(false);
+  const [hasLocalLicense, setHasLocalLicense] = useState(false);
+  const [lastLicenseResult, setLastLicenseResult] =
+    useState<LicenseResult | null>(null);
+
+  useEffect(() => {
+    const licenseApi = window.appApi?.license;
+    if (!licenseApi?.hasLocalLicense) {
+      setHasLocalLicense(false);
+      return;
+    }
+
+    void licenseApi
+      .hasLocalLicense()
+      .then((res) => setHasLocalLicense(res.hasLocalLicense))
+      .catch(() => setHasLocalLicense(false));
+  }, []);
 
   const updateSalesSetting = useCallback(
     <K extends keyof SalesSettings>(key: K, value: SalesSettings[K]) => {
@@ -88,12 +112,101 @@ export function SettingsScreen() {
     [],
   );
 
+  const activateLicense = useCallback(async () => {
+    const licenseApi = window.appApi?.license;
+    if (!licenseApi?.activate || !licenseApi?.hasLocalLicense) {
+      setLastLicenseResult({
+        ok: false,
+        httpCode: 0,
+        message: "License API chưa sẵn sàng. Vui lòng khởi động lại ứng dụng.",
+        data: {},
+      });
+      return;
+    }
+
+    setIsActivating(true);
+    try {
+      const res = await licenseApi.activate({
+        licenseCode: licenseCode.trim(),
+        clientName: storeInfo.name.trim(),
+      });
+      setLastLicenseResult(res);
+      const local = await licenseApi.hasLocalLicense();
+      setHasLocalLicense(local.hasLocalLicense);
+      window.dispatchEvent(new CustomEvent("license-status-changed"));
+    } finally {
+      setIsActivating(false);
+    }
+  }, [licenseCode, storeInfo.name]);
+
+  const verifyLicense = useCallback(async () => {
+    const licenseApi = window.appApi?.license;
+    if (!licenseApi?.verify || !licenseApi?.hasLocalLicense) {
+      setLastLicenseResult({
+        ok: false,
+        httpCode: 0,
+        message: "License API chưa sẵn sàng. Vui lòng khởi động lại ứng dụng.",
+        data: {},
+      });
+      return;
+    }
+
+    setIsVerifying(true);
+    try {
+      const res = await licenseApi.verify({
+        clientName: storeInfo.name.trim(),
+      });
+      setLastLicenseResult(res);
+      const local = await licenseApi.hasLocalLicense();
+      setHasLocalLicense(local.hasLocalLicense);
+      window.dispatchEvent(new CustomEvent("license-status-changed"));
+    } finally {
+      setIsVerifying(false);
+    }
+  }, [storeInfo.name]);
+
+  const deactivateLicense = useCallback(async () => {
+    const licenseApi = window.appApi?.license;
+    if (!licenseApi?.deactivate || !licenseApi?.hasLocalLicense) {
+      setLastLicenseResult({
+        ok: false,
+        httpCode: 0,
+        message: "License API chưa sẵn sàng. Vui lòng khởi động lại ứng dụng.",
+        data: {},
+      });
+      return;
+    }
+
+    setIsDeactivating(true);
+    try {
+      const res = await licenseApi.deactivate({
+        clientName: storeInfo.name.trim(),
+      });
+      setLastLicenseResult(res);
+      const local = await licenseApi.hasLocalLicense();
+      setHasLocalLicense(local.hasLocalLicense);
+      window.dispatchEvent(new CustomEvent("license-status-changed"));
+    } finally {
+      setIsDeactivating(false);
+    }
+  }, [storeInfo.name]);
+
   const TAB_CONTENT = useMemo<Partial<Record<SettingTab, ReactNode>>>(
     () => ({
       storeInfo: (
         <StoreInfoTab
           storeInfo={storeInfo}
           onStoreInfoChange={updateStoreInfo}
+          licenseCode={licenseCode}
+          onLicenseCodeChange={setLicenseCode}
+          isActivating={isActivating}
+          isVerifying={isVerifying}
+          isDeactivating={isDeactivating}
+          hasLocalLicense={hasLocalLicense}
+          lastLicenseResult={lastLicenseResult}
+          onActivate={activateLicense}
+          onVerify={verifyLicense}
+          onDeactivate={deactivateLicense}
         />
       ),
       sales: (
@@ -120,6 +233,15 @@ export function SettingsScreen() {
     [
       storeInfo,
       updateStoreInfo,
+      licenseCode,
+      isActivating,
+      isVerifying,
+      isDeactivating,
+      hasLocalLicense,
+      lastLicenseResult,
+      activateLicense,
+      verifyLicense,
+      deactivateLicense,
       salesSettings,
       updateSalesSetting,
       paymentSettings,

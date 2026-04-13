@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Electron License Client</title>
+        <style>
+            body {
+                font-family: Inter, Arial, sans-serif;
+                margin: 24px;
+                max-width: 720px;
+            }
+            h1 {
+                margin-bottom: 8px;
+            }
+            .muted {
+                color: #666;
+                margin-bottom: 24px;
+            }
+            .card {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+            label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+            }
+            input {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 12px;
+                box-sizing: border-box;
+            }
+            button {
+                padding: 10px 14px;
+                margin-right: 8px;
+                cursor: pointer;
+            }
+            .ok {
+                color: #0a7a28;
+            }
+            .err {
+                color: #b42318;
+            }
+            pre {
+                background: #f8f8f8;
+                padding: 12px;
+                border-radius: 6px;
+                overflow-x: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>License Activation</h1>
+        <div class="muted">
+            Flow: activate → verify → deactivate (Botble License Manager)
+        </div>
+
+        <div class="card">
+            <label>Client name</label>
+            <input id="clientName" placeholder="Customer Name" />
+
+            <label>License code</label>
+            <input id="licenseCode" placeholder="XXXX-XXXX-XXXX-XXXX" />
+
+            <button id="btnActivate">Activate</button>
+            <button id="btnVerify">Verify</button>
+            <button id="btnDeactivate">Deactivate</button>
+            <button id="btnCheckLocal">Check local license</button>
+        </div>
+
+        <div id="status"></div>
+        <pre id="raw"></pre>
+
+        <script src="./renderer.js"></script>
+    </body>
+</html>

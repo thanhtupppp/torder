@@ -11,10 +11,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useEffect, useRef } from "react";
-import { useDismissible } from "../../hooks/useDismissible"; // ✅ unified hook
+import type { LicenseStatus } from "../../shared/types";
+import { useDismissible } from "../../hooks/useDismissible";
 import { Breadcrumbs } from "./Breadcrumbs";
-
-// ── Types ─────────────────────────────────────────────────────────────────────
 
 type UserInfo = {
   name: string;
@@ -27,9 +26,8 @@ type AppHeaderProps = {
   subtitle?: string;
   breadcrumbs?: Array<{ label: string; to?: string }>;
   user?: UserInfo;
+  licenseStatus?: LicenseStatus | null;
 };
-
-// ── Defaults ──────────────────────────────────────────────────────────────────
 
 const DEFAULT_USER: UserInfo = {
   name: "Thanh Nguyen",
@@ -37,13 +35,32 @@ const DEFAULT_USER: UserInfo = {
   avatarUrl: "https://i.pravatar.cc/80?img=12",
 };
 
-// ── Component ─────────────────────────────────────────────────────────────────
+function getBadgeMeta(licenseStatus?: LicenseStatus | null) {
+  if (!licenseStatus) {
+    return { label: "Giấy phép: Đang kiểm tra", bg: "#64748b" };
+  }
+
+  if (licenseStatus.active && licenseStatus.reason === "OFFLINE_GRACE") {
+    const remaining = licenseStatus.graceRemainingDays ?? 0;
+    return {
+      label: `Gia hạn offline: còn ${remaining} ngày`,
+      bg: "#b45309",
+    };
+  }
+
+  if (licenseStatus.active) {
+    return { label: "Giấy phép: Đã kích hoạt", bg: "#166534" };
+  }
+
+  return { label: "Giấy phép: Chưa kích hoạt", bg: "#b91c1c" };
+}
 
 export function AppHeader({
   title,
   subtitle,
   breadcrumbs = [],
   user = DEFAULT_USER,
+  licenseStatus,
 }: AppHeaderProps) {
   const [openProfile, setOpenProfile] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -53,19 +70,34 @@ export function AppHeader({
     document.documentElement.dataset.theme = darkMode ? "dark" : "light";
   }, [darkMode]);
 
-  // ✅ useDismissible — nhất quán với CatalogToolbar
   useDismissible(openProfile, () => setOpenProfile(false), [profileRef]);
+
+  const badge = getBadgeMeta(licenseStatus);
 
   return (
     <header className="app-header">
       <div className="app-header-left">
         <h1>{title}</h1>
-        {/* ✅ && thay vì ? : null */}
         {subtitle && <p>{subtitle}</p>}
         <Breadcrumbs items={breadcrumbs} />
       </div>
 
       <div className="app-header-right">
+        <span
+          style={{
+            fontSize: 12,
+            fontWeight: 600,
+            color: "white",
+            background: badge.bg,
+            borderRadius: 999,
+            padding: "6px 10px",
+            marginRight: 8,
+          }}
+          title={licenseStatus?.reason ?? "checking"}
+        >
+          {badge.label}
+        </span>
+
         <button
           type="button"
           className="header-icon-btn"
@@ -123,7 +155,6 @@ export function AppHeader({
             <ChevronDown size={14} />
           </button>
 
-          {/* ✅ && thay vì ? : null */}
           {openProfile && (
             <div className="profile-dropdown" role="menu">
               <button type="button" role="menuitem">

@@ -6,6 +6,7 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
+import type { LicenseStatus } from "../../shared/types";
 import { SIDEBAR_MENU_ITEMS, type MenuKey } from "../../constants/navigation";
 import { SidebarMenu } from "../navigation/SidebarMenu";
 import { AppContent } from "./AppContent";
@@ -16,6 +17,7 @@ type MainLayoutProps = PropsWithChildren<{
   headerSubtitle?: string;
   breadcrumbs?: Array<{ label: string; to?: string }>;
   onSelectMenu?: (id: MenuKey) => void;
+  licenseStatus?: LicenseStatus | null;
 }>;
 
 export function MainLayout({
@@ -24,6 +26,7 @@ export function MainLayout({
   headerSubtitle,
   breadcrumbs,
   onSelectMenu,
+  licenseStatus,
 }: MainLayoutProps) {
   const [pinnedCollapsed, setPinnedCollapsed] = useState(false);
   const [hoverExpanded, setHoverExpanded] = useState(false);
@@ -31,7 +34,6 @@ export function MainLayout({
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sidebarRef = useRef<HTMLElement>(null);
 
-  // Auto-collapse on small screens
   useEffect(() => {
     function handleResize() {
       const narrow = window.innerWidth <= 1366;
@@ -43,7 +45,6 @@ export function MainLayout({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Click outside to close hover-expanded sidebar
   useEffect(() => {
     if (!hoverExpanded) return;
     function handleOutsideClick(e: MouseEvent) {
@@ -58,22 +59,17 @@ export function MainLayout({
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [hoverExpanded]);
 
-  // ── Hover handlers ────────────────────────────────────────────────────────
-
   const handleMouseEnter = useCallback(() => {
     if (!pinnedCollapsed) return;
     hoverTimerRef.current = setTimeout(() => setHoverExpanded(true), 100);
   }, [pinnedCollapsed]);
 
   const handleMouseLeave = useCallback(() => {
-    // ✅ Reuse ref — cancel cả enter timer lẫn leave timer khi cần
     if (hoverTimerRef.current) {
       clearTimeout(hoverTimerRef.current);
     }
     hoverTimerRef.current = setTimeout(() => setHoverExpanded(false), 150);
   }, []);
-
-  // ── Menu select ───────────────────────────────────────────────────────────
 
   const handleSelect = useCallback(
     (id: MenuKey) => {
@@ -83,14 +79,10 @@ export function MainLayout({
     [pinnedCollapsed, onSelectMenu],
   );
 
-  // ── Toggle ────────────────────────────────────────────────────────────────
-
   function toggleSidebar() {
     setPinnedCollapsed((prev) => !prev);
     setHoverExpanded(false);
   }
-
-  // ── Derived sidebar class ─────────────────────────────────────────────────
 
   const isCollapsed = pinnedCollapsed && !hoverExpanded;
 
@@ -140,6 +132,7 @@ export function MainLayout({
           title={headerTitle}
           subtitle={headerSubtitle ?? "Quản lý bán hàng tại quầy"}
           breadcrumbs={breadcrumbs}
+          licenseStatus={licenseStatus}
         />
         {children}
       </AppContent>

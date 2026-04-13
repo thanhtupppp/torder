@@ -8,10 +8,15 @@ import { managementRoutes } from "../features/management/routes";
 import { salesRoutes } from "../features/sales/routes";
 import { AppShell } from "./AppShell";
 import { RouteErrorElement } from "./RouteErrorElement";
+import { LoginScreen } from "../features/setup/LoginScreen";
 
 const appChildRoutes: RouteObject[] = [...salesRoutes, ...managementRoutes];
 
 const routeConfig: RouteObject[] = [
+  {
+    path: "/login",
+    element: <LoginScreen />,
+  },
   {
     path: APP_ROUTES.sales,
     element: <AppShell />,

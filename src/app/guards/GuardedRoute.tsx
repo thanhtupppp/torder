@@ -21,7 +21,7 @@ export function GuardedRoute({
   userPermissions = DEFAULT_PERMISSIONS,
 }: GuardedRouteProps) {
   if (!isAuthenticated) {
-    return <Navigate to={APP_ROUTES.sales} replace />;
+    return <Navigate to="/login" replace />;
   }
 
   if (!hasPermission(userPermissions, requiredPermission)) {

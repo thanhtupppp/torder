@@ -1,9 +1,10 @@
 import path from "node:path";
 import { app, BrowserWindow } from "electron";
 import { initDb } from "./db";
-import { registerIpcHandlers } from "./ipc";
+import { bootstrapLicense, licenseService, registerIpcHandlers } from "./ipc";
 
 const isDev = process.env.NODE_ENV === "development";
+let verifyTimer: NodeJS.Timeout | null = null;
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -29,9 +30,25 @@ function createWindow() {
   win.loadFile(path.join(__dirname, "../dist/index.html"));
 }
 
-app.whenReady().then(() => {
+function startPeriodicVerify() {
+  const intervalMs = Number(
+    process.env.LM_CLIENT_VERIFY_INTERVAL_MS || 6 * 60 * 60 * 1000,
+  );
+
+  if (verifyTimer) {
+    clearInterval(verifyTimer);
+  }
+
+  verifyTimer = setInterval(() => {
+    void licenseService.verifyPeriodically();
+  }, intervalMs);
+}
+
+app.whenReady().then(async () => {
   initDb();
+  await bootstrapLicense();
   registerIpcHandlers();
+  startPeriodicVerify();
   createWindow();
 
   app.on("activate", () => {
@@ -42,6 +59,11 @@ app.whenReady().then(() => {
 });
 
 app.on("window-all-closed", () => {
+  if (verifyTimer) {
+    clearInterval(verifyTimer);
+    verifyTimer = null;
+  }
+
   if (process.platform !== "darwin") {
     app.quit();
   }

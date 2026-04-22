@@ -66,39 +66,6 @@ export type CompleteInitialSetupPayload = {
   storeWifi: string;
 };
 
-export type EmployeeRoleKey = "admin" | "manager" | "cashier";
-
-export type EmployeeRecord = {
-  id: string;
-  name: string;
-  phone: string;
-  roleKey: EmployeeRoleKey;
-  roleName: string;
-  branch: string;
-  isActive: boolean;
-  createdAt: string;
-};
-
-export type CreateEmployeePayload = {
-  name: string;
-  phone: string;
-  roleKey: EmployeeRoleKey;
-  branch: string;
-  pin?: string;
-  password: string;
-};
-
-export type UpdateEmployeePayload = {
-  id: string;
-  name: string;
-  phone: string;
-  roleKey: EmployeeRoleKey;
-  branch: string;
-  pin?: string;
-  password?: string;
-  isActive: boolean;
-};
-
 export type AppApi = {
   product: {
     list: () => Promise<Product[]>;
@@ -131,7 +98,7 @@ export type AppApi = {
           user: {
             userId: string;
             displayName: string;
-            role: EmployeeRoleKey;
+            role: "admin" | "manager" | "cashier";
             permissions: string[];
             isAuthenticated: true;
           };
@@ -141,11 +108,5 @@ export type AppApi = {
           message: string;
         }
     >;
-  };
-  employee: {
-    list: () => Promise<EmployeeRecord[]>;
-    create: (payload: CreateEmployeePayload) => Promise<{ ok: true; employeeId: string }>;
-    update: (payload: UpdateEmployeePayload) => Promise<{ ok: true }>;
-    remove: (payload: { id: string }) => Promise<{ ok: true }>;
   };
 };

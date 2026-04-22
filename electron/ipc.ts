@@ -2,21 +2,12 @@ import { ipcMain } from "electron";
 import {
   authenticateEmployee,
   completeInitialSetup,
-  createEmployee,
   createOrder,
-  deleteEmployee,
   getInitialSetupState,
-  listEmployees,
   listProducts,
-  updateEmployee,
 } from "./db";
 import { LicenseService } from "./licenseService";
-import type {
-  CompleteInitialSetupPayload,
-  CreateEmployeePayload,
-  CreateOrderPayload,
-  UpdateEmployeePayload,
-} from "./types";
+import type { CompleteInitialSetupPayload, CreateOrderPayload } from "./types";
 
 export const IPC_CHANNELS = {
   PRODUCT_LIST: "product:list",
@@ -30,10 +21,6 @@ export const IPC_CHANNELS = {
   SETUP_GET_STATE: "setup:getState",
   SETUP_COMPLETE: "setup:complete",
   AUTH_LOGIN: "auth:login",
-  EMPLOYEE_LIST: "employee:list",
-  EMPLOYEE_CREATE: "employee:create",
-  EMPLOYEE_UPDATE: "employee:update",
-  EMPLOYEE_DELETE: "employee:delete",
 } as const;
 
 export const licenseService = new LicenseService();
@@ -146,29 +133,4 @@ export function registerIpcHandlers() {
       };
     },
   );
-
-  ipcMain.handle(IPC_CHANNELS.EMPLOYEE_LIST, () => {
-    return listEmployees();
-  });
-
-  ipcMain.handle(
-    IPC_CHANNELS.EMPLOYEE_CREATE,
-    (_, payload: CreateEmployeePayload) => {
-      const employeeId = createEmployee(payload);
-      return { ok: true as const, employeeId: String(employeeId) };
-    },
-  );
-
-  ipcMain.handle(
-    IPC_CHANNELS.EMPLOYEE_UPDATE,
-    (_, payload: UpdateEmployeePayload) => {
-      updateEmployee(payload);
-      return { ok: true as const };
-    },
-  );
-
-  ipcMain.handle(IPC_CHANNELS.EMPLOYEE_DELETE, (_, payload: { id: string }) => {
-    deleteEmployee(payload.id);
-    return { ok: true as const };
-  });
 }

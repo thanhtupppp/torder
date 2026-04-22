@@ -31,12 +31,6 @@ const api: AppApi = {
   auth: {
     login: (payload) => ipcRenderer.invoke(IPC_CHANNELS.AUTH_LOGIN, payload),
   },
-  employee: {
-    list: () => ipcRenderer.invoke(IPC_CHANNELS.EMPLOYEE_LIST),
-    create: (payload) => ipcRenderer.invoke(IPC_CHANNELS.EMPLOYEE_CREATE, payload),
-    update: (payload) => ipcRenderer.invoke(IPC_CHANNELS.EMPLOYEE_UPDATE, payload),
-    remove: (payload) => ipcRenderer.invoke(IPC_CHANNELS.EMPLOYEE_DELETE, payload),
-  },
 };
 
 contextBridge.exposeInMainWorld("appApi", api);

@@ -6,17 +6,21 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import "../../styles/components/employees.css";
-import type {
-  CreateEmployeePayload,
-  EmployeeRecord,
-  EmployeeRoleKey,
-  UpdateEmployeePayload,
-} from "../../shared/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type EmployeeTab = "employees" | "roles";
+
+type Employee = {
+  id: string;
+  name: string;
+  phone: string;
+  role: string;
+  branch: string;
+  createdAt: string;
+  avatar?: string;
+};
 
 type Role = {
   id: string;
@@ -177,7 +181,14 @@ function getInitials(name: string) {
 }
 
 function getAvatarColor(name: string) {
-  const colors = ["#2563eb", "#16a34a", "#9333ea", "#d97706", "#0891b2", "#be185d"];
+  const colors = [
+    "#2563eb",
+    "#16a34a",
+    "#9333ea",
+    "#d97706",
+    "#0891b2",
+    "#be185d",
+  ];
   const idx = name.charCodeAt(0) % colors.length;
   return colors[idx];
 }
@@ -189,13 +200,20 @@ export function EmployeesScreen() {
 
   // Add Employee modal
   const [showAddModal, setShowAddModal] = useState(false);
-  const [addForm, setAddForm] = useState({ name: "", phone: "", role: "", branch: "Coffee MHOL" });
+  const [addForm, setAddForm] = useState({
+    name: "",
+    phone: "",
+    role: "",
+    branch: "Coffee MHOL",
+  });
 
   // Role modal
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [roleName, setRoleName] = useState("");
   const [roleDesc, setRoleDesc] = useState("");
-  const [selectedPerms, setSelectedPerms] = useState<Record<string, boolean>>({});
+  const [selectedPerms, setSelectedPerms] = useState<Record<string, boolean>>(
+    {},
+  );
   const [editRole, setEditRole] = useState<Role | null>(null);
 
   // ── Filter ────────────────────────────────────────────────────────────────
@@ -203,15 +221,26 @@ export function EmployeesScreen() {
     (e) =>
       !search ||
       e.name.toLowerCase().includes(search.toLowerCase()) ||
-      e.phone.includes(search)
+      e.phone.includes(search),
   );
 
   // ── Permission helpers ────────────────────────────────────────────────────
-  const handleTogglePerm = (groupKey: string, perm: string, checked: boolean) => {
-    setSelectedPerms((prev) => ({ ...prev, [`${groupKey}__${perm}`]: checked }));
+  const handleTogglePerm = (
+    groupKey: string,
+    perm: string,
+    checked: boolean,
+  ) => {
+    setSelectedPerms((prev) => ({
+      ...prev,
+      [`${groupKey}__${perm}`]: checked,
+    }));
   };
 
-  const handleToggleGroup = (groupKey: string, permissions: string[], checked: boolean) => {
+  const handleToggleGroup = (
+    groupKey: string,
+    permissions: string[],
+    checked: boolean,
+  ) => {
     setSelectedPerms((prev) => {
       const next = { ...prev };
       for (const p of permissions) next[`${groupKey}__${p}`] = checked;
@@ -220,7 +249,8 @@ export function EmployeesScreen() {
   };
 
   const isGroupChecked = (groupKey: string, permissions: string[]) =>
-    permissions.length > 0 && permissions.every((p) => selectedPerms[`${groupKey}__${p}`]);
+    permissions.length > 0 &&
+    permissions.every((p) => selectedPerms[`${groupKey}__${p}`]);
 
   // ── Role modal open ───────────────────────────────────────────────────────
   const handleOpenRoleModal = (role?: Role) => {
@@ -251,7 +281,11 @@ export function EmployeesScreen() {
         grouped[gk].push(perm);
       }
     }
-    console.log("Submit Role:", { name: roleName, description: roleDesc, permissions: grouped });
+    console.log("Submit Role:", {
+      name: roleName,
+      description: roleDesc,
+      permissions: grouped,
+    });
     setShowRoleModal(false);
   };
 
@@ -396,7 +430,9 @@ export function EmployeesScreen() {
                   <tr key={role.id} className="emp-tr">
                     <td className="emp-role-name">{role.name}</td>
                     <td className="emp-muted">{role.description}</td>
-                    <td className="emp-muted">{role.employeeCount} nhân viên</td>
+                    <td className="emp-muted">
+                      {role.employeeCount} nhân viên
+                    </td>
                     <td>
                       <button
                         type="button"
@@ -444,7 +480,9 @@ export function EmployeesScreen() {
                     className="input"
                     placeholder="Nhập tên nhân viên"
                     value={addForm.name}
-                    onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
+                    onChange={(e) =>
+                      setAddForm((f) => ({ ...f, name: e.target.value }))
+                    }
                   />
                 </div>
                 <div className="emp-form-field">
@@ -454,7 +492,9 @@ export function EmployeesScreen() {
                     className="input"
                     placeholder="Nhập số điện thoại"
                     value={addForm.phone}
-                    onChange={(e) => setAddForm((f) => ({ ...f, phone: e.target.value }))}
+                    onChange={(e) =>
+                      setAddForm((f) => ({ ...f, phone: e.target.value }))
+                    }
                   />
                 </div>
                 <div className="emp-form-field">
@@ -463,7 +503,9 @@ export function EmployeesScreen() {
                     <select
                       className="input emp-form-select"
                       value={addForm.role}
-                      onChange={(e) => setAddForm((f) => ({ ...f, role: e.target.value }))}
+                      onChange={(e) =>
+                        setAddForm((f) => ({ ...f, role: e.target.value }))
+                      }
                     >
                       <option value="">-- Chọn vai trò --</option>
                       {MOCK_ROLES.map((r) => (
@@ -515,7 +557,10 @@ export function EmployeesScreen() {
       {/* ══════ MODAL: TẠO / CHỈNH SỬA VAI TRÒ ══════ */}
       {showRoleModal && (
         <div className="emp-overlay" onClick={() => setShowRoleModal(false)}>
-          <div className="emp-modal emp-modal-lg" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="emp-modal emp-modal-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="emp-modal-header">
               <h3 className="emp-modal-title">
                 {editRole ? "Chỉnh sửa vai trò" : "Tạo vai trò"}
@@ -534,7 +579,8 @@ export function EmployeesScreen() {
               <div className="emp-role-warning">
                 <AlertCircle size={16} />
                 <span>
-                  Mọi chỉnh sửa sẽ được áp dụng cho tất cả nhân viên có vai trò này
+                  Mọi chỉnh sửa sẽ được áp dụng cho tất cả nhân viên có vai trò
+                  này
                 </span>
               </div>
 
@@ -565,10 +611,15 @@ export function EmployeesScreen() {
               {/* Permissions */}
               <div className="emp-perm-grid">
                 {PERMISSION_GROUPS.map((group) => {
-                  const allChecked = isGroupChecked(group.key, group.permissions);
+                  const allChecked = isGroupChecked(
+                    group.key,
+                    group.permissions,
+                  );
                   const indeterminate =
                     !allChecked &&
-                    group.permissions.some((p) => selectedPerms[`${group.key}__${p}`]);
+                    group.permissions.some(
+                      (p) => selectedPerms[`${group.key}__${p}`],
+                    );
                   return (
                     <div key={group.key} className="emp-perm-group">
                       <h4 className="emp-perm-group-title">
@@ -579,7 +630,11 @@ export function EmployeesScreen() {
                             if (el) el.indeterminate = indeterminate;
                           }}
                           onChange={(e) =>
-                            handleToggleGroup(group.key, group.permissions, e.target.checked)
+                            handleToggleGroup(
+                              group.key,
+                              group.permissions,
+                              e.target.checked,
+                            )
                           }
                         />
                         {group.title}
@@ -591,7 +646,11 @@ export function EmployeesScreen() {
                               type="checkbox"
                               checked={!!selectedPerms[`${group.key}__${perm}`]}
                               onChange={(e) =>
-                                handleTogglePerm(group.key, perm, e.target.checked)
+                                handleTogglePerm(
+                                  group.key,
+                                  perm,
+                                  e.target.checked,
+                                )
                               }
                             />
                             <span>{perm}</span>
